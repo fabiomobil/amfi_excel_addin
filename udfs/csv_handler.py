@@ -287,15 +287,64 @@ class AmfiDashboardLogic:
     """
     
     @staticmethod
+    def _rename_columns_for_display(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Renomeia colunas para exibição conforme solicitado
+        """
+        df_renamed = df.copy()
+        
+        # Dicionário de mapeamento de nomes de colunas
+        column_mapping = {
+            'Data de vencimento': 'Dt. Venct',
+            'Prazo até o vencimento': 'Dias',
+            'Caixa Livre': 'Cash',
+            'Saldo em Aplicações': 'Over',
+            'Fundo de Reserva': 'Cx. Reserva'
+        }
+        
+        # Aplicar renomeação
+        df_renamed = df_renamed.rename(columns=column_mapping)
+        
+        return df_renamed
+    
+    @staticmethod
+    def _add_calculated_columns(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Adiciona colunas calculadas ao DataFrame
+        """
+        df_calc = df.copy()
+        
+        # Calcular Cash+Over/PL
+        try:
+            # Verificar se as colunas necessárias existem
+            if all(col in df_calc.columns for col in ['Cash', 'Over', 'PL']):
+                # Converter para numérico se necessário e calcular
+                cash_values = pd.to_numeric(df_calc['Cash'], errors='coerce').fillna(0)
+                over_values = pd.to_numeric(df_calc['Over'], errors='coerce').fillna(0)
+                pl_values = pd.to_numeric(df_calc['PL'], errors='coerce').fillna(1)  # Evitar divisão por zero
+                
+                # Calcular (Cash + Over) / PL
+                df_calc['Cash+Over/PL'] = (cash_values + over_values) / pl_values
+                
+                # Substituir infinitos e NaN por 0
+                df_calc['Cash+Over/PL'] = df_calc['Cash+Over/PL'].replace([float('inf'), float('-inf')], 0).fillna(0)
+        
+        except Exception:
+            # Em caso de erro, criar coluna com zeros
+            df_calc['Cash+Over/PL'] = 0
+        
+        return df_calc
+    
+    @staticmethod
     def _get_executive_columns(df: pd.DataFrame) -> List[str]:
         """
         Retorna colunas executivas que existem no DataFrame
         """
         colunas_exec = [
-            'Nome', 'Tipo de Produto', 'Data de vencimento', 'Prazo até o vencimento',
-            'PL', 'SR', 'JR', 'Carteira', 'Caixa Livre', 'Fundo de Reserva',
-            'R.G.', 'Saldo em Aplicações', 'I.S.', 'I.S. (Tranche)',
-            '% de Atraso', '% de PDD', 'Rentabilidade Média', 'Ativos %'
+            'Nome', 'Dt. Venct', 'Dias',
+            'PL', 'SR', 'JR', 'Carteira', 'Cash', 'Over', 'Cx. Reserva',
+            'R.G.', 'I.S.', 'I.S. (Tranche)',
+            '% de Atraso', '% de PDD', 'Rentabilidade Média', 'Ativos %', 'Cash+Over/PL'
         ]
         return [col for col in colunas_exec if col in df.columns]
     
@@ -426,6 +475,12 @@ class AmfiDashboardLogic:
                 if not pools_lista:
                     return [["AVISO: Todos os pools foram filtrados pela ignore list"]]
             
+            # Renomear colunas para exibição
+            df = AmfiDashboardLogic._rename_columns_for_display(df)
+            
+            # Adicionar colunas calculadas
+            df = AmfiDashboardLogic._add_calculated_columns(df)
+            
             # Definir colunas baseado na visao
             if visao.lower() == 'exec':
                 colunas_target = AmfiDashboardLogic._get_executive_columns(df)
@@ -474,9 +529,13 @@ class ListPoolsLogic:
     """
     
     @staticmethod
-    def execute(caminho_arquivo: str) -> List[List[str]]:
+    def execute(caminho_arquivo: str, ignore_list: Any = None) -> List[List[str]]:
         """
         Executa a lógica do ListPools
+        
+        Args:
+            caminho_arquivo: Caminho do arquivo CSV
+            ignore_list: Pool(s) a serem ignorados (string, range Excel ou lista)
         """
         try:
             # Carregar dados com cache
@@ -485,6 +544,30 @@ class ListPoolsLogic:
             # Obter pools únicos e ordenar
             pools_unicos = df['Nome'].dropna().unique()
             pools_ordenados = sorted(pools_unicos, key=str.lower)
+            
+            # Aplicar ignore list se fornecida
+            if ignore_list:
+                pools_to_ignore = _parse_ignore_list(ignore_list)
+                
+                if pools_to_ignore:
+                    # Filtrar pools removendo os que estão na ignore list
+                    # Normalizar nomes para comparação
+                    filtered_pools = []
+                    for pool in pools_ordenados:
+                        pool_normalized = ' '.join(pool.strip().split()).lower()
+                        should_include = True
+                        
+                        # Verificar contra cada pool ignorado
+                        for ignored in pools_to_ignore:
+                            ignored_normalized = ' '.join(ignored.strip().split()).lower()
+                            if pool_normalized == ignored_normalized:
+                                should_include = False
+                                break
+                        
+                        if should_include:
+                            filtered_pools.append(pool)
+                    
+                    pools_ordenados = filtered_pools
             
             return [[pool] for pool in pools_ordenados]
             

@@ -42,9 +42,16 @@ def AmfiDashboard(caminho_arquivo: str, nomes_pool=None, visao: str = 'exec', ig
 
 @xw.func
 @xw.ret(expand='table')  
-def ListPools(caminho_arquivo: str) -> List[List[str]]:
-    """Lista pools disponíveis ordenados alfabeticamente"""
-    return ListPoolsLogic.execute(caminho_arquivo)
+def ListPools(caminho_arquivo: str, ignore_list=None) -> List[List[str]]:
+    """
+    Lista pools disponíveis ordenados alfabeticamente
+    
+    Args:
+        caminho_arquivo: Caminho do arquivo CSV
+        ignore_list: Pool(s) a serem ignorados (string, range Excel ou lista)
+                    Suporta: "Pool A", "Pool A|Pool B", range Excel
+    """
+    return ListPoolsLogic.execute(caminho_arquivo, ignore_list)
 
 @xw.func
 @xw.ret(expand='table')
