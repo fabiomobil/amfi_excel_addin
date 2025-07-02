@@ -56,7 +56,22 @@ def ListPools(caminho_arquivo: str, ignore_list=None) -> List[List[str]]:
 @xw.func
 @xw.ret(expand='table')
 def AmFiReadJSON(caminho_arquivo: str, chave: str) -> List[List[str]]:
-    """Lê arquivo JSON e busca chave específica"""
+    """
+    Lê arquivo JSON e busca chave específica
+    
+    Args:
+        caminho_arquivo: Caminho completo do arquivo JSON OU nome do pool
+        chave: Nome da chave para buscar no JSON
+    """
+    import os
+    
+    # Se não tem extensão .json e não é um caminho completo, assume que é nome de pool
+    if not caminho_arquivo.endswith('.json') and not os.path.isabs(caminho_arquivo):
+        # Converter nome do pool para caminho do arquivo
+        pool_name_clean = caminho_arquivo.strip().lower().replace(" ", "_").replace("#", "")
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        caminho_arquivo = os.path.join(base_path, 'data', 'escrituras', f"{pool_name_clean}.json")
+    
     return AmFiReadJSONLogic.execute(caminho_arquivo, chave)
 
 @cache_udf_result(ttl_seconds=60)  # Cache por 60 segundos
@@ -240,6 +255,85 @@ def AmfiDebugPools(caminho_arquivo: str, nomes_pool=None, ignore_list=None) -> L
         return [["Erro", str(e)]]
 
 @cache_udf_result(ttl_seconds=300)  # Cache por 5 minutos - validação pesada
+@xw.func
+def AmfiCheckPoolJSON(pool_name: str) -> str:
+    """
+    Verifica se existe arquivo JSON para o pool especificado
+    
+    Args:
+        pool_name: Nome do pool para verificar
+        
+    Returns:
+        "TRUE" se o arquivo JSON existe
+        "FALSE" se o arquivo JSON não existe
+        "ERRO: [mensagem]" em caso de erro
+    """
+    try:
+        import os
+        import glob
+        
+        if not pool_name or not pool_name.strip():
+            return "ERRO: Nome do pool não fornecido"
+        
+        # Limpar nome do pool para formato de arquivo
+        pool_name_clean = pool_name.strip().lower().replace(" ", "_").replace("#", "")
+        
+        # Diretório das escrituras
+        escrituras_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'escrituras')
+        
+        # Procurar arquivo JSON correspondente
+        json_pattern = os.path.join(escrituras_dir, f"{pool_name_clean}.json")
+        json_files = glob.glob(json_pattern)
+        
+        if json_files:
+            return "TRUE"
+        else:
+            # Tentar busca mais flexível
+            all_json_files = glob.glob(os.path.join(escrituras_dir, "*.json"))
+            for json_file in all_json_files:
+                filename = os.path.basename(json_file).lower()
+                if pool_name_clean in filename or filename in pool_name_clean:
+                    return "TRUE"
+            
+            return "FALSE"
+            
+    except Exception as e:
+        return f"ERRO: {str(e)}"
+
+@xw.func
+@xw.ret(expand='table')
+def AmfiListPoolJSONs() -> List[List]:
+    """
+    Lista todos os pools que têm arquivo JSON disponível
+    
+    Returns:
+        Lista com nomes dos pools com JSON
+    """
+    try:
+        import os
+        import glob
+        
+        # Diretório das escrituras
+        escrituras_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'escrituras')
+        
+        # Buscar todos os arquivos JSON
+        json_files = glob.glob(os.path.join(escrituras_dir, "*.json"))
+        
+        if not json_files:
+            return [["Nenhum arquivo JSON encontrado"]]
+        
+        # Extrair nomes dos pools
+        result = [["Pools com JSON"]]
+        for json_file in json_files:
+            filename = os.path.basename(json_file)
+            pool_name = filename.replace(".json", "").replace("_", " ").title()
+            result.append([pool_name])
+        
+        return result
+        
+    except Exception as e:
+        return [["ERRO", str(e)]]
+
 @xw.func
 @xw.ret(expand='table')
 def AmfiValidateData() -> List[List]:

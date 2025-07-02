@@ -314,6 +314,42 @@ class AmfiDashboardLogic:
         """
         df_calc = df.copy()
         
+        # Adicionar coluna JSON availability
+        try:
+            import os
+            import glob
+            
+            # Diretório das escrituras
+            base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            escrituras_dir = os.path.join(base_path, 'data', 'escrituras')
+            
+            # Verificar JSON para cada pool
+            json_status = []
+            for _, row in df_calc.iterrows():
+                pool_name = str(row['Nome']) if pd.notna(row['Nome']) else ""
+                pool_name_clean = pool_name.strip().lower().replace(" ", "_").replace("#", "")
+                
+                # Procurar arquivo JSON
+                json_pattern = os.path.join(escrituras_dir, f"{pool_name_clean}.json")
+                json_files = glob.glob(json_pattern)
+                
+                if json_files:
+                    json_status.append("✓")
+                else:
+                    # Busca flexível
+                    found = False
+                    all_json_files = glob.glob(os.path.join(escrituras_dir, "*.json"))
+                    for json_file in all_json_files:
+                        filename = os.path.basename(json_file).lower()
+                        if pool_name_clean in filename or filename in pool_name_clean:
+                            found = True
+                            break
+                    json_status.append("✓" if found else "✗")
+            
+            df_calc['JSON'] = json_status
+        except Exception:
+            df_calc['JSON'] = "?"
+        
         # Calcular Cash+Over/PL
         try:
             # Verificar se as colunas necessárias existem
@@ -341,7 +377,7 @@ class AmfiDashboardLogic:
         Retorna colunas executivas que existem no DataFrame
         """
         colunas_exec = [
-            'Nome', 'Dt. Venct', 'Dias',
+            'Nome', 'JSON', 'Dt. Venct', 'Dias',
             'PL', 'SR', 'JR', 'Carteira', 'Cash', 'Over', 'Cx. Reserva',
             'R.G.', 'I.S.', 'I.S. (Tranche)',
             '% de Atraso', '% de PDD', 'Rentabilidade Média', 'Ativos %', 'Cash+Over/PL'
