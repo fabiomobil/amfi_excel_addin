@@ -77,8 +77,17 @@ def AmFiReadJSON(caminho_arquivo: str, chave: str) -> List[List[str]]:
 @cache_udf_result(ttl_seconds=60)  # Cache por 60 segundos
 @xw.func
 @xw.ret(expand='table')
-def AmfiXLSX(pool_name, status_=None, date_=None, visao=None):
-    """Consulta dados de ativos/empréstimos filtrados por pool e status"""
+def AmfiXLSX(pool_name, status_=None, date_=None, visao=None, group_by=None):
+    """
+    Consulta dados de ativos/empréstimos filtrados por pool e status
+    
+    Args:
+        pool_name: Nome do pool (obrigatório)
+        status_: Status para filtrar (opcional)
+        date_: Data específica YYYY-MM-DD (opcional)
+        visao: 'exec' para colunas executivas, 'full' para todas
+        group_by: True para agrupar e somar por entidades, False ou vazio para dados individuais
+    """
     # Set defaults to match expected behavior
     if status_ is None:
         status_ = ""
@@ -86,7 +95,16 @@ def AmfiXLSX(pool_name, status_=None, date_=None, visao=None):
         date_ = ""
     if visao is None:
         visao = "exec"
-    return EnhancedAmfiXLSXLogic.execute(pool_name, status_, date_, visao)
+    if group_by is None:
+        group_by = False
+    
+    # Convert group_by to boolean if it's a string or number
+    if isinstance(group_by, str):
+        group_by = group_by.lower() in ['true', '1', 'yes', 'sim']
+    elif isinstance(group_by, (int, float)):
+        group_by = bool(group_by)
+    
+    return EnhancedAmfiXLSXLogic.execute(pool_name, status_, date_, visao, group_by)
 
 
 @cache_udf_result(ttl_seconds=120)  # Cache por 2 minutos - análise mais pesada
@@ -95,9 +113,129 @@ def AmfiXLSX(pool_name, status_=None, date_=None, visao=None):
 def AmfiConcentracao(arquivo_xlsx, pool, pl_total, tipo=None, top=None, limite=None, ignore_list=None):
     """Análise de concentração de sacados, cedentes ou combinado com monitoramento de limites"""
     try:
-        return process_concentracao(arquivo_xlsx, pool, pl_total, tipo, top, limite, ignore_list)
+        import time
+        import gc
+        
+        # CRITICAL: Disable automatic calculation mode temporarily to prevent array update conflicts
+        try:
+            import xlwings as xw
+            app = xw.apps.active
+            original_calculation = app.calculation
+            app.calculation = 'manual'
+        except:
+            pass
+        
+        # Small delay to prevent rapid recalculation issues
+        time.sleep(0.1)
+        
+        # Execute the analysis and get the FINAL result in one go
+        # This prevents Excel from trying to update a dynamic array mid-calculation
+        result = process_concentracao(arquivo_xlsx, pool, pl_total, tipo, top, limite, ignore_list)
+        
+        # Ensure result is a complete, final matrix
+        if not isinstance(result, list) or not result:
+            result = [["Erro", "Resultado inválido", "", "", ""]]
+        
+        # Force garbage collection to prevent memory issues
+        gc.collect()
+        
+        # Restore original calculation mode
+        try:
+            app.calculation = original_calculation
+        except:
+            pass
+        
+        return result
+        
+    except MemoryError:
+        # Handle memory errors that can cause UDF deletion
+        import gc
+        gc.collect()
+        return [["Erro de Memória", "Função muito pesada - tente com menos dados", "", "", ""]]
     except Exception as e:
-        return [["Erro", str(e), "", "", ""]]
+        # Log error details for debugging
+        error_msg = str(e)
+        if len(error_msg) > 100:
+            error_msg = error_msg[:100] + "..."
+        
+        # Ensure we always return a properly formatted error
+        return [["Erro", error_msg, "", "", ""]]
+
+@xw.func  
+def AmfiConcentracaoStatus() -> str:
+    """Verifica se a função AmfiConcentracao está disponível"""
+    return "Função AmfiConcentracao disponível"
+
+@cache_udf_result(ttl_seconds=120)  
+@xw.func
+def AmfiConcentracaoSafe(arquivo_xlsx, pool, pl_total, tipo=None, top=None, limite=None, ignore_list=None, output_range=None):
+    """
+    Versão segura do AmfiConcentracao que escreve diretamente em um range específico
+    ao invés de usar dynamic arrays para evitar conflitos de 'cannot change part of array'
+    
+    Args:
+        output_range: Range de células onde escrever o resultado (ex: "A1:E20")
+        Outros parâmetros iguais ao AmfiConcentracao
+    
+    Returns:
+        String de status ao invés de array dinâmico
+    """
+    try:
+        import time
+        import gc
+        
+        # Small delay to prevent rapid recalculation issues
+        time.sleep(0.1)
+        
+        # Execute the analysis
+        result = process_concentracao(arquivo_xlsx, pool, pl_total, tipo, top, limite, ignore_list)
+        
+        # If output_range is specified, write directly to that range
+        if output_range:
+            try:
+                import xlwings as xw
+                wb = xw.books.active
+                sheet = wb.sheets.active
+                
+                # Clear the target range first
+                range_obj = sheet.range(output_range)
+                range_obj.clear()
+                
+                # Write the result to the specified range
+                if result and len(result) > 0:
+                    # Adjust range size to fit the data
+                    rows_needed = len(result)
+                    cols_needed = len(result[0]) if result[0] else 5
+                    
+                    # Write data to range
+                    target_range = range_obj.resize(rows_needed, cols_needed)
+                    target_range.value = result
+                    
+                    gc.collect()
+                    return f"Análise concluída: {rows_needed} linhas escritas em {output_range}"
+                else:
+                    gc.collect()
+                    return "Erro: Nenhum resultado para escrever"
+                    
+            except Exception as e:
+                gc.collect()
+                return f"Erro ao escrever em {output_range}: {str(e)}"
+        else:
+            # If no output range specified, return row count as status
+            if result and len(result) > 0:
+                gc.collect()
+                return f"Análise concluída: {len(result)} linhas (use output_range para escrever)"
+            else:
+                gc.collect()
+                return "Erro: Nenhum resultado gerado"
+        
+    except Exception as e:
+        import gc
+        gc.collect()
+        error_msg = str(e)
+        if len(error_msg) > 100:
+            error_msg = error_msg[:100] + "..."
+        return f"Erro: {error_msg}"
     
     
 @xw.func
@@ -204,6 +342,75 @@ def AmfiDataStatus() -> str:
 #     """Lista status disponíveis para um pool específico"""
 #     date_param = date if date and date.strip() else None
 #     return EnhancedAmfiXLSXLogic.get_available_statuses(pool_name, date_param)
+
+@xw.func
+@xw.ret(expand='table')
+def AmfiDebugGrouping(pool_name: str, search_term: str = "AMFI") -> List[List]:
+    """
+    Debug function to test grouping functionality and search for specific entities
+    """
+    try:
+        from xlsx_handler import EnhancedAmfiXLSXLogic
+        
+        # Get data without grouping
+        result_no_group = EnhancedAmfiXLSXLogic.execute(pool_name, "", "", "exec", False)
+        
+        # Get data with grouping
+        result_with_group = EnhancedAmfiXLSXLogic.execute(pool_name, "", "", "exec", True)
+        
+        # Search for the term in non-grouped data
+        no_group_matches = []
+        if len(result_no_group) > 1:  # Has data beyond header
+            header = result_no_group[0]
+            for i, row in enumerate(result_no_group[1:], 1):  # Skip header
+                row_str = str(row).upper()
+                if search_term.upper() in row_str:
+                    no_group_matches.append((i, row))
+        
+        # Search for the term in grouped data
+        group_matches = []
+        if len(result_with_group) > 1:  # Has data beyond header
+            header = result_with_group[0]
+            for i, row in enumerate(result_with_group[1:], 1):  # Skip header
+                row_str = str(row).upper()
+                if search_term.upper() in row_str:
+                    group_matches.append((i, row))
+        
+        debug_result = [
+            ["Debug Grouping Search", ""],
+            ["Pool", pool_name],
+            ["Search Term", search_term],
+            ["", ""],
+            ["SUMMARY:", ""],
+            ["Total rows without grouping", str(len(result_no_group) - 1)],
+            ["Total rows with grouping", str(len(result_with_group) - 1)],
+            ["Matches without grouping", str(len(no_group_matches))],
+            ["Matches with grouping", str(len(group_matches))],
+            ["", ""],
+            ["MATCHES WITHOUT GROUPING:", ""]
+        ]
+        
+        for i, (row_num, row) in enumerate(no_group_matches[:10]):  # First 10 matches
+            debug_result.append([f"NoGroup {row_num}", str(row)])
+        
+        debug_result.extend([
+            ["", ""],
+            ["MATCHES WITH GROUPING:", ""]
+        ])
+        
+        for i, (row_num, row) in enumerate(group_matches[:10]):  # First 10 matches
+            debug_result.append([f"Grouped {row_num}", str(row)])
+        
+        if not group_matches and no_group_matches:
+            debug_result.extend([
+                ["", ""],
+                ["⚠️ ISSUE:", f"'{search_term}' found in original data but MISSING in grouped data!"]
+            ])
+        
+        return debug_result
+        
+    except Exception as e:
+        return [["Erro", str(e)]]
 
 @xw.func
 @xw.ret(expand='table')
