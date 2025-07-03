@@ -1,0 +1,62 @@
+{
+  "data_patterns": {
+    "csv": {
+      "pattern": "AcompanhamentoDeOportunidades-{date} {time} -{timezone}.csv",
+      "date_format": "%Y-%m-%d",
+      "time_format": "%H_%M_%S",
+      "timezone_format": "%z",
+      "directory": "../data/csv/"
+    },
+    "xlsx": {
+      "pattern": "Carteira Global {date} {time}.xlsx",
+      "date_format": "%Y-%m-%d",
+      "time_format": "%H%M%S",
+      "directory": "../data/xlsx/"
+    }
+  },
+  "validation_thresholds": {
+    "min_pools": 5,
+    "min_assets": 100,
+    "max_empty_values_percent": 10,
+    "max_pl_change_percent": 50,
+    "data_freshness_hours": 24
+  },
+  "cache_settings": {
+    "auto_clear_daily": true,
+    "warm_cache_on_startup": true,
+    "max_cache_age_days": 7
+  },
+  "required_columns": {
+    "csv": [
+      "Nome",
+      "Tipo de Produto",
+      "Data de vencimento",
+      "PL",
+      "SR",
+      "JR",
+      "Carteira",
+      "I.S.",
+      "Status do Pool"
+    ],
+    "xlsx": [
+      "Pool",
+      "Nome do Sacado",
+      "Nome do Cedente",
+      "Valor presente (R$)",
+      "Data de aquisição",
+      "Vencimento"
+    ]
+  },
+  "pool_mapping": {
+    "csv_field": "Nome",
+    "xlsx_field": "Pool"
+  },
+  "numeric_fields": {
+    "csv": ["PL", "SR", "JR", "Carteira", "I.S."],
+    "xlsx": ["Valor presente (R$)"]
+  },
+  "date_fields": {
+    "csv": ["Data de vencimento", "Próximo Pagamento"],
+    "xlsx": ["Data de aquisição", "Vencimento", "Vencimento Original"]
+  }
+}

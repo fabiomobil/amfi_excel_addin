@@ -365,6 +365,104 @@ def _group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         return df
 
 
+def _apply_default_ordering(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Aplica ordenação padrão ao DataFrame
+    
+    Ordem:
+    1. Status (com 'atrasada' primeiro)
+    2. Vencimento
+    3. Valor presente
+    4. Nome do Cedente
+    5. Nome do Sacado
+    
+    Args:
+        df: DataFrame para ordenar
+        
+    Returns:
+        DataFrame ordenado
+    """
+    if df.empty:
+        return df
+    
+    try:
+        df_sorted = df.copy()
+        
+        # Find column names (case-insensitive match)
+        status_col = None
+        vencimento_col = None
+        valor_col = None
+        cedente_col = None
+        sacado_col = None
+        
+        for col in df_sorted.columns:
+            col_lower = col.lower()
+            
+            if status_col is None and 'status' in col_lower:
+                status_col = col
+            elif vencimento_col is None and 'vencimento' in col_lower:
+                vencimento_col = col
+            elif valor_col is None and 'valor presente' in col_lower:
+                valor_col = col
+            elif cedente_col is None and 'nome do cedente' in col_lower:
+                cedente_col = col
+            elif sacado_col is None and 'nome do sacado' in col_lower:
+                sacado_col = col
+        
+        # Build sorting columns list
+        sort_columns = []
+        ascending_flags = []
+        
+        # Handle status column with custom sorting for 'atrasada' first
+        if status_col:
+            # Create a custom sort key for status
+            df_sorted['_status_sort_key'] = df_sorted[status_col].apply(
+                lambda x: 0 if str(x).lower() == 'atrasada' else 1
+            )
+            sort_columns.append('_status_sort_key')
+            ascending_flags.append(True)
+            
+            # Then sort by actual status value
+            sort_columns.append(status_col)
+            ascending_flags.append(True)
+        
+        # Add other columns in order
+        if vencimento_col:
+            sort_columns.append(vencimento_col)
+            ascending_flags.append(True)  # Earlier dates first
+            
+        if valor_col:
+            sort_columns.append(valor_col)
+            ascending_flags.append(False)  # Higher values first
+            
+        if cedente_col:
+            sort_columns.append(cedente_col)
+            ascending_flags.append(True)  # Alphabetical
+            
+        if sacado_col:
+            sort_columns.append(sacado_col)
+            ascending_flags.append(True)  # Alphabetical
+        
+        # Apply sorting if we have any columns to sort by
+        if sort_columns:
+            df_sorted = df_sorted.sort_values(
+                by=sort_columns,
+                ascending=ascending_flags,
+                na_position='last'
+            )
+            
+            # Remove temporary sort column if it was added
+            if '_status_sort_key' in df_sorted.columns:
+                df_sorted = df_sorted.drop('_status_sort_key', axis=1)
+        
+        return df_sorted
+        
+    except Exception as e:
+        # If sorting fails, return original data
+        logger.error(f"Erro na ordenação: {str(e)}")
+        return df
+
+
 class EnhancedAmfiXLSXLogic:
     """
     Lógica aprimorada para processamento de XLSX com filtros específicos
@@ -428,12 +526,15 @@ class EnhancedAmfiXLSXLogic:
             if group_by:
                 df_with_date = _group_and_aggregate(df_with_date)
             
+            # 7.6. Aplicar ordenação padrão
+            df_ordered = _apply_default_ordering(df_with_date)
+            
             # 8. Converter para formato Excel
-            result = _convert_to_excel_format(df_with_date)
+            result = _convert_to_excel_format(df_ordered)
             
             # Log de informações
             logger.info(f"Processado XLSX: {pool_name}, status={status}, "
-                       f"registros={len(df_with_date)}, arquivo={file_path}")
+                       f"registros={len(df_ordered)}, arquivo={file_path}")
             
             return result
             

@@ -1,0 +1,512 @@
+{
+  "formento_pool_3": {
+    "info_escritura": {
+      "nome_completo": "31ª (trigésima primeira) Emissão de Debêntures Simples, Não Conversíveis em Ações, da Espécie Quirografária, com Regime Fiduciário em Direitos Creditórios, em 2 (duas) Séries, para Colocação Privada, da Companhia Securitizadora X S.A.",
+      "nome_admin": "Formento Pool #3",
+      "numero_emissao": "31",
+      "data_emissao": "2025-03-31",
+      "data_vencimento": "2027-12-31",
+      "valor_total": 2500000.0,
+      "emissora": "Companhia Securitizadora X S.A.",
+      "status": "ativo",
+      "lei_aplicavel": "Lei 14.430/22",
+      "documentos_relacionados": [
+        "Contrato de Promessa de Cessão de Direitos Creditórios",
+        "Contrato de Prestação de Serviços Operacionais"
+      ]
+    },
+    "estrutura_financeira": {
+      "series_senior": {
+        "quantidade_series": 1,
+        "valor_por_serie": 2000000.0,
+        "valor_total_senior": 2000000.0,
+        "subordinacao_a": []
+      },
+      "series_subordinadas": {
+        "quantidade_series": 1,
+        "valor_total_subordinada": 500000.0,
+        "subordinacao_a": ["series_senior"]
+      },
+      "indices_minimos": {
+        "subordinacao_minima": 0.20,
+        "subordinacao_critica": 0.025
+      }
+    },
+    "criterios_elegibilidade": {
+      "tipos_ativos_permitidos": {
+        "direitos_creditorios_diversificados": {
+          "descricao": "Direitos creditórios diversificados com foco em agronegócio",
+          "limite_percentual": 1.0,
+          "ativo": true
+        }
+      },
+      "limites_individuais": {
+        "valor_minimo_ativo": null,
+        "vencimento_minimo_dias": null,
+        "vencimento_maximo_dias": null,
+        "taxa_minima_cessao": null
+      },
+      "limites_concentracao": {
+        "sacado_individual": {
+          "limite": 0.15,
+          "ativo": true,
+          "base_calculo": "valor_carteira",
+          "metodo_calculo": "8_digitos_cnpj_raiz"
+        },
+        "cedente_individual": {
+          "limite": 0.15,
+          "ativo": true,
+          "base_calculo": "valor_carteira",
+          "metodo_calculo": "8_digitos_cnpj_raiz"
+        },
+        "mesmo_cedente_sacado": {
+          "limite": 0.08,
+          "ativo": true,
+          "base_calculo": "valor_carteira",
+          "metodo_calculo": "8_digitos_cnpj_raiz_ambas_partes"
+        },
+        "top_n_sacados": {
+          "n": 10,
+          "limite": 0.40,
+          "ativo": true
+        },
+        "top_n_cedentes": {
+          "n": 10,
+          "limite": 0.60,
+          "ativo": true
+        }
+      },
+      "limites_carteira": {
+        "vencimento_medio_maximo_dias": 35,
+        "inadimplencia_maxima_percentual": 0.02,
+        "inadimplencia_90_dias_maxima": 0.005,
+        "prazo_maximo_aquisicao_meses": 32,
+        "periodo_formacao_carteira_dias": 30,
+        "limite_pl_periodo_formacao": 0.50
+      }
+    },
+    "provisoes_pdd": {
+      "grupos_risco": {
+        "A": {"atraso_max_dias": 30, "provisao_pct": 0.0},
+        "B": {"atraso_max_dias": 60, "provisao_pct": 0.10},
+        "C": {"atraso_max_dias": 90, "provisao_pct": 0.25},
+        "D": {"atraso_max_dias": 120, "provisao_pct": 0.50},
+        "E": {"atraso_max_dias": 150, "provisao_pct": 0.70},
+        "F": {"atraso_max_dias": 180, "provisao_pct": 0.90},
+        "G": {"atraso_max_dias": 360, "provisao_pct": 0.95},
+        "H": {"atraso_max_dias": 999, "provisao_pct": 1.0}
+      }
+    },
+    "fundos_reservas": {
+      "fundo_despesas": {
+        "valor_fixo": 6250.0,
+        "descricao": "Fundo de reserva para despesas",
+        "tipo": "fixo",
+        "ativo": true
+      },
+      "despesas_maximas_mensais": {
+        "valor_maximo": 4166.67,
+        "descricao": "Despesas Adicionais Máximas mensais do Patrimônio Separado",
+        "tipo": "limite_mensal",
+        "ativo": true
+      }
+    },
+    "investimentos_permitidos": [
+      {
+        "tipo": "titulos_tesouro",
+        "descricao": "Títulos de emissão do Tesouro Nacional",
+        "liquidez": "diaria",
+        "ativo": true
+      },
+      {
+        "tipo": "titulos_privados_s1",
+        "descricao": "Títulos privados emitidos por instituições financeiras do segmento 1 autorizadas pelo BACEN",
+        "liquidez": "diaria",
+        "ativo": true
+      },
+      {
+        "tipo": "operacoes_compromissadas",
+        "descricao": "Operações compromissadas lastreadas nos títulos mencionados",
+        "liquidez": "diaria",
+        "ativo": true
+      },
+      {
+        "tipo": "fundos_di_s1",
+        "descricao": "Cotas de fundos referenciados à Taxa DI administrados por instituições do segmento 1",
+        "liquidez": "diaria",
+        "ativo": true
+      }
+    ],
+    "obrigacoes_cura": [
+      {
+        "tipo": "indice_subordinacao",
+        "valor_limite": 0.20,
+        "prazo_cura_dias": 7,
+        "tipo_prazo": "corridos",
+        "ativo": true,
+        "notificacao_dias": 1,
+        "resposta_originador_dias": 2,
+        "acoes_permitidas": [
+          "subscricao_novas_debentures_subordinadas",
+          "recompra_direitos_creditorios_com_aprovacao",
+          "amortizacao_extraordinaria_senior"
+        ],
+        "consequencia_nao_cura": "vencimento_antecipado"
+      },
+      {
+        "tipo": "violacao_subordinacao_critica",
+        "valor_limite": 0.025,
+        "prazo_cura_dias": 0,
+        "tipo_prazo": "imediato",
+        "ativo": true,
+        "gatilhos": [
+          "subordinacao_abaixo_limite_critico"
+        ],
+        "acoes_permitidas": [],
+        "consequencia_nao_cura": "interrupcao_imediata_aquisicao"
+      }
+    ],
+    "contas_patrimonio_separado": {
+      "conta_centralizadora": {
+        "banco": null,
+        "agencia": null,
+        "conta": null,
+        "finalidades": [
+          "movimentacoes_relacionadas_emissao"
+        ]
+      }
+    },
+    "remuneracao": {
+      "series_senior": {
+        "tipo": "pos_fixado",
+        "indexador": "Taxa_DI",
+        "premio_risco": 0.07,
+        "base_calculo": 252
+      },
+      "series_subordinadas": {
+        "tipo": "residual",
+        "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
+      }
+    },
+    "cronograma_pagamentos": {
+      "carencia_meses": null,
+      "inicio_amortizacao": "2027-12-31",
+      "cronograma_amortizacao": [
+        {
+          "data": "2027-12-31",
+          "percentual": 1.0
+        }
+      ]
+    },
+    "originador": {
+      "razao_social": "FORMENTO SECURITIZADORA S.A.",
+      "cnpj": null,
+      "endereco": "Joinville, Santa Catarina",
+      "email_contato": null,
+      "responsavel": null,
+      "setor_especializacao": "Direitos creditórios diversificados com foco agronegócio"
+    },
+    "debenturistas": {
+      "serie_senior": {
+        "nome": "CORUJA I FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS",
+        "cnpj": null,
+        "tipo": "fundo_investimento",
+        "endereco": null,
+        "email_contato": null,
+        "responsavel": null
+      },
+      "serie_subordinada": {
+        "nome": "FORMENTO SECURITIZADORA S.A.",
+        "cnpj": null,
+        "tipo": "originador",
+        "endereco": null,
+        "email_contato": null,
+        "responsavel": null
+      }
+    },
+    "consultora": {
+      "nome": "CORUJA CAPITAL INVESTIMENTOS E PARTICIPAÇÕES LTDA.",
+      "cnpj": null,
+      "funcoes": [
+        "aprovacao_recompras",
+        "monitoramento_portfolio",
+        "decisoes_estrategicas"
+      ],
+      "prazo_resposta_dias": 2,
+      "aprovacao_silenciosa": true
+    },
+    "eventos_de_monitoramento": [
+      {
+        "tipo": "indice_subordinacao",
+        "descricao": "Mínimo 20% - razão entre saldo devedor subordinado e total",
+        "limite": 0.20,
+        "unidade": "percentual",
+        "ativo": true,
+        "frequencia": "diaria",
+        "clausula_escritura": "3.6.1, 3.6.2, Anexo II"
+      },
+      {
+        "tipo": "subordinacao_critica",
+        "descricao": "Limite crítico 2.5% - interrupção imediata de aquisições",
+        "limite": 0.025,
+        "unidade": "percentual",
+        "ativo": true,
+        "clausula_escritura": "3.6.2"
+      },
+      {
+        "tipo": "concentracao_sacado_individual",
+        "descricao": "Máximo 15% por sacado (8 dígitos CNPJ raiz)",
+        "limite": 0.15,
+        "unidade": "percentual",
+        "ativo": true,
+        "metodo_calculo": "8_digitos_cnpj_raiz",
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_cedente_individual",
+        "descricao": "Máximo 15% por cedente (8 dígitos CNPJ raiz)",
+        "limite": 0.15,
+        "unidade": "percentual",
+        "ativo": true,
+        "metodo_calculo": "8_digitos_cnpj_raiz",
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_mesmo_cedente_sacado",
+        "descricao": "Máximo 8% para mesmo cedente e sacado (8 dígitos CNPJ raiz)",
+        "limite": 0.08,
+        "unidade": "percentual",
+        "ativo": true,
+        "metodo_calculo": "8_digitos_cnpj_raiz_ambas_partes",
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_top_10_sacados",
+        "descricao": "Máximo 40% - concentração dos 10 maiores sacados",
+        "limite": 0.40,
+        "unidade": "percentual",
+        "ativo": true,
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_top_10_cedentes",
+        "descricao": "Máximo 60% - concentração dos 10 maiores cedentes",
+        "limite": 0.60,
+        "unidade": "percentual",
+        "ativo": true,
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "inadimplencia_30_dias",
+        "descricao": "Máximo 2% - direitos creditórios em atraso de 30+ dias (veto aquisições)",
+        "limite": 0.02,
+        "unidade": "percentual",
+        "ativo": true,
+        "acao_requerida": "veto_novas_aquisicoes",
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "inadimplencia_90_dias",
+        "descricao": "Máximo 0.5% - direitos creditórios em atraso de 90+ dias",
+        "limite": 0.005,
+        "unidade": "percentual",
+        "ativo": true,
+        "acao_requerida": "interrupcao_aquisicoes",
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "vencimento_medio_carteira",
+        "descricao": "Máximo 35 dias - vencimento médio ponderado pelo valor",
+        "limite": 35,
+        "unidade": "dias",
+        "ativo": true,
+        "excludes": ["caixa", "investimentos_permitidos"],
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "periodo_formacao_carteira",
+        "descricao": "Primeiros 30 dias - critérios aplicáveis após 50% do PL",
+        "limite": 30,
+        "unidade": "dias",
+        "ativo": true,
+        "limite_pl": 0.50,
+        "subordinacao_sempre_aplicavel": true,
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "prazo_limite_aquisicoes",
+        "descricao": "Aquisições limitadas até 32 meses da emissão (revolving)",
+        "limite": 32,
+        "unidade": "meses",
+        "ativo": true,
+        "permite_revolving": true,
+        "clausula_escritura": "Anexo IV - Critérios de Elegibilidade"
+      }
+    ],
+    "vencimento_antecipado": [
+      {
+        "tipo": "inadimplemento_pecuniario",
+        "descricao": "Descumprimento de qualquer obrigação pecuniária",
+        "prazo_cura_dias": 5,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true
+      },
+      {
+        "tipo": "inadimplemento_nao_pecuniario",
+        "descricao": "Descumprimento de qualquer obrigação não pecuniária",
+        "prazo_cura_dias": 20,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true
+      },
+      {
+        "tipo": "falencia_liquidacao",
+        "descricao": "Decretação de falência ou liquidação da Emissora ou Originador",
+        "prazo_cura_dias": 0,
+        "automatico": true,
+        "notificacao_requerida": false,
+        "ativo": true
+      },
+      {
+        "tipo": "reorganizacao_societaria",
+        "descricao": "Reorganização societária sem aprovação do Debenturista",
+        "prazo_cura_dias": 0,
+        "automatico": false,
+        "direito_resgate": true,
+        "ativo": true
+      },
+      {
+        "tipo": "sentenca_judicial",
+        "descricao": "Decisão judicial não cumprida acima de R$ 10 milhões",
+        "prazo_cura_dias": 20,
+        "valor_minimo": 10000000.0,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true
+      },
+      {
+        "tipo": "protesto_titulos",
+        "descricao": "Protesto de títulos em valor superior ao Valor Total da Emissão",
+        "prazo_cura_dias": 30,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true
+      },
+      {
+        "tipo": "uso_inadequado_recursos",
+        "descricao": "Uso dos recursos em desacordo com a destinação",
+        "prazo_cura_dias": 0,
+        "automatico": false,
+        "notificacao_requerida": false,
+        "ativo": true
+      },
+      {
+        "tipo": "desenquadramento_limites_concentracao",
+        "descricao": "Desenquadramento de Limites de Concentração por mais de 30 dias",
+        "prazo_cura_dias": 30,
+        "automatico": false,
+        "aplica_apos_formacao": true,
+        "ativo": true
+      },
+      {
+        "tipo": "desenquadramento_subordinacao_inadimplencia",
+        "descricao": "Desenquadramento do Índice de Subordinação ou Inadimplência por mais de 7 dias",
+        "prazo_cura_dias": 7,
+        "automatico": false,
+        "aplica_apos_formacao": true,
+        "ativo": true
+      },
+      {
+        "tipo": "inadimplencia_maior",
+        "descricao": "Inadimplência superior a 50% do Valor Total da Emissão",
+        "prazo_cura_dias": 0,
+        "limite_percentual": 0.50,
+        "automatico": true,
+        "ativo": true
+      },
+      {
+        "tipo": "falha_reenquadramento",
+        "descricao": "Não realização de ações para reenquadramento do Índice de Subordinação",
+        "prazo_cura_dias": 0,
+        "automatico": true,
+        "relacionado_subordinacao": true,
+        "ativo": true
+      },
+      {
+        "tipo": "lastro_insuficiente",
+        "descricao": "Não constituição de lastro com ao menos 75% dos recursos em 90 dias",
+        "prazo_cura_dias": 90,
+        "limite_percentual": 0.75,
+        "automatico": false,
+        "ativo": true
+      },
+      {
+        "tipo": "interrupcao_atividades_originador",
+        "descricao": "Interrupção das atividades do Originador por mais de 20 dias corridos ou 30 dias anuais",
+        "prazo_cura_dias": 20,
+        "limite_anual_dias": 30,
+        "automatico": false,
+        "ativo": true
+      },
+      {
+        "tipo": "incapacidade_originacao",
+        "descricao": "Originador sem capacidade de originar com caixa disponível",
+        "prazo_cura_dias": 0,
+        "automatico": true,
+        "condicao": "caixa_disponivel_sem_ativos_elegiveis",
+        "ativo": true
+      }
+    ],
+    "mecanismos_recuperacao": {
+      "reenquadramento_subordinacao": {
+        "ativo": true,
+        "prazo_notificacao_dias": 1,
+        "prazo_resposta_originador_dias": 2,
+        "prazo_total_reenquadramento_dias": 7,
+        "opcoes": [
+          "subscricao_novas_debentures_subordinadas",
+          "recompra_direitos_creditorios_com_aprovacao_consultora",
+          "amortizacao_extraordinaria_serie_senior"
+        ],
+        "aprovacao_consultora_requerida": true,
+        "prazo_aprovacao_consultora_dias": 2,
+        "aprovacao_silenciosa": true,
+        "descricao": "Mecanismo de reenquadramento quando violação do índice de subordinação"
+      },
+      "procedimentos_cobranca": {
+        "ativo": true,
+        "cobranca_inicial": {
+          "inicio": "dia_seguinte_inadimplencia",
+          "prazo_maximo_liquidacao_dias": 5,
+          "metodos": ["telefone", "email", "whatsapp"]
+        },
+        "cobranca_conciliatoria": {
+          "envolvidos": ["gerente_negocio", "diretor_financeiro"],
+          "prazo_decisao_dias": 2
+        },
+        "cobranca_judicial": {
+          "apos_falha_conciliacao": true,
+          "departamento_juridico": true
+        },
+        "negativacao": {
+          "provedor": "Serasa PEFIN",
+          "prazo_maximo_dias": 10,
+          "inclui_avalistas_conjuges": true,
+          "protesto_disponivel": true
+        },
+        "clausula_escritura": "Anexo VIII"
+      }
+    },
+    "consultora_aprovacao": {
+      "nome": "CORUJA CAPITAL INVESTIMENTOS E PARTICIPAÇÕES LTDA.",
+      "poderes_aprovacao": [
+        "recompra_direitos_creditorios",
+        "decisoes_reenquadramento"
+      ],
+      "prazo_resposta_dias": 2,
+      "aprovacao_silenciosa": true,
+      "descricao": "Consultora com poderes específicos de aprovação para decisões de recompra"
+    }
+  }
+}

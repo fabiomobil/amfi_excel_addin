@@ -84,6 +84,10 @@ AmFi (Asset Management Financial Intelligence) is a comprehensive Excel add-in s
 - `ClearCache(tipo)` - Cache management ('all', 'csv', 'json', 'xlsx')
 - `CacheStats()` - Cache statistics display
 
+### Monitoring Gap Detection
+- `AmfiMonitoringGaps()` - Identifies monitoring events defined in JSONs but not implemented in code
+- `AmfiMonitorTemplate(monitor_type)` - Generates Python implementation template for specific monitor
+
 ## Data Structure
 
 ### File Organization
@@ -126,6 +130,104 @@ CSV (Pool Overview) → User selects pools → XLSX (Asset Details) → Analysis
 - **Daily CSV**: Investment opportunity data with pool summaries
 - **Daily XLSX**: Granular portfolio data with individual receivables
 - **Legal Documents**: Debenture agreements and compliance docs
+
+## Data Processing
+
+### MD to JSON Conversion Pipeline
+
+#### Overview
+Automated conversion of legal documents (escrituras) from Markdown format to structured JSON for AmFi system integration. This process transforms complex legal documents into machine-readable data for monitoring and compliance analysis.
+
+#### Directory Structure
+```
+/mnt/c/amfi/data/
+├── escrituras/           # Current active JSON files
+├── escrituras_md/        # Source markdown legal documents
+└── escrituras_archive/   # Historical JSON versions
+    ├── v1/               # Previous version backups
+    ├── v2/               # Amendment versions
+    └── ...
+```
+
+#### Version Control Strategy (Option B)
+- **Main Documents**: Create new JSON files (e.g., `credmei_pool_1.json`)
+- **Amendments**: Create versioned files (e.g., `afa_pool_1_v2.json`) 
+- **Archive Process**: Move previous versions to `escrituras_archive/v{N}/`
+- **Metadata Tracking**: Each JSON includes version info and source document reference
+- **Historical Preservation**: Maintain complete audit trail of all document versions
+
+#### Processing Workflow
+1. **Discovery**: Scan `escrituras_md/` for new/updated .md files
+2. **Parsing**: Extract structured data using pattern recognition and NLP
+3. **Mapping**: Transform extracted data to established JSON schema
+4. **Validation**: Ensure data completeness and schema compliance
+5. **Versioning**: Handle main documents vs. amendments appropriately
+6. **Archival**: Backup previous versions before updates
+7. **Integration**: Make new JSONs available to AmFi functions
+
+#### Naming Convention
+- **Pool Names**: Lowercase, underscores, no special characters
+- **Version Handling**: Append `_v{number}` for amendments
+- **Examples**: 
+  - "AFA Pool #1" → `afa_pool_1.json` → `afa_pool_1_v2.json`
+  - "Credmei Pool AMFI" → `credmei_pool_amfi.json`
+  - "SuperSim Pool #1" → `supersim_pool_1.json`
+
+#### Data Extraction Challenges
+- **Document Variations**: Each legal document has unique structure
+- **Language Processing**: Portuguese legal terminology parsing
+- **Amendment Handling**: Identifying which base document is being modified
+- **Missing Information**: Handling incomplete or unclear data
+- **Date Formats**: Multiple date format variations across documents
+
+#### Quality Assurance
+- **Schema Validation**: Ensure all JSONs follow established structure
+- **Cross-Reference**: Verify pool information consistency
+- **Manual Review**: Flag complex extractions for human validation
+- **Error Logging**: Track parsing issues and resolution status
+
+#### Python Monitoring Schema Requirements
+
+The JSON structure must be optimized for automated Python monitoring and compliance checking:
+
+**Data Type Standards**:
+- `null` for missing/non-applicable values (never `"NaN"` or `"N/A"`)
+- `float` for all monetary values
+- `float` in decimal format for percentages (5% = 0.05, not 5.0)
+- `boolean` for enabled/disabled flags
+- `string` only for descriptive text and identifiers
+
+**Standardized Field Names**:
+- Common field names across all pools for monitoring compatibility
+- Pool-specific rules stored in standardized nested structures
+- Consistent naming convention: lowercase with underscores
+
+**Monitoring-Friendly Structure**:
+```json
+{
+  "limites_concentracao": {
+    "sacado_individual": {"limite": 0.01, "ativo": true},
+    "cedente_individual": {"limite": null, "ativo": false},
+    "top_n_sacados": {"n": 10, "limite": 1.0, "ativo": true},
+    "instituicoes_especificas": [
+      {"nome": "BMP", "limite": 1.0, "tipo": "parceiro"},
+      {"nome": "SOCINAL", "limite": 0.15, "tipo": "parceiro"}
+    ]
+  },
+  "provisoes_pdd": {
+    "grupos_risco": {
+      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.0},
+      "A": {"atraso_max_dias": 15, "provisao_pct": 0.5}
+    }
+  }
+}
+```
+
+**Monitoring Code Compatibility**:
+- Direct field access without type checking: `data["limite"]`
+- Consistent null handling: `if value is not None:`
+- Generic monitoring loops: `for grupo, config in grupos_risco.items():`
+- Automatic rule application without pool-specific logic
 
 ## Development Context
 
@@ -196,6 +298,18 @@ CSV (Pool Overview) → User selects pools → XLSX (Asset Details) → Analysis
 - Top N entity analysis
 - Individual and aggregate limit checking
 - Compliance status reporting
+
+## Session Management
+
+### Recent Sessions
+- **2025-01-03**: Recovery Features & Monitoring Gaps
+  - Fixed SuperSim missing recovery mechanisms
+  - Created systematic extraction process  
+  - Built monitoring gap detection system
+  - **COMPLETED**: Added 4 new pools (Credmei, Formento, UpVendas, A55)
+  - **STATUS**: 7 pools total, 124 monitors pending implementation
+  - **RESTART**: Use `/mnt/c/amfi/RESTART_TOMORROW.md` or just say "Let's continue!"
+  - See: `SESSION_2025_01_03_RECOVERY_FEATURES.md`
 
 ## Development Notes
 

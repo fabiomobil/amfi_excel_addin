@@ -239,6 +239,87 @@ def AmfiConcentracaoSafe(arquivo_xlsx, pool, pl_total, tipo=None, top=None, limi
     
     
 @xw.func
+@xw.ret(expand='table')
+def AmfiMonitoringGaps():
+    """
+    Identifica eventos de monitoramento definidos nos JSONs mas não implementados no código.
+    
+    Retorna:
+        DataFrame com colunas: Pool | Tipo Monitor | Categoria | Descrição | Status
+    
+    Exemplo:
+        =AmfiMonitoringGaps()
+    """
+    try:
+        from monitoring_gap_detector import find_monitoring_gaps
+        import pandas as pd
+        
+        gaps = find_monitoring_gaps()
+        
+        if not gaps:
+            return [["✅ Todos os monitores estão implementados!"]]
+        
+        # Criar lista para DataFrame
+        data = []
+        for pool_name, pool_gaps in gaps.items():
+            for gap in pool_gaps:
+                data.append([
+                    pool_name,
+                    gap["tipo"],
+                    gap["categoria"],
+                    gap["descricao"],
+                    "❌ Não Implementado"
+                ])
+        
+        # Criar DataFrame
+        df = pd.DataFrame(data, columns=["Pool", "Tipo Monitor", "Categoria", "Descrição", "Status"])
+        
+        # Ordenar por Pool e Tipo
+        df = df.sort_values(["Pool", "Tipo Monitor"])
+        
+        # Adicionar linha de resumo no topo
+        summary = pd.DataFrame([
+            ["RESUMO", f"{len(data)} monitores pendentes", f"{len(gaps)} pools afetados", "", "⚠️ ATENÇÃO"]
+        ], columns=df.columns)
+        
+        df = pd.concat([summary, df], ignore_index=True)
+        
+        return df.values.tolist()
+        
+    except Exception as e:
+        return [[f"Erro ao detectar gaps: {str(e)}"]]
+
+
+@xw.func
+@xw.arg('monitor_type', doc='Tipo do monitor para gerar template de implementação')
+@xw.ret(expand='table')
+def AmfiMonitorTemplate(monitor_type):
+    """
+    Gera template de código Python para implementar um monitor específico.
+    
+    Args:
+        monitor_type: Nome do tipo de monitor (ex: "recovery_rate_mensal")
+    
+    Retorna:
+        Template de código Python formatado
+    
+    Exemplo:
+        =AmfiMonitorTemplate("recovery_rate_mensal")
+    """
+    try:
+        from monitoring_gap_detector import get_implementation_template
+        
+        template = get_implementation_template(monitor_type)
+        
+        # Dividir em linhas para exibição no Excel
+        lines = template.split('\n')
+        return [[line] for line in lines]
+        
+    except Exception as e:
+        return [[f"Erro ao gerar template: {str(e)}"]]
+    
+    
+@xw.func
 def ClearCache(tipo: str = 'all') -> str:
     """Limpa cache de arquivos carregados"""
     tipo = tipo.lower().strip()
