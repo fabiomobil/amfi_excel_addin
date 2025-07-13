@@ -1,0 +1,9 @@
+# Pasta Legacy - Sistema xlwings antigo
+# Esta pasta contém código legacy que não deve ser versionado no desenvolvimento atual
+
+# Ignorar todo o conteúdo legacy
+*
+
+# Exceto este arquivo de documentação
+!.gitignore
+!README.md
