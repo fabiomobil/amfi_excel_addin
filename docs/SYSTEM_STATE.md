@@ -140,4 +140,48 @@ Resultado:
 
 ---
 
-**Nota Importante**: Esta documentação reflete o estado específico de 2025-07-13. Números de pools e registros VARIAM DIARIAMENTE conforme novos dados são carregados.
+## 🧪 **Verificação de Sistema - Comandos de Teste**
+
+### Verificação Diária de Estado
+```bash
+# 1. Verificar quantos pools e registros existem HOJE
+python3 -c "
+from data_loader import load_pool_data
+resultado = load_pool_data()
+print(f'Pools: {len(resultado[\"pools_processados\"])}')
+print(f'XLSX: {resultado[\"xlsx_data\"].shape}')
+print(f'CSV: {resultado[\"csv_data\"].shape}')
+"
+
+# 2. Teste rápido do sistema
+python3 -c "
+from orchestrator import run_monitoring
+resultado = run_monitoring('LeCapital Pool #1')
+print(f'Sucesso: {resultado[\"sucesso\"]}')
+"
+```
+
+### Interfaces de Referência
+```python
+# Interface principal (TESTADA 2025-07-13)
+from orchestrator import run_monitoring
+resultado = run_monitoring()                      # Todos os pools (modo DEBUG)
+resultado = run_monitoring("LeCapital Pool #1")   # Pool específico
+
+# Monitores individuais (TESTADOS 2025-07-13)
+from monitor_subordinacao import run_subordination_monitoring
+from monitor_inadimplencia import run_delinquency_monitoring
+```
+
+### Arquivos Funcionais Validados (2025-07-13)
+- ✅ **data_loader.py**: Centralizador (79k registros em ~10s)
+- ✅ **orchestrator.py**: Interface principal (100% sucesso, 2 pools)
+- ✅ **monitor_subordinacao.py**: Monitor base funcional
+- ✅ **monitor_inadimplencia.py**: Monitor + enriquecimento progressivo
+
+---
+
+**Sessão**: 2025-07-13  
+**Responsável**: Claude Sonnet 4.0  
+**Status**: Sistema integrado e funcional ✅  
+**Nota**: Números de pools e registros VARIAM DIARIAMENTE conforme novos dados são carregados.

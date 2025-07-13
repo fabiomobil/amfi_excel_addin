@@ -25,9 +25,9 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 ```
 /mnt/c/amfi/
 ├── docs/                    # Documentação do projeto
-│   ├── processos/           # Processos operacionais
-│   ├── sessions/            # To-dos e notas de sessão
-│   └── technical/           # Documentação técnica
+│   ├── processos/           # Checklists e processos operacionais
+│   ├── sessions/            # APENAS to-dos por data (sem documentação técnica)
+│   └── technical/           # Documentação técnica detalhada
 ├── tests/                   # Testes organizados
 │   ├── unit/               # Testes unitários
 │   ├── integration/        # Testes de integração
@@ -791,14 +791,36 @@ except (ImportError, ValueError):
 - Sessão atual: Definição de estratégia de tratamento de erros no orquestrador
 - Próxima revisão: Implementação de classes de erro específicas e sistema de retry
 
+### 📁 **Filosofia do docs/sessions/**
+
+**PROPÓSITO EXCLUSIVO**: Lista de tarefas organizadas por data de sessão
+
+**CONTEÚDO PERMITIDO**:
+- ✅ To-dos priorizados com checkboxes [ ]
+- ✅ Status de progresso (x/y tarefas concluídas)
+- ✅ Próxima tarefa prioritária a executar
+- ✅ Ordem de implementação recomendada
+
+**CONTEÚDO ESTRITAMENTE PROIBIDO**:
+- ❌ Descobertas técnicas → docs/SYSTEM_STATE.md
+- ❌ Definições de arquitetura → docs/CLAUDE.md  
+- ❌ Checklists e processos → docs/processos/
+- ❌ Documentação detalhada → docs/technical/
+- ❌ Métricas de performance → docs/SYSTEM_STATE.md
+- ❌ Interfaces e código → docs/CLAUDE.md
+- ❌ Análises e explicações → docs/technical/
+
+**FORMATO PADRÃO**: Apenas listas estruturadas com prioridades (Alta/Média/Baixa)
+
 ### 📋 **Sistema de To-Do por Sessão**
 **TODA NOVA SESSÃO** deve seguir este processo:
 1. **Criar arquivo**: `docs/sessions/to_do_YYYYMMDD.md`
 2. **Listar tarefas**: Incluir tarefas pendentes + novas do dia
 3. **Escolher foco**: Selecionar quais tarefas abordar na sessão
 4. **Adicionar dinamicamente**: Conforme surgem novas demandas
+5. **MANTER FOCO**: Apenas to-dos, sem documentação técnica
 
-**Arquivo atual**: [to_do_20250712.md](./sessions/to_do_20250712.md)
+**Arquivo atual**: [to_do_20250713.md](./sessions/to_do_20250713.md)
 
 ### ⚠️ **IMPORTANTE - Sincronia de Documentos**
 **SEMPRE VERIFICAR** em cada sessão se CLAUDE.md e PRD.md estão sincronizados:
