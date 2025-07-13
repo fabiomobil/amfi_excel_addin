@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "description": "Cenários de teste para validação do sistema de monitoramento",
+    "version": "1.0",
+    "last_updated": "2025-01-07",
+    "author": "AmFi Monitoring System"
+  },
+  "test_scenarios": {
+    "smoke_test": {
+      "description": "Teste básico de funcionamento",
+      "pools": ["lecapital_pool_1"],
+      "expected_monitors": 24,
+      "timeout_seconds": 30
+    },
+    "concentration_test": {
+      "description": "Teste específico de concentração",
+      "pools": ["lecapital_pool_1", "afa_pool_1"],
+      "focus_monitors": ["concentracao_sacados", "concentracao_cedentes"],
+      "expected_violations": 0
+    },
+    "subordination_test": {
+      "description": "Teste de cálculo de subordinação",
+      "pools": ["lecapital_pool_1"],
+      "focus_monitors": ["indice_subordinacao"],
+      "mock_data": {
+        "pl_total": 1000000,
+        "jr_valor": 850000,
+        "is_minimo": 0.15
+      }
+    },
+    "full_system_test": {
+      "description": "Teste completo do sistema",
+      "pools": ["lecapital_pool_1", "afa_pool_1", "supersim_pool_1"],
+      "include_custom_monitors": true,
+      "timeout_seconds": 120
+    }
+  },
+  "test_pools": {
+    "development": [
+      {
+        "pool_id": "lecapital_pool_1",
+        "priority": "high",
+        "reason": "Pool de referência com JSON completo"
+      },
+      {
+        "pool_id": "afa_pool_1",
+        "priority": "medium",
+        "reason": "Pool com monitor customizado de parceiros"
+      }
+    ],
+    "staging": [
+      {
+        "pool_id": "supersim_pool_1",
+        "priority": "high",
+        "reason": "Pool com monitor de recovery rate"
+      }
+    ],
+    "production": [
+      {
+        "pool_id": "lecapital_pool_1",
+        "priority": "high",
+        "reason": "Pool validado e estável"
+      }
+    ]
+  },
+  "mock_data": {
+    "csv_sample": {
+      "columns": ["Nome", "PL", "SR", "JR", "IS%", "Status"],
+      "sample_row": ["lecapital_pool_1", 1000000, 150000, 850000, 15.0, "Conforme"]
+    },
+    "xlsx_sample": {
+      "columns": ["Nome do Sacado", "Nome do Cedente", "Valor presente", "Data Vencimento"],
+      "sample_row": ["EMPRESA ABC LTDA", "FORNECEDOR XYZ", 50000.00, "2025-03-15"]
+    }
+  },
+  "configuration": {
+    "auto_run_smoke_test": true,
+    "fail_fast": true,
+    "generate_test_reports": true,
+    "cleanup_test_data": true
+  }
+}

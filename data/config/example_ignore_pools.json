@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "description": "Pools ignorados automaticamente durante o monitoramento",
+    "version": "1.0",
+    "last_updated": "2025-01-07",
+    "author": "AmFi Monitoring System"
+  },
+  "ignore_pools": [
+    {
+      "pool_id": "exemplo_pool_inativo",
+      "reason": "Pool descontinuado",
+      "date_added": "2025-01-07",
+      "temporary": false,
+      "notes": "Exemplo de pool que deve ser ignorado permanentemente"
+    },
+    {
+      "pool_id": "exemplo_pool_manutencao",
+      "reason": "Em manutenção",
+      "date_added": "2025-01-07",
+      "temporary": true,
+      "end_date": "2025-01-15",
+      "notes": "Exemplo de pool temporariamente ignorado"
+    }
+  ],
+  "ignore_patterns": [
+    {
+      "pattern": "*_test_*",
+      "reason": "Pools de teste automático",
+      "active": true
+    },
+    {
+      "pattern": "*_backup_*",
+      "reason": "Pools de backup",
+      "active": true
+    }
+  ],
+  "configuration": {
+    "check_temporary_expiry": true,
+    "log_ignored_pools": true,
+    "alert_on_new_ignores": true
+  }
+}

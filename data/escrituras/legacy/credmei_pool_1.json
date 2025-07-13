@@ -1,0 +1,395 @@
+{
+  "credmei_pool_1": {
+    "info_escritura": {
+      "nome_completo": "3ª (terceira) Emissão de Debêntures Simples, Não Conversíveis em Ações, da Espécie Quirografária, com Regime Fiduciário em Direitos Creditórios, para Colocação Privada, da Credmei Securitizadora S.A.",
+      "nome_admin": "Credmei Pool #1",
+      "numero_emissao": "3",
+      "data_emissao": "2024-10-11",
+      "data_vencimento": "2026-10-11",
+      "valor_total": 20000000.0,
+      "emissora": "Credmei Securitizadora S.A.",
+      "cnpj_emissora": "37.112.031/0001-44",
+      "status": "ativo",
+      "lei_aplicavel": "Lei 14.430/22",
+      "documentos_relacionados": [
+        "Contrato de Interveniente-Anuente",
+        "Contrato de Prestação de Serviços Operacionais"
+      ]
+    },
+    "estrutura_financeira": {
+      "series_senior": {
+        "quantidade_series": 4,
+        "valor_por_serie": 4500000.0,
+        "valor_total_senior": 18000000.0,
+        "subordinacao_a": []
+      },
+      "series_subordinadas": {
+        "quantidade_series": 1,
+        "valor_total_subordinada": 2000000.0,
+        "subordinacao_a": ["series_senior"]
+      },
+      "indices_minimos": {
+        "subordinacao_minima": 0.05,
+        "subordinacao_inicial": 0.10
+      }
+    },
+    "criterios_elegibilidade": {
+      "tipos_ativos_permitidos": {
+        "duplicatas_mercantis_recompra": {
+          "descricao": "Duplicatas mercantis com obrigação de recompra do cedente",
+          "limite_percentual": 1.0,
+          "obrigatorio": true
+        }
+      },
+      "limites_individuais": {
+        "valor_minimo_ativo": 100.0,
+        "valor_maximo_ativo": 500000.0,
+        "vencimento_minimo_dias": 3,
+        "vencimento_maximo_dias": 230,
+        "taxa_minima_mensal": 0.0155
+      },
+      "limites_concentracao": {
+        "sacado_individual": {
+          "limite": 0.03,
+          "ativo": true,
+          "base_calculo": "valor_carteira"
+        },
+        "cedente_individual": {
+          "limite": null,
+          "ativo": false,
+          "base_calculo": "valor_carteira"
+        },
+        "top_n_sacados": {
+          "n": null,
+          "limite": null,
+          "ativo": false
+        },
+        "top_n_cedentes": {
+          "n": null,
+          "limite": null,
+          "ativo": false
+        }
+      },
+      "limites_carteira": {
+        "vencimento_medio_maximo_dias": 90,
+        "taxa_media_minima_mensal": 0.018,
+        "devedores_pj_apenas": true,
+        "inadimplencia_maxima_percentual": null,
+        "inadimplencia_90_dias_maxima": null,
+        "prazo_maximo_aquisicao_meses": 24,
+        "periodo_formacao_carteira_dias": null
+      }
+    },
+    "provisoes_pdd": {
+      "grupos_risco": {
+        "AA": {"atraso_max_dias": 0, "provisao_pct": 0.0},
+        "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
+        "B": {"atraso_max_dias": 30, "provisao_pct": 0.01},
+        "C": {"atraso_max_dias": 60, "provisao_pct": 0.03},
+        "D": {"atraso_max_dias": 90, "provisao_pct": 0.10},
+        "E": {"atraso_max_dias": 120, "provisao_pct": 0.30},
+        "F": {"atraso_max_dias": 150, "provisao_pct": 0.50},
+        "G": {"atraso_max_dias": 180, "provisao_pct": 0.70},
+        "H": {"atraso_max_dias": 999, "provisao_pct": 1.0}
+      }
+    },
+    "fundos_reservas": {
+      "fundo_reserva": {
+        "valor_fixo": 25000.0,
+        "descricao": "Fundo de reserva para cobertura de despesas",
+        "tipo": "fixo",
+        "ativo": true
+      }
+    },
+    "investimentos_permitidos": [
+      {
+        "tipo": "titulos_tesouro",
+        "descricao": "Títulos de emissão do Tesouro Nacional",
+        "liquidez": "diaria",
+        "ativo": true
+      },
+      {
+        "tipo": "titulos_privados",
+        "descricao": "Títulos privados de baixo risco emitidos por Itaú, Bradesco, Santander",
+        "liquidez": "diaria",
+        "ativo": true,
+        "instituicoes_aprovadas": ["Itaú", "Bradesco", "Santander"]
+      },
+      {
+        "tipo": "operacoes_compromissadas",
+        "descricao": "Operações compromissadas lastreadas nos títulos mencionados",
+        "liquidez": "diaria",
+        "ativo": true
+      },
+      {
+        "tipo": "fundos_di",
+        "descricao": "Cotas de fundos referenciados à Taxa DI com liquidez diária",
+        "liquidez": "diaria",
+        "ativo": true
+      }
+    ],
+    "obrigacoes_cura": [
+      {
+        "tipo": "indice_subordinacao",
+        "valor_limite": 0.05,
+        "prazo_cura_dias": 10,
+        "tipo_prazo": "uteis",
+        "ativo": true,
+        "acoes_permitidas": [
+          "cobranca_contrapartes",
+          "substituicao_direitos_creditorios",
+          "aportes_patrimonio_separado"
+        ],
+        "consequencia_nao_cura": "vencimento_antecipado_com_premio"
+      }
+    ],
+    "contas_patrimonio_separado": {
+      "conta_centralizadora": {
+        "banco": "274",
+        "agencia": "0001",
+        "conta": "08193343-4",
+        "finalidades": [
+          "movimentacoes_relacionadas_emissao"
+        ]
+      },
+      "conta_livre": {
+        "banco": "237",
+        "agencia": "0265",
+        "conta": "418000-3",
+        "finalidades": [
+          "movimentacoes_livres_emissora"
+        ]
+      }
+    },
+    "remuneracao": {
+      "series_senior": {
+        "tipo": "pos_fixado",
+        "indexador": "Taxa_DI",
+        "premio_risco": 0.015838,
+        "base_calculo": 252
+      },
+      "series_subordinadas": {
+        "tipo": "residual",
+        "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
+      }
+    },
+    "cronograma_pagamentos": {
+      "carencia_meses": 24,
+      "inicio_amortizacao": "2026-10-11",
+      "cronograma_amortizacao": [
+        {
+          "data": "2026-10-11",
+          "percentual": 1.0
+        }
+      ]
+    },
+    "debenturistas": {
+      "serie_senior": {
+        "nome": "MB SECURITIZAÇÃO E DISTRIBUIÇÃO S.A.",
+        "cnpj": "31.674.712/0001-10",
+        "tipo": "securitizadora",
+        "endereco": "Avenida Rebouças, nº 1585, 4º andar, Pinheiros, São Paulo, SP",
+        "email_contato": null,
+        "responsavel": null
+      },
+      "serie_subordinada": {
+        "nome": "CREDMEI SECURITIZADORA S.A.",
+        "cnpj": "37.112.031/0001-44",
+        "tipo": "emissora",
+        "endereco": null,
+        "email_contato": null,
+        "responsavel": null
+      }
+    },
+    "prestador_servicos_operacionais": {
+      "nome": "AMFI CONSULTING LTDA.",
+      "cnpj": "47.243.468/0001-70",
+      "contrato_data": "2024-10-11"
+    },
+    "eventos_de_monitoramento": [
+      {
+        "tipo": "indice_subordinacao",
+        "descricao": "Mínimo 5% - razão entre saldo devedor subordinado e total",
+        "limite": 0.05,
+        "unidade": "percentual",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Índice de Subordinação Mínimo"
+      },
+      {
+        "tipo": "concentracao_sacado_individual",
+        "descricao": "Máximo 3% por sacado (CPF/CNPJ)",
+        "limite": 0.03,
+        "unidade": "percentual",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "vencimento_medio_carteira",
+        "descricao": "Vencimento médio máximo 90 dias ponderado pelo valor",
+        "limite": 90,
+        "unidade": "dias",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "taxa_media_carteira",
+        "descricao": "Taxa média mínima 1.8% ao mês ponderada pelo valor",
+        "limite": 0.018,
+        "unidade": "percentual_mensal",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "valor_individual_minimo",
+        "descricao": "Valor mínimo R$ 100,00 por Direito Creditório",
+        "limite": 100.0,
+        "unidade": "valor",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "valor_individual_maximo",
+        "descricao": "Valor máximo R$ 500.000,00 por Direito Creditório",
+        "limite": 500000.0,
+        "unidade": "valor",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "vencimento_individual_minimo",
+        "descricao": "Vencimento mínimo 3 dias da submissão",
+        "limite": 3,
+        "unidade": "dias",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "vencimento_individual_maximo",
+        "descricao": "Vencimento máximo 230 dias da submissão",
+        "limite": 230,
+        "unidade": "dias",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "taxa_individual_minima",
+        "descricao": "Taxa mínima 1.55% ao mês por Direito Creditório",
+        "limite": 0.0155,
+        "unidade": "percentual_mensal",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "prazo_limite_aquisicoes",
+        "descricao": "Aquisições limitadas até 24 meses da emissão",
+        "limite": 24,
+        "unidade": "meses",
+        "ativo": true,
+        "clausula_escritura": "Anexo VI - Prazo Máximo para aquisição"
+      },
+      {
+        "tipo": "prazo_substituicao_inelegivel",
+        "descricao": "Emissora deve substituir direitos inelegíveis em 10 dias úteis",
+        "limite": 10,
+        "unidade": "dias_uteis",
+        "ativo": true,
+        "gatilhos": ["ineligibilidade", "desconformidade_criterios"],
+        "acao_requerida": "substituicao_obrigatoria",
+        "clausula_escritura": "Anexo VI - item ix"
+      }
+    ],
+    "vencimento_antecipado": [
+      {
+        "tipo": "violacao_subordinacao_continuada",
+        "descricao": "Violação do Índice de Subordinação Mínimo sem cura em 10 dias úteis",
+        "prazo_cura_dias": 10,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true,
+        "consequencia": "vencimento_antecipado_com_premio"
+      },
+      {
+        "tipo": "inadimplemento_pecuniario",
+        "descricao": "Descumprimento de qualquer obrigação pecuniária",
+        "prazo_cura_dias": 15,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true
+      },
+      {
+        "tipo": "inadimplemento_nao_pecuniario",
+        "descricao": "Descumprimento de qualquer obrigação não pecuniária",
+        "prazo_cura_dias": 15,
+        "automatico": false,
+        "notificacao_requerida": true,
+        "ativo": true
+      },
+      {
+        "tipo": "protesto_titulos",
+        "descricao": "Protesto de títulos em valor superior a R$ 500.000,00",
+        "prazo_cura_dias": 0,
+        "automatico": true,
+        "notificacao_requerida": false,
+        "ativo": true,
+        "valor_minimo": 500000.0
+      },
+      {
+        "tipo": "alteracao_controle_acionario",
+        "descricao": "Alteração do controle acionário da Emissora",
+        "prazo_cura_dias": 0,
+        "automatico": true,
+        "notificacao_requerida": false,
+        "ativo": true
+      }
+    ],
+    "mecanismos_recuperacao": {
+      "obrigacao_recompra_cedente": {
+        "ativo": true,
+        "descricao": "Duplicatas mercantis com obrigação de recompra do cedente original",
+        "responsavel": "cedente",
+        "aplicavel_a": "todos_direitos_creditorios",
+        "clausula_escritura": "Anexo VI - Tipos de Direitos Creditórios"
+      },
+      "substituicao_obrigatoria": {
+        "ativo": true,
+        "prazo_dias": 10,
+        "tipo_prazo": "uteis",
+        "gatilhos": ["ineligibilidade", "desconformidade_criterios"],
+        "responsavel": "emissora",
+        "opcoes": ["substituicao_equivalente"],
+        "descricao": "Emissora deve substituir direitos creditórios não elegíveis"
+      },
+      "cobranca_contrapartes": {
+        "ativo": true,
+        "responsavel": "emissora",
+        "descricao": "Reenquadramento através de cobrança das contrapartes",
+        "aplicavel_para": "violacao_subordinacao"
+      }
+    },
+    "ordem_alocacao_recursos": {
+      "carencia": [
+        "pagamento_despesas_encargos",
+        "composicao_fundo_reserva", 
+        "aquisicao_direitos_creditorios",
+        "aplicacao_investimentos_permitidos",
+        "saque_disponibilidades_excedentes"
+      ],
+      "pos_carencia": [
+        "pagamento_despesas_vencidas",
+        "pagamento_despesas_incorridas",
+        "pagamento_encargos_moratorios",
+        "composicao_fundo_reserva",
+        "pagamento_remuneracao_seniores",
+        "amortizacao_principal_seniores",
+        "amortizacao_principal_subordinadas",
+        "pagamento_remuneracao_subordinadas",
+        "saque_disponibilidades_excedentes"
+      ]
+    },
+    "encargos_moratorios": {
+      "multa_percentual": 0.02,
+      "juros_mora_mensal": 0.01,
+      "ativo": true
+    }
+  }
+}

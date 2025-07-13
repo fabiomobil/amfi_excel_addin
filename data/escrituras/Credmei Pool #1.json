@@ -1,0 +1,274 @@
+{
+  "// ================================================": "",
+  "// SEÇÃO 1: IDENTIFICAÇÃO E METADADOS": "",
+  "// Dados básicos de identificação do pool": "",
+  "// ================================================": "",
+
+  "pool_id": "Credmei Pool #1",
+  "pool_name": "Credmei Pool #1",
+  "status": "ativo",
+  "data_emissao": "2024-10-11",
+  "data_vencimento": "2026-10-11",
+
+  "metadata": {
+    "versao": "2.2",
+    "data_atualizacao": "2025-07-11",
+    "fonte_original": "Credmei Pool #1.json",
+    "schema_version": "monitoring_v2",
+    "completude": "100%",
+    "secoes_restauradas": ["estrutura_completa_migrada_para_template_v2.2"]
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 2: ESTRUTURA FINANCEIRA": "",
+  "// Core financeiro - valores, pagamentos, remuneração": "",
+  "// ================================================": "",
+
+  "valores": {
+    "total_emissao": 20000000.0,
+    "senior": 18000000.0,
+    "subordinada": 2000000.0,
+    "reserva_despesas": 25000.0,
+    "reserva_extraordinaria": null
+  },
+
+  "cronograma_pagamentos": {
+    "carencia_meses": 24,
+    "inicio_amortizacao": "2026-10-11",
+    "cronograma_amortizacao": [
+      {
+        "data": "2026-10-11",
+        "percentual": 1.0
+      }
+    ]
+  },
+
+  "remuneracao": {
+    "series_senior": {
+      "tipo": "pos_fixado",
+      "indexador": "Taxa_DI",
+      "premio_risco": 0.015838,
+      "base_calculo": 252,
+      "formula": "100% Taxa DI + 1.5838% a.a."
+    },
+    "series_subordinadas": {
+      "tipo": "residual",
+      "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
+    }
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 3: REGRAS DE NEGÓCIO": "",
+  "// Critérios, limites e regras específicas": "",
+  "// ================================================": "",
+
+  "provisoes_pdd": {
+    "grupos_risco": {
+      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
+      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
+      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
+      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
+      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
+      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
+      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
+      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
+      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+    }
+  },
+
+  "sacados_elegiveis": [],
+
+  "periodos_especiais": {
+    "formacao_carteira": {
+      "dias": null,
+      "inicio": null,
+      "fim": null,
+      "regras_especiais": []
+    },
+    "carencia_amortizacao": {
+      "meses": 24,
+      "inicio": "2024-10-11",
+      "fim": "2026-10-11"
+    },
+    "limite_aquisicoes": {
+      "meses": 24,
+      "data_limite": "2026-10-11"
+    }
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 4: SISTEMA DE MONITORAMENTO": "",
+  "// Engine de monitoramento e triggers": "",
+  "// ================================================": "",
+
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "limites": {
+        "minimo": 0.05,
+        "critico": null,
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "vencimento_antecipado_com_premio",
+        "prazo_cura_dias": 10,
+        "tipo_prazo": "uteis"
+      },
+      "campos_necessarios": ["sr", "jr"],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": 0.03,
+          "inclui_grupo_economico": false
+        }
+      ],
+      "campos_necessarios": ["sacado", "valor_presente"],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "vencimento_medio",
+      "tipo": "prazo",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "media",
+      "limites": {
+        "maximo_dias": 90,
+        "ponderado_por_valor": true
+      },
+      "campos_necessarios": ["data_vencimento", "valor_presente"],
+      "funcao_calculo": "calc_vencimento_medio"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "valor_minimo": 100.0,
+        "valor_maximo": 500000.0,
+        "vencimento_minimo_dias": 3,
+        "vencimento_maximo_dias": 230,
+        "taxa_minima_mensal": 0.0155,
+        "tipos_permitidos": ["duplicata_mercantil_recompra"],
+        "performadas_obrigatorio": true
+      },
+      "campos_necessarios": ["valor_presente", "data_vencimento", "taxa_mensal", "tipo_ativo"],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "taxa_media_carteira",
+      "tipo": "taxa_media",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "media",
+      "limites": {
+        "minimo_mensal": 0.018,
+        "ponderado_por_valor": true
+      },
+      "campos_necessarios": ["taxa_mensal", "valor_presente"],
+      "funcao_calculo": "calc_taxa_media"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+
+  "triggers_aceleracao": {
+    "obrigacao_pecuniaria": {
+      "prazo_cura_dias": 15,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "obrigacao_nao_pecuniaria": {
+      "prazo_cura_dias": 15,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "protesto_titulos": {
+      "prazo_cura_dias": 0,
+      "valor_minimo": 500000.0,
+      "automatico": true,
+      "notificacao_requerida": false
+    },
+    "subordinacao_violacao": {
+      "prazo_cura_dias": 10,
+      "tipo_prazo": "uteis",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "alteracao_controle": {
+      "prazo_cura_dias": 0,
+      "automatico": true,
+      "notificacao_requerida": false
+    }
+  },
+
+  "monitores_customizados": {
+    "arquivos_necessarios": [
+      "credmei_pool_1_recompra_obrigatoria.py",
+      "credmei_pool_1_substituicao_automatica.py"
+    ],
+    "descricoes": [
+      "Monitoramento de obrigação de recompra por cedentes para duplicatas mercantis",
+      "Sistema de substituição automática de direitos creditórios inelegíveis em 10 dias úteis"
+    ]
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 5: DADOS OPERACIONAIS": "",
+  "// Entidades, prestadores e informações operacionais": "",
+  "// ================================================": "",
+
+  "prestador_servicos_operacionais": {
+    "nome": "AMFI CONSULTING LTDA.",
+    "cnpj": "47.243.468/0001-70",
+    "contrato_data": "2024-10-11"
+  },
+
+  "originador_detalhado": {
+    "razao_social": "CREDMEI SECURITIZADORA S.A.",
+    "cnpj": "37.112.031/0001-44",
+    "endereco": null,
+    "email_contato": null,
+    "responsavel": null
+  },
+
+  "debenturistas_detalhados": {
+    "serie_senior": {
+      "nome": "MB SECURITIZAÇÃO E DISTRIBUIÇÃO S.A.",
+      "cnpj": "31.674.712/0001-10",
+      "tipo": "securitizadora",
+      "endereco": "Avenida Rebouças, nº 1585, 4º andar, Pinheiros, São Paulo, SP",
+      "email_contato": null,
+      "responsavel": null
+    },
+    "serie_subordinada": {
+      "nome": "CREDMEI SECURITIZADORA S.A.",
+      "cnpj": "37.112.031/0001-44",
+      "tipo": "emissora",
+      "endereco": null,
+      "email_contato": null,
+      "responsavel": null
+    }
+  }
+}

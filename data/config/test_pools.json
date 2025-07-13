@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "description": "Configuração de debug para sistema de monitoramento",
+    "version": "2.0",
+    "last_updated": "2025-01-07",
+    "author": "AmFi Monitoring System"
+  },
+  "debug_pools": [
+    "AFA Pool #1",
+    "LeCapital Pool #1"
+  ],
+  "monitor": [
+    "concentracao_sacados",
+    "indice_subordinacao"
+  ]
+}

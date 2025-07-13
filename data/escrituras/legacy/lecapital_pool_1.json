@@ -1,0 +1,582 @@
+{
+  "lecapital_pool_1": {
+    "info_escritura": {
+      "nome_completo": "35ª (Trigésima Quinta) Emissão de Debêntures Simples, Não Conversíveis em Ações, da Espécie Quirografária, em 2 (Duas) Séries, para Colocação Privada, da Companhia Securitizadora X S.A., com Lastro em Direitos Creditórios Diversificados",
+      "nome_admin": "LeCapital Pool #1",
+      "numero_emissao": "35",
+      "data_emissao": "2025-03-18",
+      "data_vencimento": "2028-03-18",
+      "valor_total": 8500000.0,
+      "emissora": "Companhia Securitizadora X S.A.",
+      "status": "ativo",
+      "lei_aplicavel": "Lei 14.430/22",
+      "documentos_relacionados": [
+        "Contrato de Prestação de Serviços Operacionais",
+        "Contrato de Promessa de Cessão de Direitos Creditórios e Outras Avenças com Coobrigação Exclusiva do Cedente",
+        "Contrato de Prestação de Serviços de Originação, Arrecadação, Recebimento, Cobrança e Outras Avenças"
+      ],
+      "investor": "Cromo FIDC",
+      "assembleia_aprovacao": "2025-03-14"
+    },
+    "estrutura_financeira": {
+      "series_senior": {
+        "quantidade_series": 1,
+        "valor_por_serie": 6250000.0,
+        "valor_total_senior": 6250000.0,
+        "subordinacao_a": []
+      },
+      "series_subordinadas": {
+        "quantidade_series": 1,
+        "valor_total_subordinada": 2250000.0,
+        "subordinacao_a": [
+          "series_senior"
+        ]
+      },
+      "indices_minimos": {
+        "subordinacao_minima": 25.0,
+        "subordinacao_critica": 20.0
+      }
+    },
+    "criterios_elegibilidade": {
+      "tipos_ativos_permitidos": {
+        "duplicatas_mercantis_servico": {
+          "descricao": "Duplicatas mercantis ou de serviço performadas",
+          "limite_percentual": 100.0,
+          "obrigatorio_primeiros_meses": "N/A"
+        }
+      },
+      "limites_individuais": {
+        "valor_minimo_ativo": 100.0,
+        "vencimento_minimo_dias": 7,
+        "vencimento_maximo_dias": 180,
+        "taxa_minima_cessao": "150% do CDI"
+      },
+      "limites_carteira": {
+        "vencimento_medio_maximo_dias": 90,
+        "concentracao_maxima_sacado": 35.0,
+        "concentracao_maxima_cedente": 50.0,
+        "inadimplencia_maxima_percentual": 4.0,
+        "inadimplencia_90_dias_maxima": 2.0,
+        "prazo_maximo_aquisicao_meses": 35,
+        "periodo_formacao_carteira_dias": 60,
+        "concentracao_maxima_top_10_sacados": 100.0,
+        "concentracao_maxima_top_10_cedentes": 70.0
+      },
+      "sacados_elegiveis": [
+        "MAERSK LOGISTICS SERVICES BRASIL LTDA.",
+        "SUZANO PAPEL E CELULOSE S.A.",
+        "PAINEIRAS LOGISTICA E TRANSPORTES",
+        "CMPC CELULOSE RIOGRANDENSE LTDA",
+        "COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO",
+        "WEG EQUIPAMENTOS ELÉTRICOS S.A.",
+        "QUÍMICA AMPARO LTDA."
+      ]
+    },
+    "provisoes_pdd": {
+      "grupos_risco": {
+        "AA": {
+          "atraso_maximo": 0,
+          "percentual_provisao": 0.0
+        },
+        "A": {
+          "atraso_maximo": 15,
+          "percentual_provisao": 0.5
+        },
+        "B": {
+          "atraso_maximo": 30,
+          "percentual_provisao": 1.0
+        },
+        "C": {
+          "atraso_maximo": 60,
+          "percentual_provisao": 3.0
+        },
+        "D": {
+          "atraso_maximo": 90,
+          "percentual_provisao": 10.0
+        },
+        "E": {
+          "atraso_maximo": 120,
+          "percentual_provisao": 30.0
+        },
+        "F": {
+          "atraso_maximo": 150,
+          "percentual_provisao": 50.0
+        },
+        "G": {
+          "atraso_maximo": 180,
+          "percentual_provisao": 70.0
+        },
+        "H": {
+          "atraso_maximo": 999,
+          "percentual_provisao": 100.0
+        }
+      }
+    },
+    "fundos_reservas": {
+      "reserva_despesas_encargos": {
+        "valor_fixo": 25000.0,
+        "descricao": "Reserva de Despesas e Encargos - 3 meses de despesas estimadas",
+        "tipo": "fixo"
+      },
+      "reserva_extraordinaria": {
+        "valor_fixo": 30000.0,
+        "descricao": "Reserva Extraordinária para despesas extraordinárias",
+        "tipo": "fixo"
+      },
+      "despesas_maximas_mensais": {
+        "valor_maximo": "N/A",
+        "descricao": "Não especificado na escritura",
+        "tipo": "N/A"
+      }
+    },
+    "investimentos_permitidos": [
+      {
+        "tipo": "titulos_tesouro",
+        "descricao": "Títulos de emissão do Tesouro Nacional",
+        "liquidez": "diaria"
+      },
+      {
+        "tipo": "titulos_privados",
+        "descricao": "Títulos privados emitidos por instituições financeiras do segmento 1 (S1) autorizadas pelo BACEN",
+        "liquidez": "diaria"
+      },
+      {
+        "tipo": "operacoes_compromissadas",
+        "descricao": "Operações compromissadas lastreadas nos títulos mencionados",
+        "liquidez": "diaria"
+      },
+      {
+        "tipo": "fundos_di",
+        "descricao": "Cotas de fundos referenciados à Taxa DI com liquidez diária",
+        "liquidez": "diaria"
+      }
+    ],
+    "obrigacoes_cura": [
+      {
+        "tipo": "indice_subordinacao",
+        "valor_limite": 25.0,
+        "prazo_cura_dias": 5,
+        "tipo_prazo": "uteis",
+        "acoes_permitidas": [
+          "subscricao_integralizacao_novas_debentures",
+          "recompra_direitos_creditorios"
+        ],
+        "consequencia_nao_cura": "amortizacao_extraordinaria_primeira_serie"
+      },
+      {
+        "tipo": "substituicao_direitos_creditorios",
+        "prazo_cura_dias": "N/A",
+        "tipo_prazo": "N/A",
+        "gatilhos": [
+          "violacao_criterios_elegibilidade",
+          "nao_enquadramento_criterios"
+        ],
+        "acoes_permitidas": [
+          "recompra_pelo_originador"
+        ]
+      }
+    ],
+    "contas_patrimonio_separado": {
+      "conta_centralizadora": {
+        "banco": "274",
+        "agencia": "0001",
+        "conta": "08149214-2",
+        "finalidades": [
+          "movimentacoes_exclusivas_relacionadas_emissao"
+        ]
+      },
+      "contas_vinculadas": {
+        "descricao": "Contas escrow de titularidade do Originador ou cedentes de Direitos Creditórios",
+        "movimentacao": "exclusiva_pela_emissora",
+        "beneficiarios": [
+          "conta_patrimonio_separado",
+          "conta_livre_originador"
+        ],
+        "condicoes": [
+          "aprovacao_previa_emissora",
+          "uso_exclusivo_creditos_patrimonio_separado",
+          "emissora_unica_autorizada_movimentar",
+          "emissora_unica_autorizada_encerrar"
+        ]
+      }
+    },
+    "remuneracao": {
+      "series_senior": {
+        "tipo": "pos_fixado",
+        "indexador": "Taxa_DI",
+        "premio_risco": 5.0,
+        "base_calculo": 252
+      },
+      "series_subordinadas": {
+        "tipo": "residual",
+        "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
+      }
+    },
+    "cronograma_pagamentos": {
+      "carencia_meses": 18,
+      "inicio_amortizacao": "2026-10-18",
+      "cronograma_amortizacao": [
+        {
+          "data": "2026-10-18",
+          "percentual": 5.55556
+        },
+        {
+          "data": "2026-11-18",
+          "percentual": 5.88235
+        },
+        {
+          "data": "2026-12-18",
+          "percentual": 6.25
+        },
+        {
+          "data": "2027-01-18",
+          "percentual": 6.66667
+        },
+        {
+          "data": "2027-02-18",
+          "percentual": 7.14286
+        },
+        {
+          "data": "2027-03-18",
+          "percentual": 7.69231
+        },
+        {
+          "data": "2027-04-18",
+          "percentual": 8.33333
+        },
+        {
+          "data": "2027-05-18",
+          "percentual": 9.09091
+        },
+        {
+          "data": "2027-06-18",
+          "percentual": 10.0
+        },
+        {
+          "data": "2027-07-18",
+          "percentual": 11.11111
+        },
+        {
+          "data": "2027-08-18",
+          "percentual": 12.5
+        },
+        {
+          "data": "2027-09-18",
+          "percentual": 14.28571
+        },
+        {
+          "data": "2027-10-18",
+          "percentual": 16.66667
+        },
+        {
+          "data": "2027-11-18",
+          "percentual": 20.0
+        },
+        {
+          "data": "2027-12-18",
+          "percentual": 25.0
+        },
+        {
+          "data": "2028-01-18",
+          "percentual": 33.33333
+        },
+        {
+          "data": "2028-02-18",
+          "percentual": 50.0
+        },
+        {
+          "data": "2028-03-18",
+          "percentual": 100.0
+        }
+      ]
+    },
+    "originador": {
+      "razao_social": "LECAPITAL SECURITIZADORA S/A",
+      "cnpj": "03.065.322/0001-07",
+      "endereco": "Avenida Fagundes Filho, nº 124, conjunto 101, bairro Vila Monte Alegre, São Paulo, SP, CEP 04304-000",
+      "email_contato": "evandro.carmo@lecapital.com.br",
+      "responsavel": "Evandro Elias do Carmo"
+    },
+    "debenturistas": {
+      "serie_senior": {
+        "nome": "CROMO FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS RESPONSABILIDADE LIMITADA",
+        "cnpj": "59.685.331/0001-55",
+        "administrador": "N/A",
+        "gestor": "SUESTE CAPITAL GESTÃO DE RECURSOS LTDA.",
+        "endereco": "Avenida Presidente Juscelino Kubitschek, nº 180, 17º andar, Cj. 172, Vila Nova Conceição, CEP 04543-000, São Paulo, SP",
+        "email_contato": "gilberto.almeida@suestecapital.com.br",
+        "responsavel": "Gilberto Augusto de Moraes Almeida"
+      },
+      "serie_subordinada": {
+        "nome": "LECAPITAL SECURITIZADORA S/A",
+        "cnpj": "03.065.322/0001-07",
+        "gestora": "N/A",
+        "endereco": "Avenida Fagundes Filho, nº 124, conjunto 101, bairro Vila Monte Alegre, São Paulo, SP, CEP 04304-000",
+        "email_contato": "evandro.carmo@lecapital.com.br",
+        "responsavel": "Evandro Elias do Carmo"
+      }
+    },
+    "escriturador": {
+      "nome": "LAQUS DEPOSITÁRIA DE VALORES MOBILIÁRIOS S.A.",
+      "cnpj": "33.268.302/0001-02"
+    },
+    "prestador_servicos_operacionais": {
+      "nome": "AMFI CONSULTING LTDA.",
+      "cnpj": "47.243.468/0001-70",
+      "contrato_data": "2025-03-17"
+    },
+    "eventos_de_monitoramento": [
+      {
+        "tipo": "indice_subordinacao",
+        "descricao": "Mínimo 25% - razão entre saldo devedor subordinado e total",
+        "clausula_escritura": "Anexo III - Fórmula de Cálculo da Razão de Subordinação"
+      },
+      {
+        "tipo": "inadimplencia_percentual",
+        "descricao": "Máximo 4% - direitos creditórios em atraso de 30+ dias",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "inadimplencia_90_dias",
+        "descricao": "Máximo 2% - direitos creditórios em atraso de 90+ dias",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "vencimento_medio_carteira",
+        "descricao": "Máximo 90 dias - vencimento médio ponderado pelo valor",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_sacados",
+        "descricao": "Máximo 35% por sacado ou grupo econômico",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_cedentes",
+        "descricao": "Máximo 50% por cedente ou grupo econômico",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_top_10_sacados",
+        "descricao": "Máximo 100% - concentração dos 10 maiores sacados",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "concentracao_top_10_cedentes",
+        "descricao": "Máximo 70% - concentração dos 10 maiores cedentes",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "composicao_tipos_ativos",
+        "descricao": "100% duplicatas mercantis ou de serviço performadas",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "sacados_elegiveis",
+        "descricao": "Verificação se contrapartes estão na lista de Sacados Elegíveis",
+        "clausula_escritura": "Anexo V - Sacados Elegíveis"
+      },
+      {
+        "tipo": "fundos_reserva",
+        "descricao": "Reserva de Despesas R$ 25.000 + Reserva Extraordinária R$ 30.000",
+        "clausula_escritura": "Cláusula 3.24.4 e 3.24.5"
+      },
+      {
+        "tipo": "eventos_aceleracao",
+        "descricao": "Eventos que causam vencimento antecipado automático ou com prazo de cura",
+        "clausula_escritura": "Anexo VI - Eventos de Avaliação"
+      },
+      {
+        "tipo": "criterios_elegibilidade",
+        "descricao": "Verificação se novos ativos atendem todos os critérios de elegibilidade",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "ordem_alocacao_recursos",
+        "descricao": "Sequência obrigatória de pagamentos (15 prioridades)",
+        "clausula_escritura": "Cláusula 3.24.3 - Ordem de Alocação de Recursos"
+      },
+      {
+        "tipo": "investimentos_permitidos",
+        "descricao": "Verificação se aplicações estão em ativos permitidos",
+        "clausula_escritura": "Anexo VII - Investimentos Permitidos"
+      },
+      {
+        "tipo": "conta_centralizadora",
+        "descricao": "Verificação de funcionamento e movimentações da conta do Patrimônio Separado",
+        "clausula_escritura": "Cláusula 7.3 - Conta do Patrimônio Separado"
+      },
+      {
+        "tipo": "contas_vinculadas",
+        "descricao": "Monitoramento das contas escrow vinculadas ao Patrimônio Separado",
+        "clausula_escritura": "Cláusula 7.4 a 7.6 - Contas Vinculadas ao Patrimônio Separado"
+      },
+      {
+        "tipo": "periodo_formacao_carteira",
+        "descricao": "Primeiros 60 dias - critérios de elegibilidade aplicáveis após período",
+        "clausula_escritura": "Anexo V - Período de Formação da Carteira"
+      },
+      {
+        "tipo": "prazo_limite_aquisicoes",
+        "descricao": "Aquisições limitadas até 35 meses da emissão",
+        "clausula_escritura": "Anexo V - Prazo Máximo para aquisição de novos Direitos Creditórios"
+      },
+      {
+        "tipo": "provisoes_pdd",
+        "descricao": "Classificação de risco por atraso (AA a H) e provisões correspondentes",
+        "clausula_escritura": "Anexo V - Regras de Provisão para Devedores Duvidosos (PDD)"
+      },
+      {
+        "tipo": "valor_minimo_direito_creditorio",
+        "descricao": "Valor mínimo de R$ 100,00 por Direito Creditório",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "vencimentos_individuais",
+        "descricao": "Vencimento entre 7 e 180 dias da submissão",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "taxa_minima_financiamento",
+        "descricao": "Taxa mínima de 150% do CDI mensal",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "registro_direitos_creditorios",
+        "descricao": "Verificação se Direitos Creditórios estão devidamente registrados",
+        "clausula_escritura": "Anexo V - Critérios de Elegibilidade"
+      },
+      {
+        "tipo": "substituicoes_obrigatorias",
+        "descricao": "Substituição obrigatória por desconformidade com critérios",
+        "clausula_escritura": "Cláusula 3.12 - Recompra de Direitos Creditórios"
+      },
+      {
+        "tipo": "amortizacao_excedente_subordinada",
+        "descricao": "Direito de amortização quando subordinação 5% acima do mínimo",
+        "clausula_escritura": "Cláusula 3.20.3.1 - Amortização do Excedente da Série Subordinada"
+      }
+    ],
+    "vencimento_antecipado": [
+      {
+        "tipo": "descumprimento_obrigacao_pecuniaria",
+        "descricao": "Descumprimento de qualquer obrigação pecuniária",
+        "prazo_cura_dias": 5,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "descumprimento_obrigacao_nao_pecuniaria",
+        "descricao": "Descumprimento de qualquer obrigação não pecuniária",
+        "prazo_cura_dias": 20,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "falencia_recuperacao_judicial",
+        "descricao": "Decretação de falência, recuperação judicial, liquidação ou dissolução",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "fusao_cisao_incorporacao",
+        "descricao": "Fusão, cisão e incorporação sem aprovação prévia ou sem direito de resgate",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "sentenca_judicial_nao_cumprida",
+        "descricao": "Não cumprimento de decisão judicial acima de R$ 10 milhões",
+        "prazo_cura_dias": 20,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "protesto_titulos",
+        "descricao": "Protesto de títulos em valor superior ao Valor Total da Emissão",
+        "prazo_cura_dias": 30,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "uso_inadequado_recursos",
+        "descricao": "Uso dos recursos em desacordo com a destinação",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "desenquadramento_limites_concentracao",
+        "descricao": "Desenquadramento de Limites de Concentração por mais de 30 dias",
+        "prazo_cura_dias": 30,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "desenquadramento_subordinacao_inadimplencia",
+        "descricao": "Desenquadramento do Índice de Subordinação Mínimo ou Inadimplência Máxima por mais de 7 dias",
+        "prazo_cura_dias": 7,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "nao_pagamento_direitos_creditorios",
+        "descricao": "Não pagamento de Direitos Creditórios que somam mais da metade do Valor Total da Emissão",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "nao_reenquadramento_subordinacao",
+        "descricao": "Não realização de ações para reenquadramento do Índice de Subordinação",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "constituicao_lastro_insuficiente",
+        "descricao": "Não constituição de lastro com ao menos 75% dos recursos em 90 dias",
+        "prazo_cura_dias": 90,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "interrupcao_atividades_originador",
+        "descricao": "Interrupção das atividades do Originador por mais de 20 dias corridos ou 30 dias acumulados no ano",
+        "prazo_cura_dias": 20,
+        "notificacao_requerida": true,
+        "automatico": false
+      },
+      {
+        "tipo": "incapacidade_originacao",
+        "descricao": "Originador sem capacidade de originar novos Direitos Creditórios elegíveis",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "reducao_capital_social",
+        "descricao": "Redução de capital social, exceto para absorção de prejuízos",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "alteracao_transferencia_controle",
+        "descricao": "Alteração ou transferência do controle direto ou indireto",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      },
+      {
+        "tipo": "declaracoes_falsas",
+        "descricao": "Comprovação de declarações falsas, inconsistentes ou incorretas",
+        "prazo_cura_dias": 0,
+        "notificacao_requerida": false,
+        "automatico": true
+      }
+    ]
+  }
+}

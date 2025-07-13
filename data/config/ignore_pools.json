@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "description": "Pools ignorados durante o monitoramento",
+    "version": "1.0",
+    "last_updated": "2025-01-07",
+    "author": "AmFi Monitoring System"
+  },
+  "ignore_pools": [
+    {
+      "pool_id": "NLT Tech One",
+      "reason": "Vencido",
+      "notes": "NC que venceu, deve ser removido da plataforma"
+    },
+    {
+      "pool_id": "AmFi Pool de Unitokens",
+      "reason": "BUG",
+      "notes": "Pool perpétuo que não monitoramos"
+    }
+  ]
+}
