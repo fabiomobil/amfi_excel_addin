@@ -5,17 +5,22 @@
 ### 📊 Estrutura de Dados Atual (Variável Diariamente)
 
 #### **Dados de Entrada (Estado 2025-07-13)**
-- **CSV Dashboard**: `AcompanhamentoDeOportunidades-2025-07-11.csv`
+- **CSV Dashboard**: `/data/input/csv/AcompanhamentoDeOportunidades-2025-07-11.csv`
   - **45 registros** de pools (varia diariamente)
   - Colunas: `nome`, `sr`, `jr`, `pl`, `tipo_de_produto`
   - Coluna identificadora: `nome` (ex: "LeCapital Pool #1")
   
-- **XLSX Portfolio**: `Carteira Global 2025-07-07.xlsx`
+- **XLSX Portfolio**: `/data/input/xlsx/Carteira Global 2025-07-07.xlsx`
   - **79,735 registros** de recebíveis (varia diariamente)
   - **36 pools únicos** (varia diariamente)
   - Coluna identificadora: `pool` (minúscula, ex: "LeCapital Pool #1")
   - Colunas nativas: `pool`, `loan_id`, `id_do_ativo`, `data_de_aquisicao`, `vencimento_original`, `status`, `valor_presente`, `nome_do_cedente`, `nome_do_sacado`
   - **16 colunas originais** (estado inicial)
+
+#### **Configurações de Pools**
+- **JSONs ativos**: `/config/pools/*.json` (7 pools padronizados)
+- **JSONs legacy**: `/config/pools/legacy/*.json` (versões antigas)
+- **Config monitoramento**: `/config/monitoring/test_pools.json` (modo DEBUG)
 
 ### 🔄 Processo de Enriquecimento Progressivo (Não Permanente)
 
@@ -181,7 +186,33 @@ from monitor_inadimplencia import run_delinquency_monitoring
 
 ---
 
+### 📂 Reestruturação Arquitetural (2025-07-13)
+
+#### **Mudanças Implementadas:**
+1. **Sistema Legacy Isolado**:
+   - `/udfs/`, `amfi.xlam`, `Monitoramento.xlsm` → `/legacy/`
+   - Documentado como "NÃO USAR" com README explicativo
+
+2. **Reorganização por Responsabilidade**:
+   - `/data/config/` → `/config/` (configurações estáticas)
+   - `/data/escrituras/` → `/config/pools/` (JSONs de pools)
+   - `/data/escrituras_md/` → `/assets/legal_docs/` (documentos legais)
+   - `/screenshots/` → `/assets/screenshots/` (evidências)
+   - `/data/csv/` → `/data/input/csv/` (dados de entrada)
+   - `/data/xlsx/` → `/data/input/xlsx/` (dados de entrada)
+   - `/data/monitoring_results/` → `/data/output/monitoring_results/` (resultados)
+
+3. **Estrutura Final**:
+   - `/legacy/` - Sistema antigo isolado
+   - `/monitor/` - Sistema atual (Python puro)
+   - `/config/` - Apenas configurações
+   - `/data/` - Apenas dados dinâmicos (input/output)
+   - `/assets/` - Recursos estáticos
+
+---
+
 **Sessão**: 2025-07-13  
 **Responsável**: Claude Sonnet 4.0  
 **Status**: Sistema integrado e funcional ✅  
+**Reestruturação**: Concluída com legacy isolado ✅  
 **Nota**: Números de pools e registros VARIAM DIARIAMENTE conforme novos dados são carregados.

@@ -196,6 +196,46 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 - Notificações automáticas
 - Mobile dashboard
 
+## Reestruturação Arquitetural (2025-07-13)
+
+### Sistema Legacy vs Sistema Atual
+
+#### **Sistema Legacy (Isolado em /legacy/)**
+- **Tecnologia**: xlwings + Excel UDFs
+- **Status**: Substituído e documentado como "NÃO USAR"
+- **Arquivos**: `udfs/`, `amfi.xlam`, `Monitoramento.xlsm`
+- **Problemas**: Dependente do Excel, difícil manutenção
+
+#### **Sistema Atual (Ativo em /monitor/)**
+- **Tecnologia**: Python puro + JSON configs
+- **Interface**: `orchestrator.run_monitoring()`
+- **Vantagens**: Independente, modular, testável, escalável
+- **Estrutura**: Monitores especializados com enriquecimento progressivo
+
+### Nova Organização de Diretórios
+
+```
+/mnt/c/amfi/
+├── legacy/                # Sistema antigo isolado
+├── monitor/               # Sistema Python atual
+├── config/                # Configurações estáticas
+│   ├── monitoring/       # test_pools.json, ignore_pools.json
+│   └── pools/            # JSONs de configuração dos pools
+├── data/                  # Dados dinâmicos apenas
+│   ├── input/            # CSVs e XLSXs diários
+│   └── output/           # Resultados de monitoramento
+├── assets/                # Recursos estáticos
+│   ├── legal_docs/       # Escrituras em markdown
+│   └── screenshots/      # Evidências e capturas
+└── docs/                  # Documentação completa
+```
+
+### Benefícios da Reestruturação
+- **Separação clara**: Legacy vs Atual
+- **Organização lógica**: Por tipo de conteúdo
+- **Manutenção facilitada**: Responsabilidades bem definidas
+- **Desenvolvimento focado**: Apenas em `/monitor/`
+
 ## Arquitetura de Monitoramento
 
 ### Nova Arquitetura Integrada com Enriquecimento Progressivo:

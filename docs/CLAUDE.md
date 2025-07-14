@@ -24,37 +24,100 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 ## Estrutura de Diretórios
 ```
 /mnt/c/amfi/
-├── docs/                    # Documentação do projeto
-│   ├── processos/           # Checklists e processos operacionais
-│   ├── sessions/            # APENAS to-dos por data (sem documentação técnica)
-│   └── technical/           # Documentação técnica detalhada
-├── tests/                   # Testes organizados
-│   ├── unit/               # Testes unitários
-│   ├── integration/        # Testes de integração
-│   ├── performance/        # Testes de performance
-│   └── fixtures/           # Dados de teste
-├── scripts/                # Scripts utilitários e debug
-├── monitor/                # Sistema de monitoramento
+├── legacy/                  # ⚠️ SISTEMA ANTIGO (xlwings) - NÃO USAR
+│   ├── README.md           # Documentação do sistema legacy
+│   ├── .gitignore          # Ignora conteúdo legacy no git
+│   ├── udfs/               # UDFs Excel antigas (xlwings)
+│   ├── amfi.xlam           # Add-in Excel antigo
+│   └── Monitoramento.xlsm  # Workbook Excel antigo
+├── monitor/                 # ✅ SISTEMA ATUAL (Python puro)
 │   ├── base/               # Monitores padrão
-│   ├── custom/             # Monitores específicos
-│   └── utils/              # Utilitários compartilhados
-├── udfs/                   # Código Python principal (UDFs Excel)
-├── data/
-│   ├── csv/                # Dados diários dos pools (PL, SR, JR)
-│   ├── xlsx/               # Carteiras detalhadas (recebíveis)
-│   ├── escrituras/         # JSONs de configuração dos pools
-│   ├── escrituras_md/      # Escrituras originais em markdown
-│   └── templates/          # Templates para criação de novos JSONs
-└── Monitoramento.xlsm      # Interface Excel
+│   ├── custom/             # Monitores específicos por pool
+│   ├── utils/              # Utilitários compartilhados
+│   └── orchestrator.py     # Interface principal do sistema
+├── config/                  # ⚙️ CONFIGURAÇÕES ESTÁTICAS
+│   ├── monitoring/         # Configurações de monitoramento
+│   │   ├── test_pools.json # Pools para modo DEBUG
+│   │   └── ignore_pools.json # Pools a ignorar
+│   └── pools/              # Configurações de pools
+│       ├── *.json          # JSONs ativos dos pools
+│       └── legacy/         # JSONs antigos (histórico)
+├── data/                    # 💾 DADOS DINÂMICOS APENAS
+│   ├── input/              # Dados de entrada diários
+│   │   ├── csv/            # CSVs diários (PL, SR, JR)
+│   │   └── xlsx/           # Carteiras detalhadas (recebíveis)
+│   └── output/             # Resultados processados
+│       └── monitoring_results/ # Outputs de monitoramento por pool
+├── assets/                  # 📄 RECURSOS ESTÁTICOS
+│   ├── legal_docs/         # Escrituras originais em markdown
+│   └── screenshots/        # Screenshots e evidências
+├── docs/                    # 📚 DOCUMENTAÇÃO DO PROJETO
+│   ├── processos/          # Checklists e processos operacionais
+│   ├── sessions/           # APENAS to-dos por data (sem documentação técnica)
+│   └── technical/          # Documentação técnica detalhada
+├── scripts/                 # 🔧 SCRIPTS ADMINISTRATIVOS
+│   └── run_data_loader.py  # Script para executar data_loader
+└── tests/                   # 🧪 TESTES ORGANIZADOS
+    ├── unit/               # Testes unitários
+    ├── integration/        # Testes de integração (vazio)
+    ├── performance/        # Testes de performance
+    └── fixtures/           # Dados de teste (vazio)
+```
+
+## ⚠️ Sistema Legacy vs Sistema Atual
+
+### **❌ Sistema Legacy (NÃO USAR)**
+- **Local**: `/legacy/`
+- **Tecnologia**: xlwings + Excel UDFs
+- **Arquivos**: `udfs/`, `amfi.xlam`, `Monitoramento.xlsm`
+- **Status**: **SUBSTITUÍDO** - Mantido apenas para referência histórica
+- **Problemas**: Dependente do Excel, difícil manutenção, duplicação de código
+
+### **✅ Sistema Atual (USAR ESTE)**
+- **Local**: `/monitor/`
+- **Tecnologia**: Python puro + JSON configs
+- **Interface**: `orchestrator.run_monitoring()`
+- **Status**: **ATIVO** - Em desenvolvimento contínuo
+- **Vantagens**: Independente do Excel, modular, testável, escalável
+
+### **🔄 Migração de Funcionalidades**
+
+| **Função Legacy** | **Sistema Atual** | **Status** |
+|-------------------|-------------------|------------|
+| `udfs/amfi.py` (UDFs Excel) | `monitor/orchestrator.py` | ✅ Substituído |
+| `AmfiDashboard()` | `run_monitoring()` | ✅ Implementado |
+| `AmfiXLSX()` | `data_loader.load_pool_data()` | ✅ Melhorado |
+| `AmfiConcentracao()` | `monitor_concentracao.py` | 🔄 Em desenvolvimento |
+| `AmfiCalcularIS()` | `monitor_subordinacao.py` | ✅ Implementado |
+| Cache manual | Cache integrado no data_loader | ✅ Automatizado |
+
+### **📝 Como Usar o Sistema Atual**
+
+```python
+# Interface principal
+from monitor.orchestrator import run_monitoring
+
+# Executar monitoramento para todos os pools (modo DEBUG)
+resultado = run_monitoring()
+
+# Executar para pool específico
+resultado = run_monitoring("LeCapital Pool #1")
+
+# Resultado incluirá:
+# - Status de cada monitor executado
+# - Dados enriquecidos progressivamente
+# - Alertas e violações identificadas
 ```
 
 ## Estado Atual da Implementação
 
-### ✅ Concluído
-- Estrutura base de UDFs Excel
-- Handlers para CSV/XLSX/JSON
-- Sistema de cache
-- Funções de cálculo financeiro (IS, JR)
+### ✅ Concluído no Sistema Atual (/monitor/)
+- **Arquitetura modular** com monitores especializados
+- **Data loader centralizado** com descoberta automática
+- **Monitor de subordinação** com cálculo IS correto
+- **Monitor de inadimplência** com enriquecimento progressivo
+- **Sistema de cache** integrado automaticamente
+- **Orquestrador** com execução condicional de monitores
 - **7 pools auditados e padronizados** em JSON v2.2
 - **JSON otimizado para monitoramento** (template v2.2 organizado em 5 seções)
 - **Estrutura flexível de concentração** (top_N genérico)
