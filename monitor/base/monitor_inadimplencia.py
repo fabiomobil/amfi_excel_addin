@@ -167,8 +167,9 @@ def validate_data(csv_df: pd.DataFrame, xlsx_df: pd.DataFrame, config: Dict[str,
     # Verificar se há pelo menos um monitor com limites configurados
     for monitor in monitores:
         limites = monitor.get('limites', {})
-        if 'prazo_dias' not in limites or 'limite' not in limites:
-            raise ValueError(f"Monitor {monitor.get('id')} sem configuração completa de limites")
+        if 'limite' not in limites:
+            raise ValueError(f"Monitor {monitor.get('id')} sem configuração de limite")
+        # prazo_dias é opcional - se não existir, usa valor padrão 1 (qualquer atraso)
     
     return True
 
@@ -226,8 +227,8 @@ def calculate_delinquency_by_window(
     pl_col = 'pl' if 'pl' in csv_df.columns else 'PL'
     pl_pool = csv_df[pl_col].iloc[0]
     
-    # Filtrar apenas títulos atrasados
-    titulos_atrasados = xlsx_df[xlsx_df['status'] == 'atrasada'].copy()
+    # Filtrar apenas títulos atrasados (baseado em dias_atraso, não status)
+    titulos_atrasados = xlsx_df[xlsx_df['dias_atraso'] > 0].copy()
     
     # Se não há títulos atrasados, retornar zero
     if titulos_atrasados.empty:
@@ -271,18 +272,89 @@ def calculate_delinquency_by_window(
 # Mantida apenas classificação de grupo_de_risco para enriquecimento
 
 
-def generate_aging_analysis(xlsx_df: pd.DataFrame) -> Dict[str, Any]:
+def _extract_aging_ranges_from_pdd(config: Dict[str, Any]) -> List[Tuple[int, int, str]]:
     """
-    Gera análise de aging da carteira completa.
+    Extrai faixas de aging da configuração PDD do pool.
+    
+    Converte grupos de risco PDD em faixas de aging para análise consistente.
+    
+    Args:
+        config: Configuração do pool (JSON)
+        
+    Returns:
+        Lista de tuplas (min_dias, max_dias, label) para aging analysis
+        
+    Example:
+        Configuração PDD:
+        {
+            "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
+            "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
+            "B": {"atraso_max_dias": 30, "provisao_pct": 0.010}
+        }
+        
+        Retorna:
+        [(0, 0, "adimplente"), (1, 15, "1-15"), (16, 30, "16-30")]
+    """
+    # Obter configuração PDD
+    pdd_config = config.get('provisoes_pdd', {}).get('grupos_risco', {})
+    
+    if not pdd_config:
+        # Fallback para faixas padrão se não há configuração PDD
+        return [
+            (0, 0, "adimplente"),
+            (1, 30, "1-30"),
+            (31, 60, "31-60"),
+            (61, 90, "61-90"),
+            (91, float('inf'), "90+")
+        ]
+    
+    # Converter grupos PDD em faixas de aging
+    faixas = []
+    grupos_ordenados = sorted(pdd_config.items(), key=lambda x: x[1]['atraso_max_dias'])
+    
+    # Primeira faixa: adimplente (0 dias)
+    faixas.append((0, 0, "adimplente"))
+    
+    # Faixas baseadas nos grupos de risco
+    prev_max = 0
+    for grupo, config_grupo in grupos_ordenados:
+        max_dias = config_grupo['atraso_max_dias']
+        
+        if max_dias > prev_max:
+            min_dias = prev_max + 1
+            
+            # Tratamento especial para último grupo (999 dias = infinito)
+            if max_dias >= 999:
+                label = f"{min_dias}+"
+                faixas.append((min_dias, float('inf'), label))
+            else:
+                if min_dias == max_dias:
+                    label = f"{min_dias}d"
+                else:
+                    label = f"{min_dias}-{max_dias}"
+                faixas.append((min_dias, max_dias, label))
+            
+            prev_max = max_dias
+    
+    return faixas
+
+
+def generate_aging_analysis(xlsx_df: pd.DataFrame, config: Dict[str, Any] = None) -> Dict[str, Any]:
+    """
+    Gera análise de aging da carteira completa usando faixas configuráveis.
+    
+    As faixas de aging são derivadas da configuração PDD do pool para garantir
+    consistência entre análise de risco e monitoramento de inadimplência.
     
     Args:
         xlsx_df: DataFrame com carteira (deve ter 'dias_atraso' calculado)
+        config: Configuração do pool (JSON) - se None, usa faixas padrão
         
     Returns:
-        Dict com distribuição por faixas de atraso
+        Dict com distribuição por faixas de atraso configuráveis
     """
-    # Definir faixas de aging
-    faixas = [
+    # Obter faixas de aging da configuração PDD do pool
+    faixas = _extract_aging_ranges_from_pdd(config) if config else [
         (0, 0, "adimplente"),
         (1, 30, "1-30"),
         (31, 60, "31-60"),
@@ -295,12 +367,11 @@ def generate_aging_analysis(xlsx_df: pd.DataFrame) -> Dict[str, Any]:
     
     for min_dias, max_dias, label in faixas:
         if label == "adimplente":
-            # Títulos não atrasados
-            mask = (xlsx_df['status'] != 'atrasada') | (xlsx_df['dias_atraso'] == 0)
+            # Títulos não atrasados (baseado em dias_atraso)
+            mask = (xlsx_df['dias_atraso'] == 0)
         else:
-            # Títulos atrasados na faixa
-            mask = (xlsx_df['status'] == 'atrasada') & \
-                   (xlsx_df['dias_atraso'] >= min_dias) & \
+            # Títulos atrasados na faixa (baseado em dias_atraso)
+            mask = (xlsx_df['dias_atraso'] >= min_dias) & \
                    (xlsx_df['dias_atraso'] <= max_dias)
         
         titulos_faixa = xlsx_df[mask]
@@ -315,6 +386,175 @@ def generate_aging_analysis(xlsx_df: pd.DataFrame) -> Dict[str, Any]:
     return {
         "faixas": analise,
         "total_carteira": round(float(total_carteira), 2)
+    }
+
+
+def generate_detailed_overdue_matrix(xlsx_df: pd.DataFrame, config: Dict[str, Any] = None) -> Dict[str, Any]:
+    """
+    Gera matriz detalhada de TODOS os títulos atrasados com consolidações configuráveis.
+    
+    Funcionalidades:
+    - Lista completa de títulos atrasados com detalhes
+    - Consolidação por cedente com distribuição por faixas configuráveis
+    - Consolidação por sacado
+    - Estatísticas gerais de atraso
+    
+    Args:
+        xlsx_df: DataFrame com carteira (deve ter 'dias_atraso' calculado)
+        config: Configuração do pool (JSON) para faixas de aging configuráveis
+        
+    Returns:
+        Dict com:
+        - lista_titulos_atrasados: Lista detalhada de cada título
+        - consolidado_por_cedente: Resumo agrupado por cedente (distribuição configurável)
+        - consolidado_por_sacado: Resumo agrupado por sacado
+        - estatisticas_gerais: Métricas consolidadas
+    """
+    # Filtrar apenas títulos atrasados (baseado em dias_atraso > 0)
+    titulos_atrasados = xlsx_df[
+        (xlsx_df['dias_atraso'] > 0)
+    ].copy()
+    
+    # Se não há títulos atrasados, retornar estrutura vazia
+    if titulos_atrasados.empty:
+        return {
+            "lista_titulos_atrasados": [],
+            "consolidado_por_cedente": {},
+            "consolidado_por_sacado": {},
+            "estatisticas_gerais": {
+                "total_titulos_atrasados": 0,
+                "valor_total_em_atraso": 0.0,
+                "ticket_medio": 0.0,
+                "atraso_medio_dias": 0.0,
+                "maior_atraso_dias": 0,
+                "distribuicao_por_status": {}
+            }
+        }
+    
+    # 1. LISTA DETALHADA DE TÍTULOS ATRASADOS
+    lista_titulos = []
+    for idx, row in titulos_atrasados.iterrows():
+        titulo_info = {
+            "cedente": row.get('nome_do_cedente', 'N/A'),
+            "sacado": row.get('nome_do_sacado', 'N/A'),
+            "valor_presente": round(float(row['valor_presente']), 2),
+            "dias_atraso": int(row['dias_atraso']),
+            "data_vencimento": row['vencimento_original'].strftime('%Y-%m-%d') if pd.notna(row['vencimento_original']) else None,
+            "grupo_de_risco": row.get('grupo_de_risco', 'N/A'),
+            "status": row.get('status', 'atrasada'),
+            "numero_documento": row.get('numero_documento', 'N/A'),
+            "data_emissao": row['data_emissao'].strftime('%Y-%m-%d') if pd.notna(row.get('data_emissao')) else None
+        }
+        lista_titulos.append(titulo_info)
+    
+    # Ordenar por dias de atraso (mais atrasados primeiro)
+    lista_titulos = sorted(lista_titulos, key=lambda x: x['dias_atraso'], reverse=True)
+    
+    # 2. CONSOLIDAÇÃO POR CEDENTE
+    consolidado_cedente = {}
+    for cedente, grupo in titulos_atrasados.groupby('nome_do_cedente'):
+        if pd.isna(cedente) or cedente == '':
+            cedente = 'SEM_CEDENTE'
+            
+        # Estatísticas do cedente
+        valor_total = grupo['valor_presente'].sum()
+        qtd_titulos = len(grupo)
+        maior_atraso = grupo['dias_atraso'].max()
+        atraso_medio = grupo['dias_atraso'].mean()
+        
+        # Distribuição por faixas configuráveis (baseada no PDD do pool)
+        faixas_aging = _extract_aging_ranges_from_pdd(config) if config else [
+            (1, 30, "1-30"), (31, 60, "31-60"), (61, 90, "61-90"), (91, float('inf'), "90+")
+        ]
+        
+        faixas_dist = {}
+        for min_dias, max_dias, label in faixas_aging:
+            # Pular faixa adimplente (0 dias) na distribuição de atrasos
+            if min_dias == 0 and max_dias == 0:
+                continue
+                
+            if max_dias == float('inf'):
+                mask = grupo['dias_atraso'] >= min_dias
+            else:
+                mask = (grupo['dias_atraso'] >= min_dias) & (grupo['dias_atraso'] <= max_dias)
+            
+            faixas_dist[label] = len(grupo[mask])
+        
+        consolidado_cedente[cedente] = {
+            "quantidade_titulos": qtd_titulos,
+            "valor_total_atraso": round(float(valor_total), 2),
+            "maior_atraso_dias": int(maior_atraso),
+            "atraso_medio_dias": round(float(atraso_medio), 1),
+            "ticket_medio": round(float(valor_total / qtd_titulos), 2) if qtd_titulos > 0 else 0,
+            "distribuicao_faixas": faixas_dist,
+            "percentual_valor": round(float(valor_total / titulos_atrasados['valor_presente'].sum() * 100), 2)
+        }
+    
+    # Ordenar cedentes por valor total (maiores primeiro)
+    consolidado_cedente = dict(sorted(consolidado_cedente.items(), 
+                                    key=lambda x: x[1]['valor_total_atraso'], 
+                                    reverse=True))
+    
+    # 3. CONSOLIDAÇÃO POR SACADO
+    consolidado_sacado = {}
+    for sacado, grupo in titulos_atrasados.groupby('nome_do_sacado'):
+        if pd.isna(sacado) or sacado == '':
+            sacado = 'SEM_SACADO'
+            
+        # Estatísticas do sacado
+        valor_total = grupo['valor_presente'].sum()
+        qtd_titulos = len(grupo)
+        maior_atraso = grupo['dias_atraso'].max()
+        atraso_medio = grupo['dias_atraso'].mean()
+        
+        # Lista de cedentes únicos para este sacado
+        cedentes_unicos = grupo['nome_do_cedente'].dropna().unique().tolist()
+        
+        consolidado_sacado[sacado] = {
+            "quantidade_titulos": qtd_titulos,
+            "valor_total_atraso": round(float(valor_total), 2),
+            "maior_atraso_dias": int(maior_atraso),
+            "atraso_medio_dias": round(float(atraso_medio), 1),
+            "ticket_medio": round(float(valor_total / qtd_titulos), 2) if qtd_titulos > 0 else 0,
+            "quantidade_cedentes": len(cedentes_unicos),
+            "lista_cedentes": cedentes_unicos[:5],  # Top 5 cedentes
+            "percentual_valor": round(float(valor_total / titulos_atrasados['valor_presente'].sum() * 100), 2)
+        }
+    
+    # Ordenar sacados por valor total (maiores primeiro)
+    consolidado_sacado = dict(sorted(consolidado_sacado.items(), 
+                                   key=lambda x: x[1]['valor_total_atraso'], 
+                                   reverse=True))
+    
+    # 4. ESTATÍSTICAS GERAIS
+    valor_total_atraso = titulos_atrasados['valor_presente'].sum()
+    qtd_total = len(titulos_atrasados)
+    
+    # Distribuição por status (se houver outros tipos além de 'atrasada')
+    status_dist = titulos_atrasados['status'].value_counts().to_dict()
+    
+    # Top 10 maiores atrasos
+    top10_atrasos = lista_titulos[:10]
+    
+    estatisticas = {
+        "total_titulos_atrasados": qtd_total,
+        "valor_total_em_atraso": round(float(valor_total_atraso), 2),
+        "ticket_medio": round(float(valor_total_atraso / qtd_total), 2) if qtd_total > 0 else 0,
+        "atraso_medio_dias": round(float(titulos_atrasados['dias_atraso'].mean()), 1),
+        "atraso_mediano_dias": int(titulos_atrasados['dias_atraso'].median()),
+        "maior_atraso_dias": int(titulos_atrasados['dias_atraso'].max()),
+        "desvio_padrao_dias": round(float(titulos_atrasados['dias_atraso'].std()), 1),
+        "distribuicao_por_status": status_dist,
+        "quantidade_cedentes_afetados": titulos_atrasados['nome_do_cedente'].nunique(),
+        "quantidade_sacados_afetados": titulos_atrasados['nome_do_sacado'].nunique(),
+        "top_10_maiores_atrasos": top10_atrasos
+    }
+    
+    return {
+        "lista_titulos_atrasados": lista_titulos,
+        "consolidado_por_cedente": consolidado_cedente,
+        "consolidado_por_sacado": consolidado_sacado,
+        "estatisticas_gerais": estatisticas
     }
 
 
@@ -402,9 +642,15 @@ def run_delinquency_monitoring(
         # Processar cada janela configurada (usando dados do pool específico)
         monitores = _find_delinquency_monitors(config)
         for monitor in monitores:
-            window = monitor['limites']['prazo_dias']
+            # prazo_dias é opcional - se não existir, usa 1 (qualquer atraso)
+            window = monitor['limites'].get('prazo_dias', 1)
             limite = monitor['limites']['limite']
-            key = f"inadimplencia_{window}d"
+            
+            # Gerar key baseada no prazo ou usar ID do monitor se prazo=1
+            if window == 1:
+                key = monitor.get('id', 'inadimplencia_geral')
+            else:
+                key = f"inadimplencia_{window}d"
             
             resultado[key] = calculate_delinquency_by_window(
                 pool_xlsx,  # Usar dados filtrados por pool
@@ -415,8 +661,18 @@ def run_delinquency_monitoring(
         
         # Análise de PDD movida para monitor_pdd.py (execução separada)
         
-        # Adicionar análise de aging (usando dados do pool específico)
-        resultado['aging_analysis'] = generate_aging_analysis(pool_xlsx)
+        # Adicionar análise de aging (usando dados do pool específico com configuração)
+        resultado['aging_analysis'] = generate_aging_analysis(pool_xlsx, config)
+        
+        # Adicionar matriz detalhada de atrasos (NOVA FUNCIONALIDADE - 2025-07-15)
+        resultado['matriz_atrasos'] = generate_detailed_overdue_matrix(pool_xlsx, config)
+        
+        # Log da nova funcionalidade
+        if resultado['matriz_atrasos']['estatisticas_gerais']['total_titulos_atrasados'] > 0:
+            print(f"✅ MATRIZ DE ATRASOS: {resultado['matriz_atrasos']['estatisticas_gerais']['total_titulos_atrasados']} títulos atrasados analisados")
+            print(f"   - Cedentes afetados: {resultado['matriz_atrasos']['estatisticas_gerais']['quantidade_cedentes_afetados']}")
+            print(f"   - Sacados afetados: {resultado['matriz_atrasos']['estatisticas_gerais']['quantidade_sacados_afetados']}")
+            print(f"   - Valor total em atraso: R$ {resultado['matriz_atrasos']['estatisticas_gerais']['valor_total_em_atraso']:,.2f}")
         
         return resultado
         

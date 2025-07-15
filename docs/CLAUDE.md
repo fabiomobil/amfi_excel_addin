@@ -77,7 +77,7 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 - **Local**: `/monitor/`
 - **Tecnologia**: Python puro + JSON configs
 - **Interface**: `run_monitoring()` - ÚNICA função oficial
-- **Status**: **ATIVO** - Monitores subordinação + inadimplência implementados
+- **Status**: **ATIVO** - Monitores subordinação + inadimplência + PDD implementados
 - **Vantagens**: Independente do Excel, modular, testável, escalável
 
 ### **🔄 Migração de Funcionalidades**
@@ -124,7 +124,7 @@ print(f"Campos adicionados: dias_atraso, grupo_de_risco")
 **Monitores Executados Automaticamente:**
 - ✅ **Subordinação**: Índice de subordinação com limites (**IMPLEMENTADO**)
 - ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.) (**IMPLEMENTADO**)
-- ✅ **PDD**: Provisão para devedores duvidosos (**IMPLEMENTADO - 2025-07-14**)
+- ✅ **PDD**: Provisão para devedores duvidosos com lógica por cedente (**IMPLEMENTADO - 2025-07-14**)
 - 🔄 **Concentração**: Sacados/cedentes (planejado)
 - 🔄 **Vencimento médio**: Prazo médio ponderado (planejado)
 - 🔄 **Elegibilidade**: Critérios de ativos (planejado)
@@ -136,10 +136,10 @@ print(f"Campos adicionados: dias_atraso, grupo_de_risco")
 - **Arquitetura modular** com monitores especializados
 - **Data loader centralizado** com descoberta automática
 - **Monitor de subordinação** com cálculo IS correto ✅ **IMPLEMENTADO**
-- **Monitor de inadimplência** com enriquecimento progressivo ✅ **IMPLEMENTADO**
-- **Monitor de PDD** com arquitetura inteligente (separado mas eficiente) ✅ **IMPLEMENTADO**
+- **Monitor de inadimplência** com enriquecimento progressivo, matriz detalhada de atrasos e aging configurável ✅ **IMPLEMENTADO - Atualizado 2025-07-15**
+- **Monitor de PDD** com arquitetura inteligente e lógica por cedente ✅ **IMPLEMENTADO - 2025-07-14**
 - **Sistema de cache** integrado automaticamente
-- **Orquestrador** com execução condicional de monitores (3 monitores ativos)
+- **Orquestrador** com execução condicional de monitores (3 monitores integrados: subordinação, inadimplência, PDD)
 - **7 pools auditados e padronizados** em JSON v2.2
 - **JSON otimizado para monitoramento** (template v2.2 organizado em 5 seções)
 - **Estrutura flexível de concentração** (top_N genérico)
@@ -149,6 +149,10 @@ print(f"Campos adicionados: dias_atraso, grupo_de_risco")
 - **Padronização de formatos**: Percentuais em decimal, cronogramas corrigidos
 - **Template como fonte única de verdade**: Reorganizado em 5 seções lógicas
 - **Enriquecimento progressivo**: Sistema de dados globais otimizado (dias_atraso, grupo_de_risco)
+- **Arquitetura inteligente PDD**: Lógica por cedente com reutilização de dados enriquecidos
+- **Separação de responsabilidades**: PDD como monitor independente mas dependente do enriquecimento
+- **Matriz detalhada de atrasos**: Lista completa de títulos atrasados com consolidações por cedente/sacado (2025-07-15)
+- **Aging configurável**: Faixas de aging baseadas na configuração PDD de cada pool (2025-07-15)
 
 ### 🔄 Em Desenvolvimento
 - **Monitor de concentração** (sacados/cedentes individuais)
@@ -613,6 +617,72 @@ def run_delinquency_monitoring(csv_df, xlsx_df, config) -> pd.DataFrame:
 - **`dias_atraso`**: Dias de atraso calculados vs `vencimento_original`
 - **`grupo_de_risco`**: Classificação AA-H baseada na configuração PDD
 - **[PDD fields]**: Ficam para implementação v2.0
+
+#### **Nova Funcionalidade - Aging Configurável (2025-07-15)**
+O sistema de aging analysis agora é configurável baseado na estrutura PDD de cada pool:
+
+**Faixas Derivadas do PDD:**
+- Cada pool usa suas próprias faixas de aging baseadas em `provisoes_pdd.grupos_risco`
+- Exemplo Up Vendas: 1-15, 16-30, 31-60, 61-90, 91-120, 121-150, 151-180, 181+
+- Fallback para faixas padrão quando não há configuração PDD
+
+**Benefícios:**
+- ✅ Consistência entre análise de risco e monitoramento
+- ✅ Flexibilidade por pool
+- ✅ Distribuição configurável na matriz de atrasos
+
+#### **Nova Funcionalidade - Matriz Detalhada de Atrasos (2025-07-15)**
+O monitor de inadimplência agora retorna uma matriz completa de atrasos em `resultado['matriz_atrasos']`:
+
+**Estrutura da Matriz:**
+```json
+{
+  "lista_titulos_atrasados": [
+    {
+      "cedente": "Nome do Cedente",
+      "sacado": "Nome do Sacado",
+      "valor_presente": 10000.00,
+      "dias_atraso": 45,
+      "data_vencimento": "2025-06-01",
+      "grupo_de_risco": "D"
+    }
+  ],
+  "consolidado_por_cedente": {
+    "Cedente XYZ": {
+      "quantidade_titulos": 15,
+      "valor_total_atraso": 150000.00,
+      "maior_atraso_dias": 120,
+      "distribuicao_faixas": {
+        "1-30": 5,
+        "31-60": 7,
+        "61-90": 2,
+        "90+": 1
+      }
+    }
+  },
+  "consolidado_por_sacado": {
+    "Sacado ABC": {
+      "quantidade_titulos": 8,
+      "valor_total_atraso": 80000.00,
+      "quantidade_cedentes": 3,
+      "lista_cedentes": ["Cedente X", "Cedente Y", "Cedente Z"]
+    }
+  },
+  "estatisticas_gerais": {
+    "total_titulos_atrasados": 150,
+    "valor_total_em_atraso": 1500000.00,
+    "atraso_medio_dias": 42.5,
+    "quantidade_cedentes_afetados": 25,
+    "quantidade_sacados_afetados": 85
+  }
+}
+```
+
+**Utilidades:**
+- ✅ Análise granular de atrasos por título
+- ✅ Visão consolidada por cedente e sacado
+- ✅ Base para relatórios gerenciais de inadimplência
+- ✅ Identificação de padrões de atraso
 
 #### **Contrato de Dados:**
 

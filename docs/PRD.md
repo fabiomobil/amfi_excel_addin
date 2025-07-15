@@ -20,11 +20,11 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 
 **Funcionalidades** (executadas via `run_monitoring()`):
 - ✅ **Subordinação**: Cálculo de índice de subordinação (IS) com limites mínimo/crítico
-- ✅ **Inadimplência**: Monitoramento por janelas customizáveis (30d, 90d, etc.)
+- ✅ **Inadimplência**: Monitoramento por janelas customizáveis (30d, 90d, etc.) + matriz detalhada de atrasos
+- ✅ **PDD**: Provisão para devedores duvidosos com lógica por cedente
 - 🔄 **Concentração**: Análise de sacado/cedente individual e top-N (planejado)
 - 🔄 **Vencimento médio**: Prazo médio ponderado da carteira (planejado)
 - 🔄 **Elegibilidade**: Verificação de critérios de ativos válidos (planejado)
-- 🔄 **PDD**: Provisão para devedores duvidosos (planejado)
 
 **Interface**: `run_monitoring(pool_name=None)` - função única do sistema
 **Saída**: Dict estruturado com resultados de todos os monitores + DataFrame enriquecido
@@ -340,19 +340,20 @@ Localizados em `/monitor/custom/{pool_id}/`:
 - **Template padronizado**: v2.2 com 5 seções lógicas
 - **Estrutura organizada**: ✅ `/base/`, `/custom/`, `/utils/`
 - **Arquitetura integrada**: ✅ data_loader + orchestrator definida
-- **Monitores base prontos**: 2/5 (subordinação ✅, inadimplência ✅)
+- **Monitores base prontos**: 3/5 (subordinação ✅, inadimplência ✅, PDD ✅)
 - **Estratégia de enriquecimento**: ✅ Definida (dias_atraso, grupo_de_risco)
 - **Monitores customizados identificados**: 20+ arquivos mapeados
 - **Utilitários**: 5/5 (100% funcionais)
 - **Sistema de orquestração**: ✅ Arquitetura centralizada
-- **Cobertura de monitoramento**: 65% (infraestrutura + 2 monitores prontos)
+- **Cobertura de monitoramento**: 75% (infraestrutura + 3 monitores implementados)
 
 ### Próximas Entregas:
 
-#### **Fase 2a: Integração Imediata (Julho 2025)**
-- Implementação de `orchestrator.run_monitoring()` master
-- Integração de `monitor_inadimplencia.py` com enriquecimento
-- Testes da arquitetura integrada completa
+#### **Fase 2a: ✅ Concluída (Julho 2025)**
+- ✅ Implementação de `orchestrator.run_monitoring()` master
+- ✅ Integração de `monitor_inadimplencia.py` com enriquecimento
+- ✅ Implementação de `monitor_pdd.py` com arquitetura inteligente
+- ✅ Testes da arquitetura integrada completa (3 monitores funcionais)
 
 #### **Fase 2b: Expansão (Q3 2025)**  
 - Implementação de `monitor_concentracao.py` e `monitor_elegibilidade.py`

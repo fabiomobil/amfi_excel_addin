@@ -7,7 +7,8 @@
   },
   "debug_pools": [
     "AFA Pool #1",
-    "LeCapital Pool #1"
+    "LeCapital Pool #1",
+    "Up Vendas Pool #2"
   ],
   "monitor": [
     "concentracao_sacados",
