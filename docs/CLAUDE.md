@@ -59,7 +59,7 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 │   └── run_data_loader.py  # Script para executar data_loader
 └── tests/                   # 🧪 TESTES ORGANIZADOS
     ├── unit/               # Testes unitários
-    ├── integration/        # Testes de integração (vazio)
+    ├── integration/        # Testes de integração (scripts específicos)
     ├── performance/        # Testes de performance
     └── fixtures/           # Dados de teste (vazio)
 ```
@@ -390,8 +390,9 @@ class MonitorBase:
 │   └── [arquivos legacy removidos]    # pool_discovery, monitoring_engine, etc.
 └── data/
     ├── config/                        # 📁 Configurações do sistema
-    │   ├── ignore_pools.json          # Pools ignorados
-    │   └── test_pools.json            # Cenários de teste
+    │   └── monitoring/                # Configurações de monitoramento
+    │       ├── ignore_pools.json      # Pools ignorados
+    │       └── test_pools.json        # Cenários de teste
     ├── csv/                           # Dados gerais dos pools
     ├── xlsx/                          # Dados detalhadas das carteiras
     ├── escrituras/                    # Configurações específicas por pool
@@ -844,7 +845,7 @@ def executar_monitoramento_diario():
 - [x] **Fluxo de carregamento refinado**: Definido fluxo completo com 9 etapas
 - [x] **Sistema de ignore list**: Estrutura para pools ignorados e testes
 - [x] **Arquitetura de filtros**: Sistema flexível para executar pools específicos
-- [x] **Pasta data/config/**: Criada com ignore_pools.json e test_pools.json
+- [x] **Pasta config/monitoring/**: Criada com ignore_pools.json e test_pools.json
 - [x] **data_loader.py**: ✅ COMPLETO - Implementado com fluxo de 9 etapas, todas funções funcionais, código limpo
 - [x] **Refatoração para módulos**: data_loader fragmentado em file_loaders, data_handler, alerts, file_discovery
 - [x] **Compatibilidade Spyder**: Sistema de imports robusto com fallback automático
@@ -898,8 +899,24 @@ def executar_monitoramento_diario():
 
 **Localização**: `/mnt/c/amfi/monitor/base/monitor_pdd.py` (docstring atualizado com esta limitação)
 
+### 📁 Reorganização de Arquivos (2025-07-15)
+
+**Limpeza de Configurações**:
+- ❌ Removido: `config/monitoring/exampl_test_pools.json` (typo)
+- ❌ Removido: `config/monitoring/example_ignore_pools.json` (desnecessário)
+- ✅ Mantido: `config/monitoring/ignore_pools.json` e `test_pools.json`
+
+**Documentação Técnica Centralizada**:
+- 📁 Movido: `docs/SYSTEM_STATE.md` → `docs/technical/SYSTEM_STATE.md`
+- 📚 Pasta `docs/technical/` agora contém toda documentação técnica
+
+**Testes Organizados por Tipo**:
+- 📁 Movido: `tests/test_inadimplencia_results.py` → `tests/integration/`
+- 📁 Movido: `tests/test_spyder_json_loading.py` → `tests/integration/`
+- 📂 Estrutura final: `unit/`, `integration/`, `performance/`, `fixtures/`
+
 ### 📋 Próximos Passos (Atualização 2025-07-14)
-1. ✅ **Criar pasta data/config/** com ignore_pools.json e test_pools.json
+1. ✅ **Criar pasta config/monitoring/** com ignore_pools.json e test_pools.json
 2. ✅ **Implementar data_loader.py** com fluxo refinado de 9 etapas - COMPLETO
 3. ✅ **Implementar monitor_subordinacao.py** - COMPLETO
 4. ✅ **Implementar orquestrador de subordinação** - COMPLETO
@@ -1015,11 +1032,11 @@ except (ImportError, ValueError):
 - ✅ Ordem de implementação recomendada
 
 **CONTEÚDO ESTRITAMENTE PROIBIDO**:
-- ❌ Descobertas técnicas → docs/SYSTEM_STATE.md
+- ❌ Descobertas técnicas → docs/technical/SYSTEM_STATE.md
 - ❌ Definições de arquitetura → docs/CLAUDE.md  
 - ❌ Checklists e processos → docs/processos/
 - ❌ Documentação detalhada → docs/technical/
-- ❌ Métricas de performance → docs/SYSTEM_STATE.md
+- ❌ Métricas de performance → docs/technical/SYSTEM_STATE.md
 - ❌ Interfaces e código → docs/CLAUDE.md
 - ❌ Análises e explicações → docs/technical/
 

@@ -10,7 +10,7 @@ Garantir inicialização consistente e completa do contexto de desenvolvimento p
 # Sequência obrigatória de leitura
 1. CLAUDE.md → Contexto técnico completo
 2. PRD.md → Objetivos e roadmap  
-3. SYSTEM_STATE.md → Estado atual
+3. technical/SYSTEM_STATE.md → Estado atual
 4. USAGE_EXAMPLES.md → Padrões de uso
 ```
 
@@ -34,7 +34,7 @@ docs/technical/ → Para implementação técnica
 ### **ETAPA 3: SINCRONIZAÇÃO DE DOCUMENTOS (2 min)**
 ```bash
 # Verificar consistência entre documentos principais
-1. Métricas CLAUDE.md == SYSTEM_STATE.md
+1. Métricas CLAUDE.md == technical/SYSTEM_STATE.md
 2. Objetivos CLAUDE.md == PRD.md  
 3. Exemplos USAGE_EXAMPLES.md funcionais
 ```
@@ -183,7 +183,7 @@ Qualquer pessoa pode executar o protocolo
 ## 💡 Adaptações por Contexto
 
 ### **Sessão de Desenvolvimento Técnico:**
-- Foco em CLAUDE.md + SYSTEM_STATE.md
+- Foco em CLAUDE.md + technical/SYSTEM_STATE.md
 - Leitura detalhada de docs/technical/
 - Priorização de implementação
 
