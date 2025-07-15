@@ -25,6 +25,27 @@ Exemplo:
   - Título C: 95 dias atraso → Grupo G (70% provisão) ← PIOR ATIVO
 - RESULTADO: TODOS os títulos do Cedente XYZ recebem 70% provisão
 
+EXCEÇÃO - CCB (Cédula de Crédito Bancário):
+==========================================
+
+⚠️ IMPORTANTE: Lógica CCB NÃO IMPLEMENTADA
+
+Para títulos do tipo CCB, a lógica DEVERIA ser diferente:
+- CCB: Provisão calculada POR ATIVO individual (não por cedente)
+- Cada título CCB deveria ter sua própria provisão baseada em seu grupo de risco específico
+- Não deveria haver propagação do pior ativo para outros títulos do mesmo cedente
+
+STATUS ATUAL: Sistema funciona apenas com lógica por cedente.
+TODO: Implementar lógica específica para CCB quando necessário.
+
+Exemplo CCB (NÃO IMPLEMENTADO):
+- Cedente XYZ com CCBs:
+  - CCB A: 0 dias atraso → Grupo AA (0% provisão)
+  - CCB B: 10 dias atraso → Grupo A (0.5% provisão)  
+  - CCB C: 95 dias atraso → Grupo G (70% provisão)
+- RESULTADO ESPERADO: Cada CCB manteria sua provisão individual (0%, 0.5%, 70%)
+- RESULTADO ATUAL: Todos CCBs recebem 70% (lógica por cedente)
+
 ARQUITETURA INTELIGENTE:
 ========================
 
