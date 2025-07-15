@@ -339,6 +339,48 @@ def _extract_aging_ranges_from_pdd(config: Dict[str, Any]) -> List[Tuple[int, in
     return faixas
 
 
+def _get_assets_in_range(xlsx_df: pd.DataFrame, min_dias: int, max_dias: int) -> List[Dict[str, Any]]:
+    """
+    Extrai lista detalhada de ativos em uma faixa específica de dias de atraso.
+    
+    Args:
+        xlsx_df: DataFrame com carteira (deve ter 'dias_atraso' calculado)
+        min_dias: Limite mínimo de dias de atraso (inclusive)
+        max_dias: Limite máximo de dias de atraso (inclusive, ou float('inf') para sem limite)
+        
+    Returns:
+        Lista de dicionários com detalhes dos ativos na faixa
+    """
+    # Aplicar filtro por faixa
+    if max_dias == float('inf'):
+        mask = xlsx_df['dias_atraso'] >= min_dias
+    else:
+        mask = (xlsx_df['dias_atraso'] >= min_dias) & (xlsx_df['dias_atraso'] <= max_dias)
+    
+    ativos_faixa = xlsx_df[mask].copy()
+    
+    if ativos_faixa.empty:
+        return []
+    
+    # Ordenar por dias de atraso (maiores primeiro)
+    ativos_faixa = ativos_faixa.sort_values('dias_atraso', ascending=False)
+    
+    # Extrair detalhes de cada ativo
+    detalhes = []
+    for idx, row in ativos_faixa.iterrows():
+        ativo_info = {
+            "cedente": row.get('nome_do_cedente', 'N/A'),
+            "sacado": row.get('nome_do_sacado', 'N/A'),
+            "id_ativo": row.get('id_do_ativo', row.get('loan_id', 'N/A')),
+            "data_vencimento_original": row['vencimento_original'].strftime('%Y-%m-%d') if pd.notna(row['vencimento_original']) else None,
+            "dias_atraso": int(row['dias_atraso']),
+            "valor_presente": round(float(row['valor_presente']), 2)
+        }
+        detalhes.append(ativo_info)
+    
+    return detalhes
+
+
 def generate_aging_analysis(xlsx_df: pd.DataFrame, config: Dict[str, Any] = None) -> Dict[str, Any]:
     """
     Gera análise de aging da carteira completa usando faixas configuráveis.
@@ -346,12 +388,24 @@ def generate_aging_analysis(xlsx_df: pd.DataFrame, config: Dict[str, Any] = None
     As faixas de aging são derivadas da configuração PDD do pool para garantir
     consistência entre análise de risco e monitoramento de inadimplência.
     
+    NOVA FUNCIONALIDADE (2025-07-15): Inclui detalhes dos ativos por faixa
+    para drill-down operacional.
+    
     Args:
         xlsx_df: DataFrame com carteira (deve ter 'dias_atraso' calculado)
         config: Configuração do pool (JSON) - se None, usa faixas padrão
         
     Returns:
-        Dict com distribuição por faixas de atraso configuráveis
+        Dict com distribuição por faixas de atraso configuráveis + detalhes dos ativos:
+        - faixas: Dict com cada faixa contendo quantidade, valor, percentual e detalhes_ativos
+        - total_carteira: Valor total da carteira analisada
+        
+        Cada faixa inclui:
+        - quantidade: Número de títulos na faixa
+        - valor: Valor total na faixa
+        - percentual: Percentual da carteira total
+        - detalhes_ativos: Lista de ativos (vazia para adimplente, obrigatória para outras)
+        - detalhes_ativos_df: DataFrame ordenado por cedente, vencimento, valor (vazio para adimplente)
     """
     # Obter faixas de aging da configuração PDD do pool
     faixas = _extract_aging_ranges_from_pdd(config) if config else [
@@ -371,16 +425,36 @@ def generate_aging_analysis(xlsx_df: pd.DataFrame, config: Dict[str, Any] = None
             mask = (xlsx_df['dias_atraso'] == 0)
         else:
             # Títulos atrasados na faixa (baseado em dias_atraso)
-            mask = (xlsx_df['dias_atraso'] >= min_dias) & \
-                   (xlsx_df['dias_atraso'] <= max_dias)
+            if max_dias == float('inf'):
+                mask = xlsx_df['dias_atraso'] >= min_dias
+            else:
+                mask = (xlsx_df['dias_atraso'] >= min_dias) & \
+                       (xlsx_df['dias_atraso'] <= max_dias)
         
         titulos_faixa = xlsx_df[mask]
         valor_faixa = titulos_faixa['valor_presente'].sum()
         
+        # Obter detalhes dos ativos para drill-down (obrigatório exceto para adimplente)
+        detalhes_ativos = []
+        detalhes_ativos_df = pd.DataFrame()
+        if label != "adimplente":
+            detalhes_ativos = _get_assets_in_range(xlsx_df, min_dias, max_dias)
+            
+            # Converter para DataFrame ordenado
+            if detalhes_ativos:
+                detalhes_ativos_df = pd.DataFrame(detalhes_ativos)
+                detalhes_ativos_df = detalhes_ativos_df.sort_values([
+                    'cedente', 
+                    'data_vencimento_original', 
+                    'valor_presente'
+                ], ascending=[True, True, False])
+        
         analise[label] = {
             "quantidade": len(titulos_faixa),
             "valor": round(float(valor_faixa), 2),
-            "percentual": round((valor_faixa / total_carteira * 100) if total_carteira > 0 else 0, 2)
+            "percentual": round((valor_faixa / total_carteira * 100) if total_carteira > 0 else 0, 2),
+            "detalhes_ativos": detalhes_ativos,
+            "detalhes_ativos_df": detalhes_ativos_df
         }
     
     return {
