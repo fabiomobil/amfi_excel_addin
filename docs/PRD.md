@@ -20,8 +20,8 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 
 **Funcionalidades** (executadas via `run_monitoring()`):
 - ✅ **Subordinação**: Cálculo de índice de subordinação (IS) com limites mínimo/crítico
-- ✅ **Inadimplência**: Monitoramento por janelas customizáveis (30d, 90d, etc.) + matriz detalhada de atrasos
-- ✅ **PDD**: Provisão para devedores duvidosos com lógica por cedente
+- ✅ **Inadimplência**: Monitoramento por janelas customizáveis + aging configurável + drill-down completo
+- ✅ **PDD**: Provisão para devedores duvidosos com lógica por cedente ⚠️ **CCB não implementada**
 - 🔄 **Concentração**: Análise de sacado/cedente individual e top-N (planejado)
 - 🔄 **Vencimento médio**: Prazo médio ponderado da carteira (planejado)
 - 🔄 **Elegibilidade**: Verificação de critérios de ativos válidos (planejado)
@@ -197,6 +197,39 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 - APIs para sistemas externos
 - Notificações automáticas
 - Mobile dashboard
+
+## Funcionalidades Recentes (2025-07-15)
+
+### Aging Configurável + Drill-down Completo
+
+**Funcionalidade**: Análise de aging com faixas baseadas na configuração PDD de cada pool
+
+**Implementação**:
+- Faixas de aging derivadas automaticamente de `provisoes_pdd.grupos_risco`
+- Cada pool tem sua própria estrutura de aging (consistente com análise de risco)
+- Exemplo Up Vendas: 1-15, 16-30, 31-60, 61-90, 91-120, 121-150, 151-180, 181+
+
+**Drill-down de Ativos**:
+- `detalhes_ativos`: Lista de dicionários (formato original)
+- `detalhes_ativos_df`: DataFrame pandas ordenado para análise
+- Ordenação: cedente (A-Z), vencimento (antigo primeiro), valor (maior primeiro)
+- Disponível para todas as faixas exceto adimplente
+
+**Benefícios**:
+- ✅ Consistência entre PDD e análise de aging
+- ✅ Flexibilidade por pool
+- ✅ Drill-down operacional para identificar ativos específicos
+- ✅ DataFrame pronto para análises avançadas
+
+### Limitação CCB Documentada
+
+**Problema Identificado**: Sistema atual calcula PDD por cedente, mas CCB requer cálculo por ativo
+
+**Status**: Lógica CCB **não implementada** - sistema funciona apenas com lógica por cedente
+
+**Impacto**: CCB com atraso baixo pode receber provisão alta do pior ativo do mesmo cedente
+
+**Documentação**: Limitação claramente documentada no código e documentação técnica
 
 ## Reestruturação Arquitetural (2025-07-13)
 

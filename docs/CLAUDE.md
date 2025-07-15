@@ -137,7 +137,7 @@ print(f"Campos adicionados: dias_atraso, grupo_de_risco")
 - **Data loader centralizado** com descoberta automática
 - **Monitor de subordinação** com cálculo IS correto ✅ **IMPLEMENTADO**
 - **Monitor de inadimplência** com enriquecimento progressivo, matriz detalhada de atrasos e aging configurável ✅ **IMPLEMENTADO - Atualizado 2025-07-15**
-- **Monitor de PDD** com arquitetura inteligente e lógica por cedente ✅ **IMPLEMENTADO - 2025-07-14**
+- **Monitor de PDD** com arquitetura inteligente e lógica por cedente ✅ **IMPLEMENTADO - 2025-07-14** ⚠️ **CCB não implementada**
 - **Sistema de cache** integrado automaticamente
 - **Orquestrador** com execução condicional de monitores (3 monitores integrados: subordinação, inadimplência, PDD)
 - **7 pools auditados e padronizados** em JSON v2.2
@@ -618,18 +618,40 @@ def run_delinquency_monitoring(csv_df, xlsx_df, config) -> pd.DataFrame:
 - **`grupo_de_risco`**: Classificação AA-H baseada na configuração PDD
 - **[PDD fields]**: Ficam para implementação v2.0
 
-#### **Nova Funcionalidade - Aging Configurável (2025-07-15)**
-O sistema de aging analysis agora é configurável baseado na estrutura PDD de cada pool:
+#### **Nova Funcionalidade - Aging Configurável + Drill-down (2025-07-15)**
+O sistema de aging analysis agora é configurável baseado na estrutura PDD de cada pool com funcionalidade de drill-down completa:
 
 **Faixas Derivadas do PDD:**
 - Cada pool usa suas próprias faixas de aging baseadas em `provisoes_pdd.grupos_risco`
 - Exemplo Up Vendas: 1-15, 16-30, 31-60, 61-90, 91-120, 121-150, 151-180, 181+
 - Fallback para faixas padrão quando não há configuração PDD
 
+**Drill-down de Ativos (2025-07-15):**
+Cada faixa de aging inclui duas formas de acesso aos detalhes dos ativos:
+- `detalhes_ativos`: Lista de dicionários (formato original)
+- `detalhes_ativos_df`: DataFrame pandas ordenado por cedente, vencimento (antigo primeiro), valor (maior primeiro)
+
+**Estrutura de Retorno:**
+```json
+{
+  "faixas": {
+    "31-60": {
+      "quantidade": 5,
+      "valor": 125000.00,
+      "percentual": 15.5,
+      "detalhes_ativos": [...],           // Lista de dicionários
+      "detalhes_ativos_df": DataFrame     // DataFrame ordenado para análise
+    }
+  }
+}
+```
+
 **Benefícios:**
 - ✅ Consistência entre análise de risco e monitoramento
 - ✅ Flexibilidade por pool
 - ✅ Distribuição configurável na matriz de atrasos
+- ✅ Drill-down operacional completo por faixa
+- ✅ DataFrame pronto para análises avançadas
 
 #### **Nova Funcionalidade - Matriz Detalhada de Atrasos (2025-07-15)**
 O monitor de inadimplência agora retorna uma matriz completa de atrasos em `resultado['matriz_atrasos']`:
@@ -849,6 +871,32 @@ def executar_monitoramento_diario():
 - [ ] Gerenciador de alertas (`alert_manager.py`)
 - [ ] Implementação das funções nos utilitários
 - [ ] Implementação das funções nos monitores base
+
+### ⚠️ Limitações Conhecidas - CCB (Cédula de Crédito Bancário)
+
+**Status**: Lógica CCB **NÃO IMPLEMENTADA** no Monitor PDD
+
+**Problema**: 
+- Sistema atual calcula PDD por cedente (lógica padrão)
+- CCB requer cálculo PDD por ativo individual
+- Todos os títulos CCB recebem provisão do pior ativo do cedente (incorreto)
+
+**Impacto**:
+- CCB com 0 dias atraso pode receber provisão alta indevidamente
+- Superprovisão em carteiras com CCB misturadas
+- Análise de risco distorcida para pools com CCB
+
+**Solução Futura**:
+- Implementar detecção de tipo de ativo (CCB vs outros)
+- Aplicar lógica por ativo apenas para CCB
+- Manter lógica por cedente para demais tipos
+
+**Workaround Atual**:
+- Documentação clara sobre limitação
+- Monitoramento manual para pools com CCB
+- Análise separada quando necessário
+
+**Localização**: `/mnt/c/amfi/monitor/base/monitor_pdd.py` (docstring atualizado com esta limitação)
 
 ### 📋 Próximos Passos (Atualização 2025-07-14)
 1. ✅ **Criar pasta data/config/** com ignore_pools.json e test_pools.json
