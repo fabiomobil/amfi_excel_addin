@@ -326,21 +326,21 @@ def load_json(pools: List[str]) -> Dict[str, Dict]:
         Dict[str, Dict]: Configurações por pool
     """
     try:
-        from .file_loaders import get_possible_paths
+        from .path_resolver import get_possible_paths
     except ImportError:
         try:
-            from file_loaders import get_possible_paths
+            from path_resolver import get_possible_paths
         except ImportError:
-            # Mock function se não conseguir importar
-            def get_possible_paths(tipo, nome_base=None):
-                # Caminhos básicos para compatibilidade
-                if tipo == 'escrituras':
-                    paths = ["data/escrituras", "../../data/escrituras"]
-                else:
-                    paths = [f"data/{tipo}", f"../../data/{tipo}"]
-                if nome_base:
-                    return [os.path.join(p, nome_base) for p in paths]
-                return paths
+            try:
+                from .file_loaders import get_possible_paths
+            except ImportError:
+                try:
+                    from file_loaders import get_possible_paths
+                except ImportError:
+                    # Se nada funcionar, importar do módulo centralizado com path absoluto
+                    import sys
+                    sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
+                    from path_resolver import get_possible_paths
     
     configs = {}
     pools_sem_config = []

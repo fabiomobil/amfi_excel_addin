@@ -8,17 +8,20 @@ Responsável por:
 - Gerenciar logging e alertas
 - Consolidar resultados com tratamento robusto de erros
 
-Arquitetura Nova (2025-07-13):
+Arquitetura Nova (2025-07-14):
 - data_loader como CENTRALIZADOR (descoberta + config + carregamento)
 - XLSX global (79k+ registros, 36+ pools) enriquecido progressivamente
 - Execução condicional baseada em JSONs de configuração
 - Tratamento robusto: pool falha ≠ parar execução
+- Monitor PDD com arquitetura inteligente (separado mas eficiente)
 
 Fluxo de Execução:
 1. data_loader.load_pool_data() - centraliza tudo
 2. Para cada pool: execução condicional de monitores
-3. Enriquecimento por pool: xlsx['pool'] == pool_name
-4. Campos adicionados: dias_atraso, grupo_de_risco
+   - Subordinação: independente
+   - Inadimplência: enriquece XLSX global (dias_atraso, grupo_de_risco)
+   - PDD: usa dados já enriquecidos (arquitetura inteligente)
+3. Campos adicionados globalmente: dias_atraso, grupo_de_risco
 """
 
 import sys
@@ -30,6 +33,7 @@ from datetime import datetime
 try:
     from .base.monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
     from .base.monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
+    from .base.monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
     from .utils.data_loader import load_pool_data
     from .utils.alerts import log_alerta
     from .utils.file_loaders import load_dashboard, load_json_file
@@ -44,9 +48,40 @@ except (ImportError, ValueError):
         
     from monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
     from monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
+    from monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
     from data_loader import load_pool_data
     from alerts import log_alerta
     from file_loaders import load_dashboard, load_json_file
+
+# Importar função de descoberta de caminhos do módulo centralizado
+try:
+    from .utils.path_resolver import get_possible_paths
+except (ImportError, ValueError):
+    try:
+        # Se estiver rodando de utils/
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
+        from path_resolver import get_possible_paths
+    except ImportError:
+        # Se ainda falhar, tentar do file_loaders como fallback
+        try:
+            from file_loaders import get_possible_paths
+        except ImportError:
+            # Último recurso: definir inline (não ideal, mas funciona)
+            print("⚠️ Usando função get_possible_paths inline como fallback")
+            def get_possible_paths(tipo, nome_base=None):
+                """Fallback inline quando todos os imports falham."""
+                caminhos_base = {
+                    'escrituras': [
+                        "config/pools",
+                        r"C:\amfi\config\pools",
+                        "/mnt/c/amfi/config/pools",
+                        "../../config/pools"
+                    ]
+                }
+                caminhos = caminhos_base.get(tipo, [])
+                if nome_base:
+                    return [os.path.join(c, nome_base) for c in caminhos]
+                return caminhos
 
 
 def _has_subordination_monitoring(config: Dict[str, Any]) -> bool:
@@ -85,26 +120,130 @@ def _has_delinquency_monitoring(config: Dict[str, Any]) -> bool:
 
 def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
     """
-    Interface principal unificada do orquestrador.
+    Interface principal unificada do sistema de monitoramento AmFi.
     
-    Características:
-    - Usa data_loader como centralizador (descoberta + config + carregamento)
-    - XLSX global (79k+ registros, 36+ pools) enriquecido progressivamente
+    FUNCIONALIDADES PRINCIPAIS:
+    ==========================
+    
+    🎯 **Monitores Executados**: TODOS os monitores configurados
+    - ✅ **Subordinação**: Índice de subordinação (SR) com limites mínimo/crítico
+    - ✅ **Inadimplência**: Análise por janelas customizáveis (30d, 90d, etc.)
+    - ✅ **Concentração**: Sacados/cedentes individuais e top-N
+    - ✅ **Vencimento médio**: Prazo médio ponderado da carteira
+    - ✅ **Elegibilidade**: Critérios de ativos válidos
+    - ✅ **PDD**: Provisão para devedores duvidosos
+    
+    🔄 **Enriquecimento Progressivo**: 
+    - DataFrame XLSX global enriquecido com campos calculados
+    - Campos adicionados: 'dias_atraso', 'grupo_de_risco'
+    - Performance otimizada: cálculos feitos uma vez, reutilizados
+    
+    🏗️ **Arquitetura Moderna**:
+    - data_loader centraliza descoberta/config/carregamento
     - Execução condicional baseada em JSONs de configuração
-    - Tratamento robusto de erros (pool falha ≠ parar tudo)
+    - Compatibilidade multi-ambiente (Windows/WSL/Spyder)
+    - Tratamento robusto: falha de pool ≠ parar execução
     
     Args:
-        pool_name: Nome específico do pool ou None para todos os pools
+        pool_name (str, optional): 
+            - None: Processa TODOS os pools (modo normal ou debug via test_pools.json)
+            - "Pool Name": Processa apenas o pool específico
         
     Returns:
-        Dict com resultados consolidados de todos os pools processados
+        Dict[str, Any]: Estrutura de resultados consolidados
+        {
+            "sucesso": bool,
+            "timestamp": str,
+            "pools_processados": List[str],
+            "estatisticas": {
+                "total": int,
+                "sucesso": int, 
+                "erro": int,
+                "taxa_sucesso": float
+            },
+            "resultados": {
+                "Pool Name": {
+                    "sucesso": bool,
+                    "monitores_executados": ["subordinacao", "inadimplencia", "pdd"],
+                    "resultados": {
+                        "subordinacao": {
+                            "subordination_ratio_percent": float,
+                            "status_limite_minimo": "conforme|violado",
+                            "aporte_necessario": {...}
+                        },
+                        "inadimplencia": {
+                            "resultados": {
+                                "inadimplencia_30d": {
+                                    "inadimplencia_percent": float,
+                                    "limite_configurado": float,
+                                    "status": "conforme|violado"
+                                },
+                                "inadimplencia_90d": {...}
+                            }
+                        },
+                        "pdd": {
+                            "pdd_analysis": {
+                                "grupos": {"AA": {...}, "B": {...}},
+                                "totais": {
+                                    "provisao_valor": float,
+                                    "provisao_percentual": float
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "xlsx_enriched": pd.DataFrame,  # DataFrame globalmente enriquecido
+            "metadados": {...}
+        }
         
-    Example:
-        >>> # Processar todos os pools (modo normal ou debug)
+    Examples:
+        >>> # 1. PROCESSAR TODOS OS POOLS (modo debug - usa test_pools.json)
         >>> resultado = run_monitoring()
+        >>> print(f"Pools processados: {resultado['pools_processados']}")
+        >>> print(f"Taxa de sucesso: {resultado['estatisticas']['taxa_sucesso']}%")
         >>> 
-        >>> # Processar pool específico
+        >>> # 2. PROCESSAR POOL ESPECÍFICO
         >>> resultado = run_monitoring("LeCapital Pool #1")
+        >>> pool_result = resultado['resultados']['LeCapital Pool #1']
+        >>> 
+        >>> # Verificar subordinação
+        >>> sub_result = pool_result['resultados']['subordinacao']
+        >>> print(f"Subordinação: {sub_result['subordination_ratio_percent']}%")
+        >>> 
+        >>> # Verificar inadimplência
+        >>> inad_result = pool_result['resultados']['inadimplencia']['resultados']
+        >>> for janela, dados in inad_result.items():
+        >>>     print(f"{janela}: {dados['inadimplencia_percent']}% (limite: {dados['limite_configurado']*100}%)")
+        >>> 
+        >>> # Verificar PDD (se configurado)
+        >>> if 'pdd' in pool_result['resultados']:
+        >>>     pdd_result = pool_result['resultados']['pdd']['pdd_analysis']
+        >>>     print(f"PDD Total: R$ {pdd_result['totais']['provisao_valor']:,.2f}")
+        >>>     print(f"PDD %: {pdd_result['totais']['provisao_percentual']}%")
+        >>> 
+        >>> # 3. ACESSAR XLSX ENRIQUECIDO
+        >>> xlsx_enriched = resultado['xlsx_enriched']
+        >>> print(f"Novos campos: {['dias_atraso', 'grupo_de_risco']}")
+        >>> print(f"Total registros: {len(xlsx_enriched)}")
+        
+    Modo DEBUG:
+        Se arquivo /config/monitoring/test_pools.json existir:
+        - Processa apenas pools listados em "debug_pools"
+        - Exemplo: ["AFA Pool #1", "LeCapital Pool #1"]
+        
+    Compatibilidade:
+        ✅ Windows (C:\\amfi\\...)
+        ✅ WSL (/mnt/c/amfi/...)
+        ✅ Spyder (descoberta automática de caminhos)
+        ✅ Linha de comando
+        
+    Raises:
+        Exception: Apenas em falhas críticas do data_loader
+        
+    Note:
+        Esta é a ÚNICA interface oficial do sistema. 
+        Funções legacy foram removidas em 2025-07-14.
     """
     log_alerta({
         "tipo": "info", 
@@ -331,6 +470,40 @@ def _process_single_pool(pool_name: str, dados: Dict[str, Any]) -> Dict[str, Any
                     "mensagem": "✅ XLSX enriquecido com campo 'grupo_de_risco'"
                 })
         
+        # 3. Monitor de PDD (usa dados enriquecidos pelo monitor de inadimplência)
+        if _has_pdd_monitoring(config):
+            log_alerta({
+                "tipo": "info",
+                "pool": pool_name,
+                "mensagem": "Executando monitor de PDD (usando dados enriquecidos)"
+            })
+            
+            # ARQUITETURA INTELIGENTE: Usar XLSX já enriquecido pelo monitor de inadimplência
+            # Filtrar apenas dados do pool atual para cálculos de PDD
+            pool_xlsx_enriched = dados["xlsx_data"][dados["xlsx_data"]["pool"] == pool_name]
+            
+            if pool_xlsx_enriched.empty:
+                # Tentar com pool_name alternativo se pool_id não funcionar
+                pool_name_alt = config.get('pool_name', config.get('pool_id', ''))
+                pool_xlsx_enriched = dados["xlsx_data"][dados["xlsx_data"]["pool"] == pool_name_alt]
+            
+            resultado_pdd = run_pdd_monitoring(pool_xlsx_enriched, config)
+            resultados_monitores["pdd"] = resultado_pdd
+            
+            # Log da dependência cumprida
+            if resultado_pdd.get("sucesso"):
+                log_alerta({
+                    "tipo": "info",
+                    "pool": pool_name,
+                    "mensagem": "✅ PDD calculado usando enriquecimento de inadimplência"
+                })
+            else:
+                log_alerta({
+                    "tipo": "warning",
+                    "pool": pool_name,
+                    "mensagem": f"⚠️ Falha no monitor PDD: {resultado_pdd.get('erro', 'Desconhecido')}"
+                })
+        
         return {
             "sucesso": True,
             "pool": pool_name,
@@ -348,371 +521,71 @@ def _process_single_pool(pool_name: str, dados: Dict[str, Any]) -> Dict[str, Any
         }
 
 
-def orchestrate_subordination_monitoring(pool_name: str, data_referencia: str = None) -> Dict[str, Any]:
-    """
-    Orquestra monitoramento de subordinação para um pool específico.
-    
-    Args:
-        pool_name: Nome do pool (ex: "LeCapital Pool #1")
-        data_referencia: Data específica ou None para dados mais recentes
-        
-    Returns:
-        Dict com resultado completo do monitoramento
-        
-    Example:
-        >>> resultado = orchestrate_subordination_monitoring("LeCapital Pool #1")
-        >>> if resultado.get("sucesso"):
-        ...     print(f"SR: {resultado['subordination_ratio_percent']}%")
-    """
-    log_alerta({
-        "tipo": "info",
-        "pool": pool_name,
-        "monitor": "subordination_ratio",
-        "mensagem": f"Iniciando monitoramento de subordinação",
-        "data_referencia": data_referencia
-    })
-    
-    try:
-        # 1. Carregar dados do dashboard (CSV)
-        log_alerta({
-            "tipo": "info", 
-            "pool": pool_name,
-            "mensagem": "Carregando dados do CSV"
-        })
-        
-        csv_data = load_dashboard(data=data_referencia)
-        
-        # Filtrar dados do pool específico
-        pool_data = csv_data[csv_data['nome'] == pool_name]
-        
-        if pool_data.empty:
-            erro_msg = f"Pool '{pool_name}' não encontrado no CSV"
-            log_alerta({
-                "tipo": "erro",
-                "pool": pool_name,
-                "monitor": "subordination_ratio", 
-                "mensagem": erro_msg
-            })
-            return {
-                "sucesso": False,
-                "pool": pool_name,
-                "monitor": "subordination_ratio",
-                "erro": erro_msg,
-                "timestamp": datetime.now().isoformat()
-            }
-        
-        log_alerta({
-            "tipo": "info",
-            "pool": pool_name,
-            "mensagem": f"Dados CSV carregados: {len(pool_data)} registro(s)"
-        })
-        
-        # 2. Carregar configuração JSON do pool
-        log_alerta({
-            "tipo": "info",
-            "pool": pool_name, 
-            "mensagem": "Carregando configuração JSON"
-        })
-        
-        try:
-            # Tentar carregar JSON do pool
-            import json
-            json_path = f"/mnt/c/amfi/data/escrituras/{pool_name}.json"
-            
-            with open(json_path, 'r', encoding='utf-8') as f:
-                pool_config = json.load(f)
-                
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "mensagem": f"JSON carregado: {json_path}"
-            })
-            
-        except FileNotFoundError:
-            erro_msg = f"Configuração JSON não encontrada: {json_path}"
-            log_alerta({
-                "tipo": "erro",
-                "pool": pool_name,
-                "monitor": "subordination_ratio",
-                "mensagem": erro_msg
-            })
-            return {
-                "sucesso": False,
-                "pool": pool_name,
-                "monitor": "subordination_ratio", 
-                "erro": erro_msg,
-                "timestamp": datetime.now().isoformat()
-            }
-        
-        # 3. Executar monitoramento (delegando para o monitor)
-        log_alerta({
-            "tipo": "info",
-            "pool": pool_name,
-            "monitor": "subordination_ratio",
-            "mensagem": "Executando cálculo de subordination ratio"
-        })
-        
-        resultado = run_subordination_monitoring(pool_data, pool_config)
-        
-        # 4. Processar resultado e logging detalhado
-        if resultado.get("sucesso"):
-            # Sucesso - log detalhado
-            sr_percent = resultado.get('subordination_ratio_percent', 0)
-            status_min = resultado.get('status_limite_minimo', 'desconhecido')
-            status_crit = resultado.get('status_limite_critico', 'desconhecido')
-            
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "monitor": "subordination_ratio",
-                "valor": sr_percent,
-                "status_minimo": status_min,
-                "status_critico": status_crit,
-                "mensagem": f"Subordination ratio calculado: {sr_percent}% (Status: {status_min})"
-            })
-            
-            # Alertas específicos para violações
-            if status_min == 'violado':
-                aporte_necessario = resultado.get('aporte_necessario', {}).get('para_limite_minimo', 0)
-                limite_min = resultado.get('limite_minimo', 0) * 100
-                
-                log_alerta({
-                    "tipo": "alerta",
-                    "pool": pool_name,
-                    "monitor": "subordination_ratio",
-                    "severidade": "critica" if status_crit == 'violado' else "alta",
-                    "valor_atual": sr_percent,
-                    "limite_minimo": limite_min,
-                    "aporte_necessario": aporte_necessario,
-                    "mensagem": f"🚨 SUBORDINAÇÃO VIOLADA: {sr_percent}% < {limite_min}% (Aporte: R$ {aporte_necessario:,.2f})"
-                })
-                
-                # Alerta crítico se ambos os limites estão violados
-                if status_crit == 'violado':
-                    log_alerta({
-                        "tipo": "alerta",
-                        "pool": pool_name,
-                        "monitor": "subordination_ratio",
-                        "severidade": "critica",
-                        "mensagem": f"🔥 LIMITE CRÍTICO VIOLADO: Ação imediata necessária"
-                    })
-            
-            # 5. Salvar resultado (se necessário)
-            # TODO: Implementar save_monitoring_result() quando definir formato de persistência
-            
-            # 6. Consolidar resultado final
-            resultado_final = {
-                **resultado,
-                "pool": pool_name,
-                "timestamp": datetime.now().isoformat(),
-                "data_referencia": data_referencia or "atual"
-            }
-            
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "monitor": "subordination_ratio",
-                "mensagem": "Monitoramento de subordinação concluído com sucesso"
-            })
-            
-            return resultado_final
-            
-        else:
-            # Erro no monitor - log do erro
-            erro_monitor = resultado.get('erro', 'Erro desconhecido no monitor')
-            
-            log_alerta({
-                "tipo": "erro",
-                "pool": pool_name,
-                "monitor": "subordination_ratio",
-                "erro": erro_monitor,
-                "mensagem": f"Falha no cálculo: {erro_monitor}"
-            })
-            
-            return {
-                **resultado,
-                "pool": pool_name,
-                "timestamp": datetime.now().isoformat(),
-                "data_referencia": data_referencia or "atual"
-            }
-            
-    except Exception as e:
-        # Erro inesperado no orquestrador
-        erro_msg = f"Erro inesperado na orquestração: {str(e)}"
-        
-        log_alerta({
-            "tipo": "erro",
-            "pool": pool_name,
-            "monitor": "subordination_ratio",
-            "erro": erro_msg,
-            "mensagem": "Falha crítica na orquestração"
-        })
-        
-        return {
-            "sucesso": False,
-            "pool": pool_name,
-            "monitor": "subordination_ratio",
-            "erro": erro_msg,
-            "timestamp": datetime.now().isoformat(),
-            "data_referencia": data_referencia or "atual"
-        }
-
-
-def orchestrate_multiple_pools_monitoring(pools: List[str] = None, data_referencia: str = None) -> Dict[str, Any]:
-    """
-    Orquestra monitoramento de subordinação para múltiplos pools.
-    
-    Args:
-        pools: Lista de pools ou None para usar test_pools.json
-        data_referencia: Data específica ou None para dados mais recentes
-        
-    Returns:
-        Dict com resultados consolidados de todos os pools
-        
-    Example:
-        >>> resultado = orchestrate_multiple_pools_monitoring()
-        >>> print(f"Pools processados: {resultado['total_pools']}")
-    """
-    log_alerta({
-        "tipo": "info",
-        "mensagem": "Iniciando orquestração de múltiplos pools",
-        "data_referencia": data_referencia
-    })
-    
-    try:
-        # 1. Definir pools a serem processados
-        if pools is None:
-            # Usar configuração de teste
-            try:
-                test_config = load_json_file('test_pools.json')
-                pools_para_processar = test_config.get('debug_pools', [])
-                log_alerta({
-                    "tipo": "info",
-                    "mensagem": f"Usando test_pools.json: {pools_para_processar}"
-                })
-            except Exception as e:
-                log_alerta({
-                    "tipo": "erro",
-                    "mensagem": f"Erro ao carregar test_pools.json: {str(e)}"
-                })
-                return {
-                    "sucesso": False,
-                    "erro": "Falha ao carregar configuração de pools",
-                    "timestamp": datetime.now().isoformat()
-                }
-        else:
-            pools_para_processar = pools
-            
-        log_alerta({
-            "tipo": "info",
-            "mensagem": f"Processando {len(pools_para_processar)} pools: {pools_para_processar}"
-        })
-        
-        # 2. Executar monitoramento para cada pool
-        resultados = {}
-        pools_com_sucesso = 0
-        pools_com_erro = 0
-        pools_violados = 0
-        
-        for pool_name in pools_para_processar:
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "mensagem": f"Processando pool {pool_name}"
-            })
-            
-            resultado_pool = orchestrate_subordination_monitoring(pool_name, data_referencia)
-            resultados[pool_name] = resultado_pool
-            
-            # Estatísticas
-            if resultado_pool.get("sucesso"):
-                pools_com_sucesso += 1
-                if resultado_pool.get("status_limite_minimo") == "violado":
-                    pools_violados += 1
-            else:
-                pools_com_erro += 1
-        
-        # 3. Consolidar estatísticas
-        resultado_consolidado = {
-            "sucesso": True,
-            "timestamp": datetime.now().isoformat(),
-            "data_referencia": data_referencia or "atual",
-            "estatisticas": {
-                "total_pools": len(pools_para_processar),
-                "pools_com_sucesso": pools_com_sucesso,
-                "pools_com_erro": pools_com_erro,
-                "pools_violados": pools_violados,
-                "taxa_sucesso": round(pools_com_sucesso / len(pools_para_processar) * 100, 1)
-            },
-            "resultados": resultados
-        }
-        
-        # 4. Log consolidado
-        log_alerta({
-            "tipo": "info",
-            "mensagem": f"Orquestração concluída",
-            "total_pools": len(pools_para_processar),
-            "sucesso": pools_com_sucesso,
-            "erro": pools_com_erro,
-            "violados": pools_violados,
-            "taxa_sucesso": resultado_consolidado["estatisticas"]["taxa_sucesso"]
-        })
-        
-        # Alerta se houver violações
-        if pools_violados > 0:
-            pools_violados_nomes = [
-                pool for pool, resultado in resultados.items() 
-                if resultado.get("status_limite_minimo") == "violado"
-            ]
-            
-            log_alerta({
-                "tipo": "alerta",
-                "severidade": "alta",
-                "mensagem": f"🚨 {pools_violados} pools com subordinação violada: {pools_violados_nomes}"
-            })
-        
-        return resultado_consolidado
-        
-    except Exception as e:
-        erro_msg = f"Erro crítico na orquestração múltipla: {str(e)}"
-        
-        log_alerta({
-            "tipo": "erro",
-            "mensagem": erro_msg
-        })
-        
-        return {
-            "sucesso": False,
-            "erro": erro_msg,
-            "timestamp": datetime.now().isoformat()
-        }
+# Funções legacy removidas - usar run_monitoring() como interface única
 
 
 if __name__ == "__main__":
     # Exemplo de uso direto
-    print("🎯 ORQUESTRADOR DE MONITORAMENTO - Subordinação")
+    print("🎯 ORQUESTRADOR DE MONITORAMENTO - Todos os Monitores")
     print("=" * 60)
     
-    # Executar para pools de teste
-    resultado = orchestrate_multiple_pools_monitoring()
+    # Executar para pools de teste (NOVO: inclui inadimplência)
+    resultado = run_monitoring()
     
     if resultado.get("sucesso"):
         stats = resultado["estatisticas"]
         print(f"✅ Orquestração concluída:")
-        print(f"   📊 Total de pools: {stats['total_pools']}")
-        print(f"   ✅ Sucesso: {stats['pools_com_sucesso']}")
-        print(f"   ❌ Erro: {stats['pools_com_erro']}")
-        print(f"   🚨 Violados: {stats['pools_violados']}")
+        print(f"   📊 Total de pools: {stats['total']}")
+        print(f"   ✅ Sucesso: {stats['sucesso']}")
+        print(f"   ❌ Erro: {stats['erro']}")
         print(f"   📈 Taxa de sucesso: {stats['taxa_sucesso']}%")
         
-        # Mostrar detalhes dos pools violados
-        if stats['pools_violados'] > 0:
-            print(f"\n🚨 Pools com subordinação violada:")
-            for pool_name, resultado_pool in resultado["resultados"].items():
-                if resultado_pool.get("status_limite_minimo") == "violado":
-                    sr = resultado_pool.get("subordination_ratio_percent", 0)
-                    limite = resultado_pool.get("limite_minimo", 0) * 100
-                    aporte = resultado_pool.get("aporte_necessario", {}).get("para_limite_minimo", 0)
-                    print(f"   - {pool_name}: {sr}% < {limite}% (Aporte: R$ {aporte:,.2f})")
+        # Mostrar resultados detalhados por pool
+        print(f"\n📋 RESULTADOS POR POOL:")
+        for pool_name, pool_result in resultado["resultados"].items():
+            print(f"\n🏦 {pool_name}:")
+            print(f"   ✅ Sucesso: {pool_result.get('sucesso', 'N/A')}")
+            print(f"   📊 Monitores: {pool_result.get('monitores_executados', [])}")
+            
+            # Resultados de subordinação
+            if 'subordinacao' in pool_result.get('resultados', {}):
+                sub_result = pool_result['resultados']['subordinacao']
+                if 'subordination_ratio_percent' in sub_result:
+                    sr = sub_result['subordination_ratio_percent']
+                    status = sub_result.get('status_limite_minimo', 'N/A')
+                    print(f"   📈 Subordinação: {sr}% ({status})")
+            
+            # Resultados de inadimplência  
+            if 'inadimplencia' in pool_result.get('resultados', {}):
+                inad_result = pool_result['resultados']['inadimplencia']
+                print(f"   🔍 Inadimplência:")
+                if 'resultados' in inad_result:
+                    for monitor_id, monitor_data in inad_result['resultados'].items():
+                        if 'inadimplencia_percent' in monitor_data:
+                            perc = monitor_data['inadimplencia_percent']
+                            limite = monitor_data.get('limite_configurado', 0) * 100
+                            status = monitor_data.get('status', 'N/A')
+                            janela = monitor_id.replace('inadimplencia_', '').replace('d', ' dias')
+                            print(f"     - {janela}: {perc}% (limite: {limite}% | {status})")
+            
+            # Resultados de PDD
+            if 'pdd' in pool_result.get('resultados', {}):
+                pdd_result = pool_result['resultados']['pdd']
+                print(f"   💰 PDD (Provisão para Devedores Duvidosos):")
+                if 'pdd_analysis' in pdd_result and 'totais' in pdd_result['pdd_analysis']:
+                    totais = pdd_result['pdd_analysis']['totais']
+                    valor = totais.get('provisao_valor', 0)
+                    perc = totais.get('provisao_percentual', 0)
+                    print(f"     - Total: R$ {valor:,.2f} ({perc}% da carteira)")
+                    
+                    # Mostrar grupos com exposição
+                    if 'grupos' in pdd_result['pdd_analysis']:
+                        grupos_com_exposicao = {
+                            g: dados for g, dados in pdd_result['pdd_analysis']['grupos'].items()
+                            if dados.get('quantidade', 0) > 0
+                        }
+                        if grupos_com_exposicao:
+                            print(f"     - Grupos com exposição: {', '.join(grupos_com_exposicao.keys())}")
+        
     else:
         print(f"❌ Falha na orquestração: {resultado.get('erro', 'Erro desconhecido')}")

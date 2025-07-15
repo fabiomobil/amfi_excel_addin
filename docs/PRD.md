@@ -18,14 +18,16 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 ### 1. Monitoramento Individual por Pool
 **Objetivo**: Verificar compliance de cada fundo contra suas regras específicas.
 
-**Funcionalidades**:
-- Cálculo de índice de subordinação (IS)
-- Análise de concentração (sacado/cedente)
-- Monitoramento de inadimplência (30/60/90 dias)
-- Verificação de prazo médio da carteira
-- Controle de limites customizados por pool
+**Funcionalidades** (executadas via `run_monitoring()`):
+- ✅ **Subordinação**: Cálculo de índice de subordinação (IS) com limites mínimo/crítico
+- ✅ **Inadimplência**: Monitoramento por janelas customizáveis (30d, 90d, etc.)
+- 🔄 **Concentração**: Análise de sacado/cedente individual e top-N (planejado)
+- 🔄 **Vencimento médio**: Prazo médio ponderado da carteira (planejado)
+- 🔄 **Elegibilidade**: Verificação de critérios de ativos válidos (planejado)
+- 🔄 **PDD**: Provisão para devedores duvidosos (planejado)
 
-**Saída**: JSON detalhado com status de cada indicador
+**Interface**: `run_monitoring(pool_name=None)` - função única do sistema
+**Saída**: Dict estruturado com resultados de todos os monitores + DataFrame enriquecido
 
 ### 2. Dashboard Consolidado de Exceções
 **Objetivo**: Visão executiva focada apenas em violações e alertas.

@@ -24,123 +24,17 @@ import os
 try:
     from .data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalizar_nome_coluna
     from .alerts import log_alerta
+    from .path_resolver import get_possible_paths, find_existing_path
 except (ImportError, ValueError):
     # Fallback para imports diretos (Spyder)
     if os.path.dirname(__file__) not in sys.path:
         sys.path.insert(0, os.path.dirname(__file__))
     from data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalizar_nome_coluna
     from alerts import log_alerta
+    from path_resolver import get_possible_paths, find_existing_path
 
 
-def get_possible_paths(tipo: str, nome_base: str = None) -> List[str]:
-    """
-    Gera lista de caminhos possíveis para compatibilidade entre ambientes.
-    
-    Esta função é essencial para o sistema funcionar em diferentes configurações:
-    - Desenvolvimento local no Windows (C:\\amfi\\data)
-    - WSL - Windows Subsystem for Linux (/mnt/c/amfi/data)
-    - Execução via Spyder com diretórios relativos
-    - Servidores Linux com caminhos absolutos
-    
-    A função testa os caminhos em ordem de prioridade, começando pelos
-    mais comuns em desenvolvimento.
-    
-    Args:
-        tipo: Tipo de diretório ('csv', 'xlsx', 'config', 'escrituras')
-        nome_base: Nome do arquivo para concatenar ao caminho (opcional)
-        
-    Returns:
-        List[str]: Lista de caminhos possíveis ordenados por prioridade
-        
-    Examples:
-        >>> get_possible_paths('csv')
-        ['data/csv', 'C:\\amfi\\data\\csv', '/mnt/c/amfi/data/csv', '../../data/csv']
-        
-        >>> get_possible_paths('config', 'test_pools.json')  
-        ['data/config/test_pools.json', 'C:\\amfi\\data\\config\\test_pools.json', ...]
-        
-    Raises:
-        ValueError: Se tipo não for um dos suportados
-    """
-    caminhos_base = {
-        'csv': [
-            "data/csv",
-            r"C:\amfi\data\csv",
-            "/mnt/c/amfi/data/csv",
-            "../../data/csv"
-        ],
-        'xlsx': [
-            "data/xlsx",
-            r"C:\amfi\data\xlsx", 
-            "/mnt/c/amfi/data/xlsx",
-            "../../data/xlsx"
-        ],
-        'config': [
-            "data/config",
-            r"C:\amfi\data\config",
-            "/mnt/c/amfi/data/config",
-            "../../data/config"
-        ],
-        'escrituras': [
-            "data/escrituras",
-            r"C:\amfi\data\escrituras",
-            "/mnt/c/amfi/data/escrituras",
-            "../../data/escrituras"
-        ]
-    }
-    
-    if tipo not in caminhos_base:
-        raise ValueError(f"Tipo '{tipo}' não suportado. Use: {list(caminhos_base.keys())}")
-    
-    if nome_base:
-        return [os.path.join(caminho, nome_base) for caminho in caminhos_base[tipo]]
-    else:
-        return caminhos_base[tipo]
-
-
-def find_existing_path(tipo: str) -> str:
-    """
-    Descobre automaticamente qual caminho do tipo especificado existe no sistema.
-    
-    Esta função resolve o problema de compatibilidade entre ambientes diferentes.
-    Ela testa cada variante de caminho retornada por get_possible_paths() até
-    encontrar uma que realmente existe no filesystem atual.
-    
-    Processo de descoberta:
-    1. Obtém lista de caminhos possíveis via get_possible_paths()
-    2. Testa cada caminho com os.path.exists()
-    3. Retorna o primeiro caminho que existe
-    4. Falha se nenhum caminho for encontrado
-    
-    Esta abordagem permite que o código funcione sem modificação em:
-    - Máquinas de desenvolvimento Windows
-    - Ambiente WSL
-    - Execução via Spyder com working directory variável
-    - Servidores de produção
-    
-    Args:
-        tipo: Tipo de diretório ('csv', 'xlsx', 'config', 'escrituras')
-        
-    Returns:
-        str: Caminho absoluto do diretório encontrado
-        
-    Raises:
-        FileNotFoundError: Se nenhuma variante de caminho for encontrada
-        
-    Example:
-        >>> find_existing_path('csv')
-        '/mnt/c/amfi/data/csv'  # Em ambiente WSL
-        
-        >>> find_existing_path('config')
-        'C:\\amfi\\data\\config'  # Em Windows
-    """
-    possible_paths = get_possible_paths(tipo)
-    
-    for path in possible_paths:
-        if os.path.exists(path):
-            return path
-    
-    raise FileNotFoundError(f"Pasta {tipo} não encontrada. Tentados: {possible_paths}")
+# Funções get_possible_paths e find_existing_path agora vêm do path_resolver
 
 
 def read_csv_raw(arquivo_path: str) -> pd.DataFrame:
@@ -428,7 +322,7 @@ def get_file_metadata(df: pd.DataFrame) -> Dict:
         >>> meta['registros']
         156
         >>> meta['arquivo']
-        '/mnt/c/amfi/data/csv/AcompanhamentoDeOportunidades-2025-07-07.csv'
+        '/mnt/c/amfi/data/input/csv/AcompanhamentoDeOportunidades-2025-07-07.csv'
     """
     return {
         "arquivo": df.attrs.get('arquivo', 'desconhecido'),

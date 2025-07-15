@@ -76,8 +76,8 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 ### **✅ Sistema Atual (USAR ESTE)**
 - **Local**: `/monitor/`
 - **Tecnologia**: Python puro + JSON configs
-- **Interface**: `orchestrator.run_monitoring()`
-- **Status**: **ATIVO** - Em desenvolvimento contínuo
+- **Interface**: `run_monitoring()` - ÚNICA função oficial
+- **Status**: **ATIVO** - Monitores subordinação + inadimplência implementados
 - **Vantagens**: Independente do Excel, modular, testável, escalável
 
 ### **🔄 Migração de Funcionalidades**
@@ -91,22 +91,43 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 | `AmfiCalcularIS()` | `monitor_subordinacao.py` | ✅ Implementado |
 | Cache manual | Cache integrado no data_loader | ✅ Automatizado |
 
-### **📝 Como Usar o Sistema Atual**
+### **📝 Interface Principal: run_monitoring()**
+
+**ÚNICA função oficial do sistema** - Funções legacy removidas em 2025-07-14.
 
 ```python
-# Interface principal
 from monitor.orchestrator import run_monitoring
 
-# Executar monitoramento para todos os pools (modo DEBUG)
+# 1. PROCESSAR TODOS OS POOLS (modo debug)
 resultado = run_monitoring()
+print(f"Pools: {resultado['pools_processados']}")
+print(f"Taxa sucesso: {resultado['estatisticas']['taxa_sucesso']}%")
 
-# Executar para pool específico
+# 2. PROCESSAR POOL ESPECÍFICO
 resultado = run_monitoring("LeCapital Pool #1")
+pool_result = resultado['resultados']['LeCapital Pool #1']
 
-# Resultado incluirá:
-# - Status de cada monitor executado
-# - Dados enriquecidos progressivamente
-# - Alertas e violações identificadas
+# 3. VERIFICAR SUBORDINAÇÃO
+sub_result = pool_result['resultados']['subordinacao']
+print(f"Subordinação: {sub_result['subordination_ratio_percent']}%")
+
+# 4. VERIFICAR INADIMPLÊNCIA (todas as janelas configuradas)
+inad_result = pool_result['resultados']['inadimplencia']['resultados']
+for janela, dados in inad_result.items():
+    print(f"{janela}: {dados['inadimplencia_percent']}% (limite: {dados['limite_configurado']*100}%)")
+
+# 5. ACESSAR DADOS ENRIQUECIDOS
+xlsx_enriched = resultado['xlsx_enriched']  # DataFrame com novos campos
+print(f"Campos adicionados: dias_atraso, grupo_de_risco")
+```
+
+**Monitores Executados Automaticamente:**
+- ✅ **Subordinação**: Índice de subordinação com limites (**IMPLEMENTADO**)
+- ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.) (**IMPLEMENTADO**)
+- ✅ **PDD**: Provisão para devedores duvidosos (**IMPLEMENTADO - 2025-07-14**)
+- 🔄 **Concentração**: Sacados/cedentes (planejado)
+- 🔄 **Vencimento médio**: Prazo médio ponderado (planejado)
+- 🔄 **Elegibilidade**: Critérios de ativos (planejado)
 ```
 
 ## Estado Atual da Implementação
@@ -114,10 +135,11 @@ resultado = run_monitoring("LeCapital Pool #1")
 ### ✅ Concluído no Sistema Atual (/monitor/)
 - **Arquitetura modular** com monitores especializados
 - **Data loader centralizado** com descoberta automática
-- **Monitor de subordinação** com cálculo IS correto
-- **Monitor de inadimplência** com enriquecimento progressivo
+- **Monitor de subordinação** com cálculo IS correto ✅ **IMPLEMENTADO**
+- **Monitor de inadimplência** com enriquecimento progressivo ✅ **IMPLEMENTADO**
+- **Monitor de PDD** com arquitetura inteligente (separado mas eficiente) ✅ **IMPLEMENTADO**
 - **Sistema de cache** integrado automaticamente
-- **Orquestrador** com execução condicional de monitores
+- **Orquestrador** com execução condicional de monitores (3 monitores ativos)
 - **7 pools auditados e padronizados** em JSON v2.2
 - **JSON otimizado para monitoramento** (template v2.2 organizado em 5 seções)
 - **Estrutura flexível de concentração** (top_N genérico)
@@ -126,13 +148,15 @@ resultado = run_monitoring("LeCapital Pool #1")
 - **Auditoria sistemática completa**: 100% de dados verificados contra escrituras originais
 - **Padronização de formatos**: Percentuais em decimal, cronogramas corrigidos
 - **Template como fonte única de verdade**: Reorganizado em 5 seções lógicas
+- **Enriquecimento progressivo**: Sistema de dados globais otimizado (dias_atraso, grupo_de_risco)
 
 ### 🔄 Em Desenvolvimento
-- **Sistema de monitoramento modular** (5 arquivos por natureza)
-- **Monitores customizados específicos** (20+ identificados)
+- **Monitor de concentração** (sacados/cedentes individuais)
+- **Monitor de elegibilidade** (critérios gerais de ativos)
+- **Monitores customizados específicos** (20+ identificados por pool)
 - Dashboard de exceções
 - Análise de fluxo de caixa
-- Sistema de descoberta automática de pools (data_loader funcional)
+- Sistema de histórico de resultados
 
 ### 📋 Mapeamento Real de Eventos de Monitoramento
 
@@ -143,16 +167,19 @@ Padronizados e implementados em todos os pools via `monitoramentos_ativos`:
 - `subordinacao` - Índice mínimo de subordinação ✅ **IMPLEMENTADO**
 - `subordinacao_critica` - Limite crítico de subordinação ✅ **IMPLEMENTADO**
 
-**2. CONCENTRAÇÃO (2 eventos base)**
-- `concentracao_sacados` - Concentração máxima por sacado individual
-- `concentracao_cedentes` - Concentração máxima por cedente individual
+**2. INADIMPLÊNCIA (2 eventos base)**
+- `inadimplencia_30_dias` - Inadimplência 30+ dias (limite: 3-4%) ✅ **IMPLEMENTADO**
+- `inadimplencia_90_dias` - Inadimplência 90+ dias (limite: 2%) ✅ **IMPLEMENTADO**
 
-**3. INADIMPLÊNCIA (2 eventos base)**
-- `inadimplencia_30_dias` - Inadimplência 30+ dias (limite: 3-4%)
-- `inadimplencia_90_dias` - Inadimplência 90+ dias (limite: 2%)
+**3. PDD (1 evento base)**
+- `pdd` - Provisão para Devedores Duvidosos (grupos AA-H) ✅ **IMPLEMENTADO**
 
-**4. ELEGIBILIDADE (1 evento base)**
-- `elegibilidade_geral` - Critérios gerais de elegibilidade de ativos
+**4. CONCENTRAÇÃO (2 eventos base)**
+- `concentracao_sacados` - Concentração máxima por sacado individual 🔄 **PLANEJADO**
+- `concentracao_cedentes` - Concentração máxima por cedente individual 🔄 **PLANEJADO**
+
+**5. ELEGIBILIDADE (1 evento base)**
+- `elegibilidade_geral` - Critérios gerais de elegibilidade de ativos 🔄 **PLANEJADO**
 
 #### **⚙️ Eventos Customizados por Pool (20+ identificados)**
 Específicos por características de cada pool:
@@ -184,15 +211,14 @@ Específicos por características de cada pool:
 - `vencimento_individual_minimo` - Vencimento mínimo (3-15 dias)
 - `vencimento_individual_maximo` - Vencimento máximo (45-360 dias)
 
-#### **📊 Estatísticas Reais**
+#### **📊 Estatísticas Reais (Atualização 2025-07-14)**
 - **Eventos base padronizados**: 7 (template v2.2)
+- **Eventos base implementados**: 5/7 (71% - Subordinação + Inadimplência + PDD)
 - **Eventos customizados identificados**: 20+ (JSONs legacy)
 - **Total de combinações únicas**: 25+ eventos distintos
 - **Pools com eventos customizados**: 100% (todos têm particularidades)
-- Análise de liquidez vs amortizações
-- Comparativo temporal automático
-- Sistema de alertas
-- Testes automatizados
+- **Sistema de enriquecimento**: Operacional (dias_atraso, grupo_de_risco)
+- **Arquitetura inteligente**: PDD implementado com dependência otimizada
 
 ## Problemas Técnicos Resolvidos
 
@@ -370,7 +396,7 @@ class MonitorBase:
         └── pool_monitoring_template.json
 ```
 
-### Estado dos Arquivos Principais (Última Verificação: 2025-07-13)
+### Estado dos Arquivos Principais (Última Verificação: 2025-07-14)
 
 #### **Estrutura de Dados Real (Variável Diariamente)**
 - **CSV Dashboard**: ~45 registros de pools, colunas `nome/sr/jr/pl`
@@ -380,15 +406,16 @@ class MonitorBase:
 #### **Arquivos Funcionais Confirmados**
 | Arquivo | Status | Interface | Última Verificação |
 |---------|--------|-----------|-------------------|
-| **data_loader.py** | ✅ FUNCIONAL | `load_pool_data()` | 2025-07-13 (79k registros em 10s) |
-| **orchestrator.py** | ✅ FUNCIONAL | `run_monitoring()` | 2025-07-13 (100% taxa sucesso) |
-| **monitor_subordinacao.py** | ✅ FUNCIONAL | `run_subordination_monitoring()` | 2025-07-13 (integrado) |
-| **monitor_inadimplencia.py** | ✅ FUNCIONAL | `run_delinquency_monitoring()` | 2025-07-13 (c/ enriquecimento) |
+| **data_loader.py** | ✅ FUNCIONAL | `load_pool_data()` | 2025-07-14 (79k registros em 10s) |
+| **orchestrator.py** | ✅ FUNCIONAL | `run_monitoring()` | 2025-07-14 (3 monitores integrados) |
+| **monitor_subordinacao.py** | ✅ FUNCIONAL | `run_subordination_monitoring()` | 2025-07-14 (integrado) |
+| **monitor_inadimplencia.py** | ✅ FUNCIONAL | `run_delinquency_monitoring()` | 2025-07-14 (c/ enriquecimento) |
+| **monitor_pdd.py** | ✅ FUNCIONAL | `run_pdd_monitoring()` | 2025-07-14 (arquitetura inteligente) |
 
 ### Fluxo de Execução Integrado (Testado e Funcionando):
 
 ```
-orchestrator.run_monitoring(pool_name=None)
+run_monitoring(pool_name=None) [INTERFACE ÚNICA]
     ↓
 data_loader.load_pool_data() [CENTRALIZADOR]
     ├── Carrega CSV (~45 pools) + XLSX (~79k registros) + JSONs
@@ -403,6 +430,7 @@ Para cada pool configurado:
     │   │   ├── +dias_atraso: calculado para todos os 79k registros
     │   │   └── +grupo_de_risco: classificação AA-H para todos
     │   └── 2º pool: REUTILIZA campos já calculados (performance)
+    ├── _has_pdd_monitoring(config) ? → run_pdd_monitoring() [USA DADOS ENRIQUECIDOS]
     └── [futuros monitores: usam XLSX já enriquecido]
     ↓
 Resultado: DataFrame na memória com 18 colunas (temporário)
@@ -670,14 +698,14 @@ def executar_monitoramento_diario():
     
     for pool_name in pools:
         try:
-            # Subordinação
-            resultado_sub = orchestrate_subordination_monitoring(pool_name)
+            # NOVO: Execução integrada - TODOS os monitores de uma vez
+            resultado = run_monitoring(pool_name)
             
-            # Concentração  
-            resultado_conc = orchestrate_concentration_monitoring(pool_name)
-            
-            # Inadimplência
-            resultado_inad = orchestrate_default_monitoring(pool_name)
+            # Extrair resultados por tipo de monitor
+            pool_result = resultado['resultados'][pool_name]
+            resultado_sub = pool_result['resultados'].get('subordinacao', {})
+            resultado_conc = pool_result['resultados'].get('concentracao', {})  # Futuro
+            resultado_inad = pool_result['resultados'].get('inadimplencia', {})
             
             # Consolidar resultados
             relatorio_pool = {
@@ -698,13 +726,15 @@ def executar_monitoramento_diario():
             })
 ```
 
-#### **Status de Implementação:**
+#### **Status de Implementação (Atualização 2025-07-14):**
 
 - ✅ **monitor_subordinacao.py**: 100% funcional e testado
-- ✅ **Testes unitários**: 100% aprovados (4 testes por pool)
-- ✅ **Documentação**: Interface e contratos definidos
-- ✅ **Orquestrador**: 100% implementado e funcional
-- ✅ **Estratégia de erros**: Definida e documentada
+- ✅ **monitor_inadimplencia.py**: 100% funcional com enriquecimento
+- ✅ **monitor_pdd.py**: 100% funcional com arquitetura inteligente
+- ✅ **Orquestrador**: 100% implementado com 3 monitores integrados
+- ✅ **Sistema de enriquecimento**: Operacional (dias_atraso, grupo_de_risco)
+- ✅ **Arquitetura de dependências**: PDD usa dados já enriquecidos
+- ✅ **Documentação**: Interfaces e contratos atualizados
 - ❌ **Classes de erro específicas**: Aguardando implementação
 - ❌ **Sistema de retry**: Aguardando implementação
 - ❌ **monitoring_engine.py**: Aguardando implementação
@@ -734,10 +764,11 @@ def executar_monitoramento_diario():
 - [x] **Monitor de subordinação**: 100% implementado e testado
 - [x] **Orquestrador de subordinação**: Implementado com logging e alertas
 - [x] **Estratégia de tratamento de erros**: Definida por severidade e categoria
-- [x] **Monitor de inadimplência**: Funcionalmente completo, aguarda integração
-- [x] **Arquitetura de enriquecimento**: Estratégia de dados progressivos definida
+- [x] **Monitor de inadimplência**: 100% implementado com enriquecimento progressivo
+- [x] **Monitor de PDD**: 100% implementado com arquitetura inteligente (2025-07-14)
+- [x] **Arquitetura de enriquecimento**: Sistema operacional (dias_atraso, grupo_de_risco)
 - [x] **Padrões de nomenclatura**: `_find_*_monitor()`, `_has_*_monitoring()`, `run_*_monitoring()`
-- [x] **Integração data_loader + orchestrator**: Fluxo centralizado definido
+- [x] **Integração data_loader + orchestrator**: Fluxo centralizado com 3 monitores
 
 ### 🔄 Em Desenvolvimento
 - [ ] **Classes de erro específicas**: Implementar enum de severidade e classes customizadas
@@ -749,21 +780,21 @@ def executar_monitoramento_diario():
 - [ ] Implementação das funções nos utilitários
 - [ ] Implementação das funções nos monitores base
 
-### 📋 Próximos Passos
+### 📋 Próximos Passos (Atualização 2025-07-14)
 1. ✅ **Criar pasta data/config/** com ignore_pools.json e test_pools.json
 2. ✅ **Implementar data_loader.py** com fluxo refinado de 9 etapas - COMPLETO
 3. ✅ **Implementar monitor_subordinacao.py** - COMPLETO
 4. ✅ **Implementar orquestrador de subordinação** - COMPLETO
 5. ✅ **Definir arquitetura de enriquecimento progressivo** - COMPLETO
-6. **Implementar orchestrator.run_monitoring()** - Nova função master integrada
-7. **Integrar monitor_inadimplencia.py** com enriquecimento de DataFrame
-8. **Implementar funções auxiliares** (`_has_*_monitoring()` para cada monitor)
-9. **Implementar monitor_concentracao.py** (2 eventos base)
-10. **Implementar monitor_elegibilidade.py** (1 evento base)
-11. **Criar supersim_pool_1_recovery_rate.py** (🔧 Custom SuperSim)
-12. **Criar afa_pool_1_sacados_especificos.py** (🔧 Custom AFA)
-13. **Criar upvendas_pool_2_substituicao_pix.py** (🔧 Custom UpVendas)
-14. **Sistema de PDD** (v2.0 - Provisão para Devedores Duvidosos)
+6. ✅ **Implementar run_monitoring()** - Interface única implementada e testada
+7. ✅ **Integrar monitor_inadimplencia.py** com enriquecimento de DataFrame - COMPLETO
+8. ✅ **Implementar funções auxiliares** (`_has_*_monitoring()` para cada monitor) - COMPLETO
+9. ✅ **Implementar monitor_pdd.py** com arquitetura inteligente - COMPLETO
+10. **Implementar monitor_concentracao.py** (2 eventos base)
+11. **Implementar monitor_elegibilidade.py** (1 evento base)
+12. **Criar supersim_pool_1_recovery_rate.py** (🔧 Custom SuperSim)
+13. **Criar afa_pool_1_sacados_especificos.py** (🔧 Custom AFA)
+14. **Criar upvendas_pool_2_substituicao_pix.py** (🔧 Custom UpVendas)
 
 ### 📊 Métricas de Progresso
 - **Pools mapeados**: 7 (lecapital, afa, supersim, credmei, formento, upvendas, a55)
@@ -785,12 +816,13 @@ def executar_monitoramento_diario():
 - **Arquivos de configuração**: ✅ 2/2 (ignore_pools.json, test_pools.json)
 - **Template atualizado**: v2.2 com 5 seções lógicas e instruções detalhadas
 - **Eventos base mapeados**: 7/7 (template v2.2)
-- **Eventos base implementados**: 4/7 (subordinação + inadimplência prontos)
+- **Eventos base implementados**: 5/7 (subordinação + inadimplência + PDD ✅)
 - **Eventos customizados identificados**: 20+ (específicos por pool)
-- **Monitores base implementados**: 2/5 (subordinação ✅, inadimplência ✅ pronto)
+- **Monitores base implementados**: 3/5 (subordinação ✅, inadimplência ✅, PDD ✅)
 - **Monitores customizados implementados**: 0/20+
-- **Orquestradores implementados**: 1/1 (arquitetura integrada definida)
-- **Estratégia de enriquecimento**: 100% definida (dias_atraso, grupo_de_risco)
+- **Orquestradores implementados**: 1/1 (3 monitores integrados)
+- **Estratégia de enriquecimento**: 100% operacional (dias_atraso, grupo_de_risco)
+- **Arquitetura inteligente**: PDD implementado com dependência otimizada
 
 ## Dependências Principais
 - xlwings: Interface Excel
@@ -850,9 +882,9 @@ except (ImportError, ValueError):
 - **[VALIDACAO_SCHEMA_JSON.md](./technical/VALIDACAO_SCHEMA_JSON.md)** - Diretrizes para validação de schema JSON e compatibilidade Python
 
 ## Contato e Sessões
-- Última atualização: 2025-07-12
-- Sessão atual: Definição de estratégia de tratamento de erros no orquestrador
-- Próxima revisão: Implementação de classes de erro específicas e sistema de retry
+- Última atualização: 2025-07-14
+- Sessão atual: Implementação do monitor PDD com arquitetura inteligente
+- Próxima revisão: Monitor de concentração (sacados/cedentes)
 
 ### 📁 **Filosofia do docs/sessions/**
 

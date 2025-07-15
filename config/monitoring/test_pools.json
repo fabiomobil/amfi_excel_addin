@@ -11,6 +11,7 @@
   ],
   "monitor": [
     "concentracao_sacados",
-    "indice_subordinacao"
+    "indice_subordinacao",
+    "inadimplencia"
   ]
 }

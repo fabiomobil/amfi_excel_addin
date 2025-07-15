@@ -29,7 +29,7 @@
 #### **Fluxo do Enriquecimento Durante Execução:**
 
 ```
-1. orchestrator.run_monitoring() inicia
+1. run_monitoring() inicia [INTERFACE ÚNICA]
 2. data_loader carrega XLSX com 16 colunas originais
 3. Para cada pool processado:
    a) Monitor subordinação executa (não modifica XLSX)

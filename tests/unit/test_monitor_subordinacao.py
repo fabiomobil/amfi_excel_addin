@@ -64,7 +64,7 @@ try:
             print(f"✅ Dados do pool encontrados: {len(pool_data)} registro(s)")
             
             # 3.2. Carregar configuração JSON do pool
-            json_path = f"/mnt/c/amfi/data/escrituras/{pool_name}.json"
+            json_path = f"/mnt/c/amfi/config/pools/{pool_name}.json"
             try:
                 with open(json_path, 'r', encoding='utf-8') as f:
                     pool_config = json.load(f)

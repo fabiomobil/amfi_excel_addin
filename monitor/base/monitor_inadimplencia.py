@@ -2,18 +2,17 @@
 Monitor de Inadimplência
 ========================
 
-Responsável por monitorar:
+Responsável por:
 - Inadimplência por faixas de atraso (30, 60, 90+ dias)
 - Análise de aging de recebíveis
-- ENRIQUECIMENTO PROGRESSIVO de dados
-- [PDD - Provisão para Devedores Duvidosos fica para v2.0]
+- ENRIQUECIMENTO PROGRESSIVO de dados para outros monitores
 
 ESTRATÉGIA DE ENRIQUECIMENTO DE DADOS:
 =====================================
 
 Este monitor implementa a estratégia de ENRIQUECIMENTO PROGRESSIVO:
 - Recebe DataFrame XLSX por referência
-- ADICIONA campos calculados para futuros monitores
+- ADICIONA campos calculados para futuros monitores (PDD, Concentração, etc.)
 - Evita recálculos desnecessários
 - Campos adicionados: 'dias_atraso', 'grupo_de_risco'
 
@@ -24,13 +23,16 @@ Integração com Orquestrador:
 if _has_delinquency_monitoring(config):
     xlsx_enriched = run_delinquency_monitoring(csv_df, xlsx_df, config)
     # DataFrame agora contém campos calculados para próximos monitores
+    
+if _has_pdd_monitoring(config):
+    # Monitor PDD usa dados já enriquecidos
+    pdd_result = run_pdd_monitoring(xlsx_enriched, config)
 ```
 
 Campos Adicionados ao DataFrame XLSX:
 -------------------------------------
 - 'dias_atraso': int - Dias de atraso calculados vs vencimento_original
 - 'grupo_de_risco': str - Classificação AA-H baseada em atraso e config PDD
-- [Campos PDD ficam para v2.0: provisao_pct, provisao_valor]
 
 Benefícios do Enriquecimento:
 -----------------------------
@@ -265,59 +267,8 @@ def calculate_delinquency_by_window(
     }
 
 
-def calculate_pdd(xlsx_df: pd.DataFrame, config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Calcula PDD (Provisão para Devedores Duvidosos) baseado nos grupos de risco.
-    
-    Args:
-        xlsx_df: DataFrame com carteira (deve ter 'dias_atraso' calculado)
-        config: Configuração do pool com grupos de PDD
-        
-    Returns:
-        Dict com análise de PDD por grupo
-    """
-    grupos_risco = _find_pdd_config(config)
-    if not grupos_risco:
-        return {"erro": "Configuração de PDD não encontrada"}
-    
-    df = xlsx_df.copy()
-    
-    # Classificar cada título em um grupo de risco
-    def classificar_grupo(dias):
-        for grupo, params in sorted(grupos_risco.items()):
-            if dias <= params['atraso_max_dias']:
-                return grupo
-        return 'H'  # Grupo mais alto por default
-    
-    df['grupo_risco'] = df['dias_atraso'].apply(classificar_grupo)
-    
-    # Calcular provisão para cada título
-    df['provisao_pct'] = df['grupo_risco'].map(
-        {g: v['provisao_pct'] for g, v in grupos_risco.items()}
-    )
-    df['provisao_valor'] = df['valor_presente'] * df['provisao_pct']
-    
-    # Análise por grupo
-    analise_grupos = {}
-    for grupo in sorted(grupos_risco.keys()):
-        titulos_grupo = df[df['grupo_risco'] == grupo]
-        analise_grupos[grupo] = {
-            "quantidade": len(titulos_grupo),
-            "valor_total": round(float(titulos_grupo['valor_presente'].sum()), 2),
-            "provisao_pct": grupos_risco[grupo]['provisao_pct'] * 100,
-            "provisao_valor": round(float(titulos_grupo['provisao_valor'].sum()), 2)
-        }
-    
-    # Totais
-    total_carteira = df['valor_presente'].sum()
-    total_provisao = df['provisao_valor'].sum()
-    
-    return {
-        "grupos": analise_grupos,
-        "total_carteira": round(float(total_carteira), 2),
-        "total_provisao": round(float(total_provisao), 2),
-        "provisao_percentual": round((total_provisao / total_carteira * 100) if total_carteira > 0 else 0, 2)
-    }
+# Função calculate_pdd() movida para monitor_pdd.py
+# Mantida apenas classificação de grupo_de_risco para enriquecimento
 
 
 def generate_aging_analysis(xlsx_df: pd.DataFrame) -> Dict[str, Any]:
@@ -462,8 +413,7 @@ def run_delinquency_monitoring(
                 limite
             )
         
-        # Adicionar análise de PDD (usando dados do pool específico)
-        resultado['pdd_analysis'] = calculate_pdd(pool_xlsx, config)
+        # Análise de PDD movida para monitor_pdd.py (execução separada)
         
         # Adicionar análise de aging (usando dados do pool específico)
         resultado['aging_analysis'] = generate_aging_analysis(pool_xlsx)
