@@ -22,14 +22,14 @@ import os
 
 # Tentar imports relativos primeiro
 try:
-    from .data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalizar_nome_coluna
+    from .data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalize_column_name
     from .alerts import log_alerta
     from .path_resolver import get_possible_paths, find_existing_path
 except (ImportError, ValueError):
     # Fallback para imports diretos (Spyder)
     if os.path.dirname(__file__) not in sys.path:
         sys.path.insert(0, os.path.dirname(__file__))
-    from data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalizar_nome_coluna
+    from data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalize_column_name
     from alerts import log_alerta
     from path_resolver import get_possible_paths, find_existing_path
 

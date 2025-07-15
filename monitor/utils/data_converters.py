@@ -1,34 +1,48 @@
 """
-Conversores de Dados Brasileiros
-================================
+Brazilian Data Converters
+==========================
 
-Responsável por:
-- Converter valores monetários do formato brasileiro R$ X.XXX.XXX,XX para float
-- Converter percentuais do formato brasileiro XX,X% para decimal
-- Aplicar conversões em DataFrames de forma centralizada
-- Garantir consistência na formatação de dados
+Responsible for:
+- Converting monetary values from Brazilian format R$ X.XXX.XXX,XX to float
+- Converting percentages from Brazilian format XX,X% to decimal
+- Applying conversions to DataFrames in a centralized manner
+- Ensuring consistency in data formatting
+- Normalizing column names to standardized snake_case format
+
+Key Functions:
+- normalize_column_name(): Standardizes column names ('Nome do Sacado' → 'nome_do_sacado')
+- convert_brazilian_currency_vectorized(): High-performance monetary conversion
+- convert_brazilian_percentage_vectorized(): High-performance percentage conversion
+- aplicar_conversoes_csv(): Apply all conversions to CSV dashboard data
+- aplicar_conversoes_xlsx(): Apply all conversions to XLSX portfolio data (optimized for large datasets)
+
+Performance Notes:
+- Vectorized operations are 50-100x faster than .apply() for large datasets
+- Large dataset detection (>1000 rows) automatically switches to performance mode
+- Fallback to traditional methods if vectorization fails
 """
 
 import pandas as pd
 import os
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
-def normalizar_nome_coluna(nome: str) -> str:
+def normalize_column_name(nome: str) -> str:
     """
-    Normaliza nome de coluna para formato padronizado.
+    Normalizes column name to standardized format.
     
-    Transformações aplicadas:
-    - Converte para minúsculas
-    - Remove (R$), (RS) e variações
-    - Substitui espaços por underscore
-    - Remove acentos e caracteres especiais
-    - Remove underscores duplicados
+    Transformations applied:
+    - Convert to lowercase
+    - Remove (R$), (RS) and variations
+    - Replace spaces with underscore
+    - Remove accents and special characters
+    - Remove duplicate underscores
     
     Examples:
         'Taxa de Juros a.m.' → 'taxa_de_juros_am'
         'Valor de Aquisição (R$)' → 'valor_de_aquisicao'
         'Valor presente (R$)' → 'valor_presente'
+        'Nome do Sacado' → 'nome_do_sacado'
     """
     # Converter para minúsculas
     nome = nome.lower()
@@ -56,7 +70,7 @@ def normalizar_nome_coluna(nome: str) -> str:
     return nome.strip('_')
 
 
-def limpar_valor_brasileiro(valor):
+def limpar_valor_brasileiro(valor: str) -> Optional[float]:
     """
     Converte valores no formato brasileiro R$ X.XXX.XXX,XX para float.
     LEGADO: Use convert_brazilian_currency_vectorized() para performance.
@@ -121,7 +135,7 @@ def convert_brazilian_currency_vectorized(series: pd.Series) -> pd.Series:
     return pd.to_numeric(series_processed, errors='coerce')
 
 
-def limpar_percentual_brasileiro(valor):
+def limpar_percentual_brasileiro(valor: str) -> Optional[float]:
     """
     Converte percentuais no formato brasileiro para float decimal.
     LEGADO: Use convert_brazilian_percentage_vectorized() para performance.
@@ -166,8 +180,8 @@ def convert_brazilian_percentage_vectorized(series: pd.Series) -> pd.Series:
     
     # Processar formato brasileiro
     # Casos: "25,5", "2.019,3", "100"
-    mask_comma_and_dot = series_clean.str.contains(',', na=False) & series_clean.str.contains('\.', na=False)
-    mask_comma_only = series_clean.str.contains(',', na=False) & ~series_clean.str.contains('\.', na=False)
+    mask_comma_and_dot = series_clean.str.contains(',', na=False) & series_clean.str.contains(r'\.', na=False)
+    mask_comma_only = series_clean.str.contains(',', na=False) & ~series_clean.str.contains(r'\.', na=False)
     
     series_processed = pd.Series(index=series.index, dtype='object')
     
@@ -202,7 +216,7 @@ def aplicar_conversoes_csv(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: DataFrame com conversões aplicadas e colunas normalizadas
     """
     # NOVO: Normalizar nomes das colunas primeiro
-    df.columns = [normalizar_nome_coluna(col) for col in df.columns]
+    df.columns = [normalize_column_name(col) for col in df.columns]
     
     # Listas simplificadas com nomes base normalizados
     colunas_monetarias_base = ['pl', 'sr', 'jr', 'carteira', 'caixa_livre', 
@@ -215,12 +229,12 @@ def aplicar_conversoes_csv(df: pd.DataFrame) -> pd.DataFrame:
     
     # Aplicar conversões baseadas em nomes normalizados
     for coluna in df.columns:
-        # Verificar se é monetária
+        # Verificar se é monetária - usar vetorização para performance
         if any(base in coluna for base in colunas_monetarias_base):
-            df[coluna] = df[coluna].apply(limpar_valor_brasileiro)
-        # Verificar se é percentual
+            df[coluna] = convert_brazilian_currency_vectorized(df[coluna])
+        # Verificar se é percentual - usar vetorização para performance
         elif any(base in coluna for base in colunas_percentuais_base):
-            df[coluna] = df[coluna].apply(limpar_percentual_brasileiro)
+            df[coluna] = convert_brazilian_percentage_vectorized(df[coluna])
         # Verificar se é data
         elif any(base in coluna for base in colunas_data_base):
             if df[coluna].dtype != 'datetime64[ns]':
@@ -283,13 +297,23 @@ def aplicar_conversoes_xlsx(df: pd.DataFrame) -> pd.DataFrame:
     # Estratégia baseada no tamanho do dataset
     is_large_dataset = num_rows > 1000
     
-    # Log macro inicial
-    print(f"📊 Processando portfolio: {num_rows:,} registros, {num_cols} colunas")
+    # Log macro inicial - importar se necessário
+    try:
+        from .alerts import log_alerta
+    except ImportError:
+        try:
+            from alerts import log_alerta
+        except ImportError:
+            # Fallback para desenvolvimento
+            def log_alerta(alerta):
+                print(f"📝 [{alerta.get('tipo', 'INFO')}] {alerta.get('mensagem', str(alerta))}")
+    
+    log_alerta({"tipo": "info", "mensagem": f"📊 Processando portfolio: {num_rows:,} registros, {num_cols} colunas"})
     if is_large_dataset:
-        print("⚡ Modo performance ativado para dataset grande")
+        log_alerta({"tipo": "info", "mensagem": "⚡ Modo performance ativado para dataset grande"})
     
     # Normalizar nomes das colunas
-    df.columns = [normalizar_nome_coluna(col) for col in df.columns]
+    df.columns = [normalize_column_name(col) for col in df.columns]
     
     # Identificar colunas por palavras-chave (mais flexível e abrangente)
     palavras_monetarias = ['valor', 'preco', 'montante', 'saldo', 'presente', 'aquisicao', 'recebido']
@@ -355,7 +379,7 @@ def aplicar_conversoes_xlsx(df: pd.DataFrame) -> pd.DataFrame:
                 conversoes_aplicadas['percentuais'].append(f"{coluna} (fallback)")
     
     # Log macro de resultados
-    print(f"✅ Conversões aplicadas: {len(conversoes_aplicadas['monetarias'])} monetárias, {len(conversoes_aplicadas['percentuais'])} percentuais")
+    log_alerta({"tipo": "info", "mensagem": f"✅ Conversões aplicadas: {len(conversoes_aplicadas['monetarias'])} monetárias, {len(conversoes_aplicadas['percentuais'])} percentuais"})
     
     # Conversões de data (sempre vetorizadas)
     colunas_data_base = [
@@ -372,7 +396,7 @@ def aplicar_conversoes_xlsx(df: pd.DataFrame) -> pd.DataFrame:
                 data_conversions += 1
     
     if data_conversions > 0:
-        print(f"📅 {data_conversions} colunas de data convertidas")
+        log_alerta({"tipo": "info", "mensagem": f"📅 {data_conversions} colunas de data convertidas"})
     
     # Conversões numéricas simples (sempre vetorizadas)
     colunas_numericas_base = ['prazo', 'dias_atraso', 'parcela', 'numero_parcelas', 'id', 'codigo']
@@ -384,12 +408,12 @@ def aplicar_conversoes_xlsx(df: pd.DataFrame) -> pd.DataFrame:
             numeric_conversions += 1
     
     if numeric_conversions > 0:
-        print(f"🔢 {numeric_conversions} colunas numéricas convertidas")
+        log_alerta({"tipo": "info", "mensagem": f"🔢 {numeric_conversions} colunas numéricas convertidas"})
     
     return df
 
 
-def obter_colunas_por_tipo():
+def obter_colunas_por_tipo() -> Dict[str, List[str]]:
     """
     Retorna dicionário com listas de colunas por tipo de conversão.
     

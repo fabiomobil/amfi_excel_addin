@@ -61,13 +61,13 @@ if not import_success:
 
 # Se todos falharem, usar funções mock
 if not import_success:
-    print("⚠️ Alguns módulos auxiliares não foram encontrados. Usando versões simplificadas.")
+    def log_alerta(alerta):
+        print(f"📝 Log: {alerta.get('mensagem', 'Log desconhecido')}")
+    
+    log_alerta({"tipo": "warning", "mensagem": "⚠️ Alguns módulos auxiliares não foram encontrados. Usando versões simplificadas."})
     
     def date_check_alert(csv_date, xlsx_date):
         return {"tipo": "warning", "mensagem": "Verificação de data simplificada"}
-    
-    def log_alerta(alerta):
-        print(f"📝 Log: {alerta.get('mensagem', 'Log desconhecido')}")
     
     def data_validation(csv_df, xlsx_df):
         return True
@@ -79,19 +79,19 @@ if not import_success:
         return {}
     
     def load_dashboard(data=None, pool=None):
-        print("⚠️ Usando versão mock de load_dashboard")
+        log_alerta({"tipo": "warning", "mensagem": "⚠️ Usando versão mock de load_dashboard"})
         df = pd.DataFrame()
         df.attrs = {"arquivo": "mock.csv", "data_arquivo": datetime.now()}
         return df
     
     def load_portfolio(data=None, pool=None):
-        print("⚠️ Usando versão mock de load_portfolio")
+        log_alerta({"tipo": "warning", "mensagem": "⚠️ Usando versão mock de load_portfolio"})
         df = pd.DataFrame()
         df.attrs = {"arquivo": "mock.xlsx", "data_arquivo": datetime.now()}
         return df
     
     def load_json_file(nome_arquivo):
-        print(f"⚠️ Usando versão mock de load_json_file para {nome_arquivo}")
+        log_alerta({"tipo": "warning", "mensagem": f"⚠️ Usando versão mock de load_json_file para {nome_arquivo}"})
         return {}
     
     def get_file_metadata(df):

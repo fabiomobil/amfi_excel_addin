@@ -5,6 +5,46 @@
 ## Contexto do Projeto
 Sistema de monitoramento automatizado para fundos de investimento estruturados no Brasil. Processa escrituras de debêntures (PDFs) em configurações JSON para executar monitoramento de compliance, análise de fluxo de caixa e verificação de liquidez.
 
+## 🔄 Transformações de Dados Críticas
+
+### **📝 Normalização de Colunas (IMPORTANTE para desenvolvimento)**
+
+⚠️ **TODA SESSÃO NOVA DEVE SABER**: O sistema transforma automaticamente nomes de colunas:
+
+```python
+# Função: normalize_column_name() em data_converters.py
+'Nome do Sacado' → 'nome_do_sacado'
+'Nome do Cedente' → 'nome_do_cedente'  
+'Valor presente (R$)' → 'valor_presente'
+'Taxa de Juros a.m.' → 'taxa_de_juros_am'
+'Data de Vencimento' → 'data_de_vencimento'
+```
+
+**Transformações aplicadas:**
+- Converte para minúsculas
+- Remove (R$), (RS) e variações
+- Substitui espaços por underscore
+- Remove acentos (ç→c, ã→a, é→e, etc.)
+- Remove caracteres especiais ((), $, %, -, etc.)
+- Remove underscores duplicados
+
+**⚠️ IMPLICAÇÕES PARA CÓDIGO:**
+- ✅ **USE**: `df['nome_do_sacado']` nos monitores
+- ❌ **NÃO USE**: `df['Nome do Sacado']` (vai dar erro)
+- ✅ **USE**: `df['valor_presente']` para valores monetários
+- ❌ **NÃO USE**: `df['Valor presente']` (vai dar erro)
+
+### **💰 Conversões Monetárias e Percentuais**
+
+**Conversões automáticas aplicadas pelo data_loader:**
+- **Monetários**: `R$ 1.234.567,89` → `1234567.89` (float)
+- **Percentuais**: `25,50%` → `0.2550` (decimal)
+- **Datas**: `01/01/2025` → `datetime` (formato brasileiro)
+
+**Performance:**
+- Datasets >1000 registros: Conversão vetorizada (50-100x mais rápida)
+- Datasets menores: Conversão tradicional com .apply()
+
 ## Arquitetura do Sistema
 
 ### Fluxo de Dados Principal

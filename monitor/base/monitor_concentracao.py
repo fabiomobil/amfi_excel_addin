@@ -19,7 +19,7 @@ import pandas as pd
 import json
 import os
 import sys
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Union
 from datetime import datetime
 
 # Sistema de imports robusto para compatibilidade com Spyder e outros ambientes
@@ -76,16 +76,16 @@ def validar_dados(df: pd.DataFrame, config: Dict[str, Any]) -> bool:
     if df.empty:
         erros.append("DataFrame da carteira está vazio")
         
-    # Verificar colunas essenciais
-    colunas_obrigatorias = ['Nome do Sacado', 'Nome do Cedente', 'Valor presente']
+    # Verificar colunas essenciais (nomes normalizados pelo data_loader)
+    colunas_obrigatorias = ['nome_do_sacado', 'nome_do_cedente', 'valor_presente']
     colunas_faltantes = [col for col in colunas_obrigatorias if col not in df.columns]
     
     if colunas_faltantes:
         erros.append(f"Colunas obrigatórias ausentes: {colunas_faltantes}")
     
     # Verificar se há dados válidos
-    if 'Valor presente' in df.columns:
-        valores_validos = df['Valor presente'].notna() & (df['Valor presente'] > 0)
+    if 'valor_presente' in df.columns:
+        valores_validos = df['valor_presente'].notna() & (df['valor_presente'] > 0)
         if not valores_validos.any():
             erros.append("Nenhum valor presente válido encontrado")
     
@@ -131,7 +131,7 @@ def calcular_concentracao_individual(df: pd.DataFrame, base_calculo: float,
     
     try:
         # Filtrar dados válidos
-        df_valido = df[df['Valor presente'].notna() & (df['Valor presente'] > 0)].copy()
+        df_valido = df[df['valor_presente'].notna() & (df['valor_presente'] > 0)].copy()
         
         if df_valido.empty:
             log_alerta({"tipo": "warning", "mensagem": "Nenhum dado válido para concentração individual"})
@@ -140,7 +140,7 @@ def calcular_concentracao_individual(df: pd.DataFrame, base_calculo: float,
         # Processar sacados
         for limite in limites_config:
             if limite.get('tipo') == 'individual' and limite.get('entidade') == 'sacado':
-                concentracoes_sacados = df_valido.groupby('Nome do Sacado')['Valor presente'].sum().sort_values(ascending=False)
+                concentracoes_sacados = df_valido.groupby('nome_do_sacado')['valor_presente'].sum().sort_values(ascending=False)
                 
                 for sacado, valor in concentracoes_sacados.items():
                     pct_concentracao = valor / base_calculo
@@ -169,7 +169,7 @@ def calcular_concentracao_individual(df: pd.DataFrame, base_calculo: float,
         # Processar cedentes
         for limite in limites_config:
             if limite.get('tipo') == 'individual' and limite.get('entidade') == 'cedente':
-                concentracoes_cedentes = df_valido.groupby('Nome do Cedente')['Valor presente'].sum().sort_values(ascending=False)
+                concentracoes_cedentes = df_valido.groupby('nome_do_cedente')['valor_presente'].sum().sort_values(ascending=False)
                 
                 for cedente, valor in concentracoes_cedentes.items():
                     pct_concentracao = valor / base_calculo
@@ -234,7 +234,7 @@ def calcular_concentracao_top_n(df: pd.DataFrame, base_calculo: float,
     
     try:
         # Filtrar dados válidos
-        df_valido = df[df['Valor presente'].notna() & (df['Valor presente'] > 0)].copy()
+        df_valido = df[df['valor_presente'].notna() & (df['valor_presente'] > 0)].copy()
         
         if df_valido.empty:
             log_alerta({"tipo": "warning", "mensagem": "Nenhum dado válido para concentração top N"})
@@ -246,7 +246,7 @@ def calcular_concentracao_top_n(df: pd.DataFrame, base_calculo: float,
                 n = limite.get('n', 10)
                 limite_max = limite.get('limite', 1.0)
                 
-                concentracoes_sacados = df_valido.groupby('Nome do Sacado')['Valor presente'].sum().sort_values(ascending=False)
+                concentracoes_sacados = df_valido.groupby('nome_do_sacado')['valor_presente'].sum().sort_values(ascending=False)
                 top_n_sacados = concentracoes_sacados.head(n)
                 
                 valor_total_top_n = top_n_sacados.sum()
@@ -286,7 +286,7 @@ def calcular_concentracao_top_n(df: pd.DataFrame, base_calculo: float,
                 n = limite.get('n', 10)
                 limite_max = limite.get('limite', 1.0)
                 
-                concentracoes_cedentes = df_valido.groupby('Nome do Cedente')['Valor presente'].sum().sort_values(ascending=False)
+                concentracoes_cedentes = df_valido.groupby('nome_do_cedente')['valor_presente'].sum().sort_values(ascending=False)
                 top_n_cedentes = concentracoes_cedentes.head(n)
                 
                 valor_total_top_n = top_n_cedentes.sum()
@@ -438,7 +438,7 @@ def _processar_sacados(df_valido: pd.DataFrame, base_calculo: float,
         return tabela_sacados
     
     limite_sacado = limites_individuais['sacado']
-    concentracoes_sacados = df_valido.groupby('Nome do Sacado')['Valor presente'].sum().sort_values(ascending=False)
+    concentracoes_sacados = df_valido.groupby('nome_do_sacado')['valor_presente'].sum().sort_values(ascending=False)
     
     # Encontrar top N aplicável para sacados
     top_n_sacado = None
@@ -498,7 +498,7 @@ def _processar_cedentes(df_valido: pd.DataFrame, base_calculo: float,
         return tabela_cedentes
     
     limite_cedente = limites_individuais['cedente']
-    concentracoes_cedentes = df_valido.groupby('Nome do Cedente')['Valor presente'].sum().sort_values(ascending=False)
+    concentracoes_cedentes = df_valido.groupby('nome_do_cedente')['valor_presente'].sum().sort_values(ascending=False)
     
     # Encontrar top N aplicável para cedentes
     top_n_cedente = None
@@ -555,7 +555,7 @@ def gerar_tabela_analise_concentracao(df: pd.DataFrame, base_calculo: float,
     
     try:
         # Filtrar dados válidos
-        df_valido = df[df['Valor presente'].notna() & (df['Valor presente'] > 0)].copy()
+        df_valido = df[df['valor_presente'].notna() & (df['valor_presente'] > 0)].copy()
         
         if df_valido.empty:
             log_alerta({"tipo": "warning", "mensagem": "Nenhum dado válido para tabela de análise"})
