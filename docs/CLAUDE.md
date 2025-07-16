@@ -54,6 +54,69 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
   Manual         Automático         5 Componentes        Consolidado
 ```
 
+### **🆕 Estrutura Híbrida de Processos Legais (v2.3 - 2025-07-15)**
+
+O sistema agora implementa uma **arquitetura híbrida** que separa aspectos técnicos e legais:
+
+#### **Estrutura Dual nos JSONs**
+```json
+"triggers_aceleracao": {
+  "concentracao_violacao": {
+    "prazo_cura_dias": 30,
+    "automatico": false,
+    "processo_detalhado_ref": "processos_legais.concentracao_violacao"
+  }
+},
+"processos_legais": {
+  "concentracao_violacao": {
+    "pos_violacao": {
+      "assembleia": {"convocacao_prazo_dias": 3},
+      "votacao": {"votantes": "serie_senior"},
+      "renuncia": {"prazo_dias": 5}
+    }
+  }
+}
+```
+
+#### **Benefícios da Arquitetura Híbrida**
+- **Sistema de Monitoramento**: Usa `triggers_aceleracao` simples para automação
+- **Compliance/Auditoria**: Usa `processos_legais` detalhados para processos manuais
+- **Rastro Legal**: Documentação completa dos processos pós-violação
+- **Referência Cruzada**: Evita duplicação via `processo_detalhado_ref`
+
+### **🆕 Análise Sequencial de Capacidade (Monitor Concentração v2.1)**
+
+O monitor de concentração agora inclui **análise sequencial de capacidade** que mostra:
+
+#### **Funcionalidade**
+- **Capacidade por entidade**: Quanto cada sacado/cedente pode crescer
+- **Análise cascata**: Como espaço disponível é consumido sequencialmente
+- **Limitações identificadas**: Se restrição é individual ou top-N
+- **Saldo restante**: Quanto sobra após cada alocação
+
+#### **Exemplo de Saída**
+```json
+"analises_capacidade": {
+  "sacado": {
+    "analise_sequencial": [
+      {
+        "posicao": 1,
+        "entidade": "Sacado 1", 
+        "capacidade_efetiva": 1.0,
+        "saldo_antes": 3.0,
+        "saldo_apos": 2.0,
+        "limitada_por": "individual"
+      }
+    ]
+  }
+}
+```
+
+#### **Casos de Uso**
+- **Gestão de Originação**: Saber exatamente quanto originar por sacado
+- **Planejamento de Portfolio**: Otimizar uso de limites disponíveis
+- **Compliance Proativo**: Evitar violações antes que aconteçam
+
 ### Componentes Principais
 1. **Monitoramento Individual**: Verifica compliance por pool
 2. **Dashboard de Exceções**: Consolida apenas violações
@@ -127,7 +190,7 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 | `udfs/amfi.py` (UDFs Excel) | `monitor/orchestrator.py` | ✅ Substituído |
 | `AmfiDashboard()` | `run_monitoring()` | ✅ Implementado |
 | `AmfiXLSX()` | `data_loader.load_pool_data()` | ✅ Melhorado |
-| `AmfiConcentracao()` | `monitor_concentracao.py` | 🔄 Em desenvolvimento |
+| `AmfiConcentracao()` | `monitor_concentracao.py` | ✅ Implementado |
 | `AmfiCalcularIS()` | `monitor_subordinacao.py` | ✅ Implementado |
 | Cache manual | Cache integrado no data_loader | ✅ Automatizado |
 
@@ -219,8 +282,8 @@ Padronizados e implementados em todos os pools via `monitoramentos_ativos`:
 - `pdd` - Provisão para Devedores Duvidosos (grupos AA-H) ✅ **IMPLEMENTADO**
 
 **4. CONCENTRAÇÃO (2 eventos base)**
-- `concentracao_sacados` - Concentração máxima por sacado individual 🔄 **PLANEJADO**
-- `concentracao_cedentes` - Concentração máxima por cedente individual 🔄 **PLANEJADO**
+- `concentracao_individual` - Concentração máxima por sacado/cedente individual ✅ **IMPLEMENTADO**
+- `concentracao_top_n` - Concentração agregada dos N maiores (ex: top 10) ✅ **IMPLEMENTADO**
 
 **5. ELEGIBILIDADE (1 evento base)**
 - `elegibilidade_geral` - Critérios gerais de elegibilidade de ativos 🔄 **PLANEJADO**
@@ -257,7 +320,7 @@ Específicos por características de cada pool:
 
 #### **📊 Estatísticas Reais (Atualização 2025-07-14)**
 - **Eventos base padronizados**: 7 (template v2.2)
-- **Eventos base implementados**: 5/7 (71% - Subordinação + Inadimplência + PDD)
+- **Eventos base implementados**: 6/7 (86% - Subordinação + Inadimplência + PDD + Concentração)
 - **Eventos customizados identificados**: 20+ (JSONs legacy)
 - **Total de combinações únicas**: 25+ eventos distintos
 - **Pools com eventos customizados**: 100% (todos têm particularidades)
@@ -411,7 +474,7 @@ class MonitorBase:
 ├── monitor/
 │   ├── base/                          # Monitores padrão (7 eventos base)
 │   │   ├── monitor_subordinacao.py    # 2 eventos ✅ IMPLEMENTADO
-│   │   ├── monitor_concentracao.py    # 2 eventos base
+│   │   ├── monitor_concentracao.py    # 2 eventos ✅ IMPLEMENTADO
 │   │   ├── monitor_inadimplencia.py   # 2 eventos ✅ PRONTO (aguarda integração)
 │   │   ├── monitor_elegibilidade.py   # 1 evento base
 │   │   └── monitor_operacional.py     # Eventos legacy/customizados
@@ -837,7 +900,7 @@ def executar_monitoramento_diario():
             # Extrair resultados por tipo de monitor
             pool_result = resultado['resultados'][pool_name]
             resultado_sub = pool_result['resultados'].get('subordinacao', {})
-            resultado_conc = pool_result['resultados'].get('concentracao', {})  # Futuro
+            resultado_conc = pool_result['resultados'].get('concentracao', {})  # ✅ Implementado
             resultado_inad = pool_result['resultados'].get('inadimplencia', {})
             
             # Consolidar resultados
@@ -965,7 +1028,7 @@ def executar_monitoramento_diario():
 7. ✅ **Integrar monitor_inadimplencia.py** com enriquecimento de DataFrame - COMPLETO
 8. ✅ **Implementar funções auxiliares** (`_has_*_monitoring()` para cada monitor) - COMPLETO
 9. ✅ **Implementar monitor_pdd.py** com arquitetura inteligente - COMPLETO
-10. **Implementar monitor_concentracao.py** (2 eventos base)
+10. ✅ **Implementar monitor_concentracao.py** (2 eventos base) - COMPLETO
 11. **Implementar monitor_elegibilidade.py** (1 evento base)
 12. **Criar supersim_pool_1_recovery_rate.py** (🔧 Custom SuperSim)
 13. **Criar afa_pool_1_sacados_especificos.py** (🔧 Custom AFA)
@@ -1057,9 +1120,66 @@ except (ImportError, ValueError):
 - **[VALIDACAO_SCHEMA_JSON.md](./technical/VALIDACAO_SCHEMA_JSON.md)** - Diretrizes para validação de schema JSON e compatibilidade Python
 
 ## Contato e Sessões
-- Última atualização: 2025-07-14
-- Sessão atual: Implementação do monitor PDD com arquitetura inteligente
-- Próxima revisão: Monitor de concentração (sacados/cedentes)
+- Última atualização: 2025-07-15
+- Sessão atual: Implementação do monitor de concentração com arquitetura simplificada
+- Próxima revisão: Monitor de elegibilidade (critérios de ativos)
+
+## 🎯 Monitor de Concentração - Arquitetura Simplificada
+
+### Decisões Arquiteturais (2025-07-15)
+
+**❌ Arquitetura Anterior (Over-engineered)**:
+- `/monitor/base/monitor_concentracao.py` - Interface principal
+- `/monitor/base/concentration_config.py` - Parser de configurações
+- `/monitor/base/concentration_strategies.py` - Strategy pattern
+- Lógica de `grupo_economico` no monitor base
+
+**✅ Arquitetura Atual (Simplificada)**:
+- `/monitor/base/monitor_concentracao.py` - **TUDO consolidado** (500+ linhas)
+- `/monitor/custom/concentration_config.py` - Parser avançado (movido)
+- `/monitor/custom/concentration_strategies.py` - Strategy pattern (movido)
+- Lógica de `grupo_economico` removida do base
+
+### Funcionalidades Base Suportadas
+
+**1. Concentração Individual**
+```json
+{
+  "tipo": "individual",
+  "entidade": "sacado",
+  "limite": 0.27
+}
+```
+
+**2. Concentração Top-N**
+```json
+{
+  "tipo": "top_n",
+  "entidade": "cedente",
+  "n": 10,
+  "limite": 0.70
+}
+```
+
+### Benefícios da Simplificação
+
+1. **Menos Complexidade**: 3 arquivos → 1 arquivo
+2. **Manutenibilidade**: Toda lógica em local único
+3. **Menos Dependências**: Imports simplificados
+4. **Funcionalidades Customizadas**: Separadas em `/custom/`
+
+### Compatibilidade
+
+✅ **Interface mantida**: `run_concentration_monitoring()`
+✅ **Configurações**: JSONs dos pools funcionam sem alteração
+✅ **Orquestrador**: Integração automática preservada
+✅ **Testes**: Validação com pools reais confirmada
+
+### Próximos Passos
+
+- **Building Block 5**: Implementar grupo econômico como custom
+- **Monitor de Elegibilidade**: Próximo monitor base
+- **Documentação**: Finalizar exemplos de uso
 
 ### 📁 **Filosofia do docs/sessions/**
 

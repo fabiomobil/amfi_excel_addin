@@ -1,0 +1,395 @@
+{
+  "// ================================================": "",
+  "// SEÇÃO 1: IDENTIFICAÇÃO E METADADOS": "",
+  "// Dados básicos de identificação do pool": "",
+  "// ================================================": "",
+
+  "pool_id": "UnionNational Pool #5",
+  "pool_name": "UnionNational Pool #5",
+  "status": "ativo",
+  "data_emissao": "2024-12-30",
+  "data_vencimento": "2028-01-03",
+
+  "metadata": {
+    "versao": "2.2",
+    "data_atualizacao": "2025-07-15",
+    "fonte_original": "UnionNational Pool #5 - Escritura Debênture - V7_ vf. assinatura 271224.docx",
+    "schema_version": "monitoring_v2",
+    "completude": "100%",
+    "secoes_restauradas": ["estrutura_completa_extraida_da_escritura_original"]
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 2: ESTRUTURA FINANCEIRA": "",
+  "// Core financeiro - valores, pagamentos, remuneração": "",
+  "// ================================================": "",
+
+  "valores": {
+    "total_emissao": 12000000.0,
+    "senior": 9600000.0,
+    "subordinada": 2400000.0,
+    "reserva_despesas": 30000.0,
+    "reserva_extraordinaria": null
+  },
+
+  "cronograma_pagamentos": {
+    "carencia_meses": 25,
+    "inicio_amortizacao": "2027-02-02",
+    "cronograma_amortizacao": [
+      {"data": "2025-01-02", "percentual": 0.0},
+      {"data": "2027-02-02", "percentual": 0.083333},
+      {"data": "2027-03-02", "percentual": 0.090909},
+      {"data": "2027-04-02", "percentual": 0.100000},
+      {"data": "2027-05-03", "percentual": 0.111111},
+      {"data": "2027-06-02", "percentual": 0.125000},
+      {"data": "2027-07-02", "percentual": 0.142857},
+      {"data": "2027-08-02", "percentual": 0.166667},
+      {"data": "2027-09-02", "percentual": 0.200000},
+      {"data": "2027-10-04", "percentual": 0.250000},
+      {"data": "2027-11-03", "percentual": 0.333333},
+      {"data": "2027-12-02", "percentual": 0.500000},
+      {"data": "2028-01-03", "percentual": 1.000000}
+    ]
+  },
+
+  "remuneracao": {
+    "series_senior": {
+      "tipo": "pos_fixado",
+      "indexador": "Taxa_DI",
+      "premio_risco": 0.06,
+      "base_calculo": 252,
+      "formula": "100% Taxa DI + 6,00% a.a."
+    },
+    "series_subordinadas": {
+      "tipo": "residual",
+      "descricao": "Valor residual após incorridas todas as despesas referentes a esta Escritura de Emissão, observada a Ordem de Alocação de Recursos"
+    }
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 3: REGRAS DE NEGÓCIO": "",
+  "// Critérios, limites e regras específicas": "",
+  "// ================================================": "",
+
+  "provisoes_pdd": {
+    "grupos_risco": {
+      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
+      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
+      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
+      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
+      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
+      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
+      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
+      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
+      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+    }
+  },
+
+  "sacados_elegiveis": [],
+
+  "periodos_especiais": {
+    "formacao_carteira": {
+      "dias": 60,
+      "inicio": "2024-12-30",
+      "fim": "2025-02-28",
+      "regras_especiais": ["limites_concentracao_flexibilizados"]
+    },
+    "carencia_amortizacao": {
+      "meses": 25,
+      "inicio": "2024-12-30",
+      "fim": "2027-01-30"
+    },
+    "limite_aquisicoes": {
+      "meses": 35,
+      "data_limite": "2027-11-30"
+    }
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 4: SISTEMA DE MONITORAMENTO": "",
+  "// Engine de monitoramento e triggers": "",
+  "// ================================================": "",
+
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "limites": {
+        "minimo": 0.20,
+        "critico": 0.15,
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "amortizacao_extraordinaria_primeira_serie",
+        "prazo_cura_dias": 3,
+        "tipo_prazo": "uteis"
+      },
+      "campos_necessarios": ["sr", "jr"],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": 0.12,
+          "inclui_grupo_economico": false
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": 0.12,
+          "inclui_grupo_economico": false
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "sacado",
+          "n": 10,
+          "limite": 0.50,
+          "inclui_grupo_economico": false
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "cedente",
+          "n": 10,
+          "limite": 0.70,
+          "inclui_grupo_economico": false,
+          "comentario": "Atualizado de 60% para 70% conforme 2º Aditamento Jun/2025"
+        }
+      ],
+      "campos_necessarios": ["sacado", "cedente", "valor_presente"],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "inadimplencia_30d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "prazo_dias": 30,
+        "limite": 0.04
+      },
+      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "inadimplencia_90d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "prazo_dias": 90,
+        "limite": 0.02
+      },
+      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "vencimento_medio",
+      "tipo": "prazo",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "media",
+      "limites": {
+        "maximo_dias": 70,
+        "ponderado_por_valor": true
+      },
+      "campos_necessarios": ["data_vencimento", "valor_presente"],
+      "funcao_calculo": "calc_vencimento_medio"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "valor_minimo": 100.0,
+        "valor_maximo": 100000.0,
+        "vencimento_minimo_dias": 7,
+        "vencimento_maximo_dias": 180,
+        "taxa_minima_mensal": 0.02,
+        "tipos_permitidos": ["duplicata_mercantil", "duplicata_servico"],
+        "performadas_obrigatorio": true,
+        "registro_obrigatorio": true
+      },
+      "campos_necessarios": ["valor_presente", "data_vencimento", "taxa_cdi", "tipo_ativo"],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+
+  "triggers_aceleracao": {
+    "obrigacao_pecuniaria": {
+      "prazo_cura_dias": 5,
+      "tipo_prazo": "uteis",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "obrigacao_nao_pecuniaria": {
+      "prazo_cura_dias": 20,
+      "tipo_prazo": "uteis",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "falencia_recuperacao": {
+      "prazo_cura_dias": 0,
+      "automatico": true,
+      "notificacao_requerida": false
+    },
+    "subordinacao_violacao": {
+      "prazo_cura_dias": 7,
+      "tipo_prazo": "uteis",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "inadimplencia_maxima": {
+      "prazo_cura_dias": 7,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "concentracao_violacao": {
+      "prazo_cura_dias": 30,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true,
+      "processo_detalhado_ref": "processos_legais.concentracao_violacao"
+    },
+    "incapacidade_originacao": {
+      "prazo_cura_dias": 0,
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "lastro_insuficiente": {
+      "prazo_cura_dias": 90,
+      "limite_minimo": 0.75,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    }
+  },
+
+  "processos_legais": {
+    "// DOCUMENTAÇÃO": "Processos legais detalhados extraídos das escrituras originais",
+    "// FONTE_VERDADE": "Escritura + 2º Aditamento Jun/2025",
+    
+    "concentracao_violacao": {
+      "tipo_evento": "evento_avaliacao",
+      "classificacao": "Anexo V - Eventos de Avaliação, item (viii)",
+      "prazo_cura": {
+        "dias": 30,
+        "tipo": "corridos",
+        "descricao": "Período para correção da violação de concentração"
+      },
+      "pos_violacao": {
+        "assembleia": {
+          "convocacao_prazo_dias": 3,
+          "tipo_prazo": "uteis",
+          "responsavel": "emissora",
+          "descricao": "Emissora deve convocar Assembleia de Debenturistas em até 3 dias úteis"
+        },
+        "votacao": {
+          "votantes": "serie_senior",
+          "maioria_requerida": "simples",
+          "objeto_decisao": "vencimento_antecipado",
+          "descricao": "Apenas Série Sênior pode votar pela declaração de vencimento antecipado"
+        },
+        "renuncia": {
+          "prazo_dias": 5,
+          "tipo_prazo": "uteis",
+          "direito_de": "serie_senior",
+          "descricao": "Série Sênior pode renunciar à violação em até 5 dias úteis"
+        }
+      },
+      "base_legal": "Anexo V - Eventos de Avaliação, item (viii)",
+      "aditamentos": [
+        "2º Aditamento Jun/2025: Alteração Top 10 Cedentes de 60% para 70%"
+      ],
+      "texto_original": "Desenquadramento de quaisquer Limites de Concentração listados no Anexo IV desta Escritura, na seção 'Critérios de Elegibilidade - Composição da Carteira' por período superior a 30 Dias corridos consecutivos, após o período de início de aplicação dos Limites de Concentração"
+    }
+  },
+
+  "monitores_customizados": {
+    "arquivos_necessarios": [
+      "unionnational_pool_5_recompra_originador.py",
+      "unionnational_pool_5_resgate_facultativo.py",
+      "unionnational_pool_5_premio_resgate.py"
+    ],
+    "descricoes": [
+      "Monitoramento de obrigação de recompra pelo Originador em caso de violação do Índice de Subordinação",
+      "Sistema de resgate antecipado facultativo em caso de incapacidade de originação",
+      "Cálculo de prêmio de resgate obrigatório/facultativo de 1% sobre duration remanescente"
+    ]
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 5: DADOS OPERACIONAIS": "",
+  "// Entidades, prestadores e informações operacionais": "",
+  "// ================================================": "",
+
+  "prestador_servicos_operacionais": {
+    "nome": "AMFI CONSULTING LTDA.",
+    "cnpj": "47.243.468/0001-70",
+    "contrato_data": "2024-12-30"
+  },
+
+  "originador_detalhado": {
+    "razao_social": "SECURITIZADORA DE ATIVOS EMPRESARIAIS S.A.",
+    "cnpj": "14.368.548/0001-01",
+    "endereco": "Avenida Angelica, 2163, Andar 18, Conj 181, Sala 03, Consolação, na cidade de São Paulo, estado de São Paulo, CEP 01.227-200",
+    "email_contato": "maurice@unionsa.com.br",
+    "responsavel": "Maurice Kattan"
+  },
+
+  "debenturistas_detalhados": {
+    "serie_senior": {
+      "nome": "CORUJA I FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS",
+      "cnpj": "57.140.603/0001-06",
+      "tipo": "fundo_investimento",
+      "gestora": "Kanastra Administração de Recursos Ltda.",
+      "endereco": "Avenida dos Vinhedos, nº 71, sala 802, Jardim Sul, CEP 38411-848, na cidade de Uberlândia, estado de Minas Gerais",
+      "email_contato": "gestora@kanastra.com.br",
+      "responsavel": "Pedro Donega"
+    },
+    "serie_subordinada": {
+      "nome": "SECURITIZADORA DE ATIVOS EMPRESARIAIS S.A.",
+      "cnpj": "14.368.548/0001-01",
+      "tipo": "originador",
+      "endereco": "Avenida Angelica, 2163, Andar 18, Conj 181, Sala 03, Consolação, CEP 01.227-200, São Paulo/SP",
+      "email_contato": "maurice@unionsa.com.br",
+      "responsavel": "Maurice Kattan"
+    }
+  },
+
+  "detalhes_emissao": {
+    "emissao_numero": "32ª (trigésima segunda)",
+    "escriturador": "Laqus Depositária de Valores Mobiliários S.A.",
+    "cnpj_escriturador": "33.268.302/0001-02",
+    "conta_patrimonio_separado": {
+      "banco": "274",
+      "agencia": "0001", 
+      "conta": "08147291-2"
+    },
+    "forma_colocacao": "privada",
+    "especie": "quirografária",
+    "valor_nominal_unitario": 1.0,
+    "regime_fiduciario": true
+  }
+}

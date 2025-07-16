@@ -16,9 +16,9 @@ Esta pasta contém as configurações JSON para monitoramento de cada pool, base
 
 **Total**: 7 pools ativos, 100% auditados contra escrituras originais
 
-## 🏗️ Estrutura dos JSONs (Template v2.2)
+## 🏗️ Estrutura dos JSONs (Template v2.3)
 
-Todos os JSONs seguem a estrutura padronizada v2.2, organizada em **5 seções lógicas**:
+Todos os JSONs seguem a estrutura padronizada v2.3, organizada em **6 seções lógicas**:
 
 ### 1. 🆔 IDENTIFICAÇÃO E METADADOS
 Dados básicos de identificação do pool e metadados de auditoria
@@ -32,7 +32,10 @@ Critérios específicos: provisões PDD, sacados elegíveis, períodos especiais
 ### 4. 🔍 SISTEMA DE MONITORAMENTO
 Engine de monitoramento: 7 monitores base + triggers de aceleração + monitores customizados
 
-### 5. 🏢 DADOS OPERACIONAIS
+### 5. ⚖️ PROCESSOS LEGAIS
+Documentação detalhada de processos pós-violação extraídos das escrituras originais
+
+### 6. 🏢 DADOS OPERACIONAIS
 Entidades: prestador de serviços, originador, debenturistas
 
 ## 🎯 Monitores Implementados
@@ -72,7 +75,7 @@ Específicos por pool conforme escritura:
   "data_vencimento": "// OBRIGATÓRIO: YYYY-MM-DD",
 
   "metadata": {
-    "versao": "2.2",
+    "versao": "2.3",
     "data_atualizacao": "// OBRIGATÓRIO: YYYY-MM-DD",
     "fonte_original": "// OBRIGATÓRIO: Nome do PDF da escritura",
     "schema_version": "monitoring_v2",
@@ -190,15 +193,13 @@ Específicos por pool conforme escritura:
         {
           "tipo": "individual",
           "entidade": "sacado",
-          "limite": "// decimal ex: 0.35",
-          "inclui_grupo_economico": true
+          "limite": "// decimal ex: 0.35"
         },
         {
           "tipo": "top_n",
           "entidade": "sacado",
           "n": 10,
-          "limite": "// decimal ex: 1.00",
-          "inclui_grupo_economico": true
+          "limite": "// decimal ex: 1.00"
         }
       ],
       "campos_necessarios": ["sacado", "cedente", "valor_presente"],
@@ -213,9 +214,71 @@ Específicos por pool conforme escritura:
       "tipo_prazo": "// 'uteis' ou 'corridos'",
       "automatico": "// boolean",
       "notificacao_requerida": "// boolean"
+    },
+    "concentracao_violacao": {
+      "prazo_cura_dias": "// integer ex: 30",
+      "tipo_prazo": "// 'uteis' ou 'corridos'",
+      "automatico": "// boolean - geralmente false",
+      "processo_detalhado_ref": "// string: 'processos_legais.concentracao_violacao'"
     }
     // ... outros triggers
   },
+
+  "// ================================================": "",
+  "// SEÇÃO 5: PROCESSOS LEGAIS": "",
+  "// ================================================": "",
+
+  "processos_legais": {
+    "// DOCUMENTAÇÃO": "Processos legais detalhados extraídos das escrituras originais",
+    "// FONTE_VERDADE": "SEMPRE usar escritura original como fonte única de verdade",
+    
+    "concentracao_violacao": {
+      "tipo_evento": "// string: ex: 'evento_avaliacao'",
+      "classificacao": "// string: ex: 'Anexo V - Eventos de Avaliação, item (viii)'",
+      "prazo_cura": {
+        "dias": "// integer: dias para corrigir violação",
+        "tipo": "// string: 'uteis' ou 'corridos'",
+        "descricao": "// string: descrição do prazo"
+      },
+      "pos_violacao": {
+        "assembleia": {
+          "convocacao_prazo_dias": "// integer: ex: 3",
+          "tipo_prazo": "// string: 'uteis' ou 'corridos'",
+          "responsavel": "// string: ex: 'emissora'",
+          "descricao": "// string: descrição do processo"
+        },
+        "votacao": {
+          "votantes": "// string: ex: 'serie_senior'", 
+          "maioria_requerida": "// string: ex: 'simples'",
+          "objeto_decisao": "// string: ex: 'vencimento_antecipado'",
+          "descricao": "// string: descrição do processo"
+        },
+        "renuncia": {
+          "prazo_dias": "// integer: ex: 5",
+          "tipo_prazo": "// string: 'uteis' ou 'corridos'",
+          "direito_de": "// string: ex: 'serie_senior'",
+          "descricao": "// string: descrição do direito"
+        }
+      },
+      "base_legal": "// string: referência exata da escritura",
+      "aditamentos": [
+        "// array: lista de aditamentos que alteram o processo"
+      ],
+      "texto_original": "// string: texto exato da escritura (opcional)"
+    },
+    "subordinacao_violacao": {
+      "// TEMPLATE": "Mesmo padrão acima para outros tipos de violação",
+      "tipo_evento": "// ex: 'evento_vencimento_antecipado'",
+      "prazo_cura": {"dias": "// ex: 5", "tipo": "// ex: 'uteis'"},
+      "pos_violacao": {
+        "// ADAPTAR": "Conforme processo específico na escritura"
+      }
+    }
+  },
+
+  "// ================================================": "",
+  "// SEÇÃO 6: DADOS OPERACIONAIS": "",
+  "// ================================================": "",
 
   "monitores_customizados": {
     "// SEÇÃO_CRÍTICA": "Monitores específicos do pool (20%)",
@@ -368,5 +431,30 @@ Para pool "LeCapital Pool #1":
 - **Escrituras Fonte**: `/data/escrituras_md/` (documentos originais)
 - **Processo de Extração**: `/docs/processos/PROCESSO_EXTRACAO_SISTEMATICA.md`
 
+## 🆕 **NOVIDADES VERSÃO 2.3 (2025-07-15)**
+
+### **Nova Seção: Processos Legais**
+- **Estrutura Híbrida**: `triggers_aceleracao` (sistema) + `processos_legais` (compliance)
+- **Documentação Legal**: Processos pós-violação extraídos das escrituras
+- **Auditabilidade**: Rastro completo para compliance e auditoria
+- **Referência Cruzada**: Links entre seções técnica e legal
+
+### **Exemplo Implementado: Union Pool #5**
+- **Problema Corrigido**: Top 10 Cedentes 60% → 70% (2º Aditamento)
+- **Processo Detalhado**: Assembleia (3 dias) → Votação (Sênior) → Renúncia (5 dias)
+- **Base Legal**: Anexo V, item (viii) - Eventos de Avaliação
+
+### **Nova Funcionalidade: Análise Sequencial de Capacidade**
+- **Monitor de Concentração v2.1**: Análise sequencial implementada
+- **Capacidade Incremental**: Mostra quanto cada sacado/cedente pode crescer
+- **Análise Cascata**: Saldo restante após cada alocação sequencial  
+- **Limitações Claras**: Identifica se restrição é individual ou top-N
+
+### **Benefícios da Estrutura Híbrida**
+- **Sistema**: Usa `triggers_aceleracao` simples para monitoramento automático
+- **Compliance**: `processos_legais` detalhados para auditoria e processos manuais
+- **Manutenção**: Evita duplicação via referência cruzada
+- **Escalabilidade**: Template padrão para todos os novos pools
+
 ---
-**Última atualização**: 2025-07-12 | **Versão Template**: v2.2
+**Última atualização**: 2025-07-15 | **Versão Template**: v2.3 | **Estrutura Híbrida**: ✅ Implementada

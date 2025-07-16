@@ -134,31 +134,27 @@
         {
           "tipo": "individual",
           "entidade": "sacado",
-          "limite": 0.27,
-          "inclui_grupo_economico": true
+          "limite": 0.27
         },
         {
           "tipo": "individual",
           "entidade": "cedente",
-          "limite": 0.30,
-          "inclui_grupo_economico": true
+          "limite": 0.30
         },
         {
           "tipo": "top_n",
           "entidade": "sacado",
           "n": 10,
-          "limite": 1.00,
-          "inclui_grupo_economico": true
+          "limite": 1.00
         },
         {
           "tipo": "top_n",
           "entidade": "cedente",
           "n": 10,
-          "limite": 0.70,
-          "inclui_grupo_economico": true
+          "limite": 0.70
         }
       ],
-      "campos_necessarios": ["sacado", "cedente", "valor_presente", "grupo_economico"],
+      "campos_necessarios": ["sacado", "cedente", "valor_presente"],
       "funcao_calculo": "calc_concentracao"
     },
     {

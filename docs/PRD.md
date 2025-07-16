@@ -22,7 +22,7 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 - ✅ **Subordinação**: Cálculo de índice de subordinação (IS) com limites mínimo/crítico
 - ✅ **Inadimplência**: Monitoramento por janelas customizáveis + aging configurável + drill-down completo
 - ✅ **PDD**: Provisão para devedores duvidosos com lógica por cedente ⚠️ **CCB não implementada**
-- 🔄 **Concentração**: Análise de sacado/cedente individual e top-N (planejado)
+- ✅ **Concentração**: Análise de sacado/cedente individual e top-N + **🆕 análise sequencial de capacidade**
 - 🔄 **Vencimento médio**: Prazo médio ponderado da carteira (planejado)
 - 🔄 **Elegibilidade**: Verificação de critérios de ativos válidos (planejado)
 
@@ -151,9 +151,12 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 - [x] ✅ Configurações por pool (ignore list, debug mode)
 - [x] ✅ Auditoria sistemática de 100% dos pools
 - [x] ✅ Integridade de dados verificada contra escrituras originais
-- [x] ✅ Template padronizado v2.2 com 5 seções lógicas
+- [x] ✅ Template padronizado v2.3 com 6 seções lógicas
 - [x] ✅ Nomenclatura padronizada CSV ↔ JSON
 - [x] ✅ Descoberta automática de pools funcional
+- [x] ✅ **Estrutura híbrida processos legais implementada**
+- [x] ✅ **Monitor concentração com análise sequencial**
+- [x] ✅ **Union Pool #5 corrigido (60% → 70%)**
 - [ ] Processa 100% das regras da escritura
 - [ ] Identifica todas as violações corretamente
 - [ ] Gera relatório em <5 segundos
@@ -173,10 +176,34 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 
 ## Roadmap de Implementação
 
+## 🆕 **ATUALIZAÇÕES 2025-07-15**
+
+### **Estrutura Híbrida de Processos Legais (v2.3)**
+- ✅ **Template v2.3**: Nova seção `processos_legais` em todos os JSONs de pools
+- ✅ **Arquitetura Dual**: `triggers_aceleracao` (sistema) + `processos_legais` (compliance)
+- ✅ **Union Pool #5**: Piloto implementado com limite corrigido (60% → 70%)
+- ✅ **Documentação Legal**: Rastro completo de processos pós-violação nas escrituras
+- ✅ **Auditabilidade**: Processo completo para assembleia → votação → renúncia
+
+### **Monitor de Concentração v2.1**
+- ✅ **Análise Sequencial**: Nova funcionalidade de capacidade incremental implementada
+- ✅ **Capacidade por Entidade**: Mostra quanto cada sacado/cedente pode crescer
+- ✅ **Análise Cascata**: Saldo restante após cada alocação sequencial
+- ✅ **Limitações Identificadas**: Individual vs Top-N por posição de prioridade
+- ✅ **Casos de Uso**: Gestão de originação, planejamento, compliance proativo
+
+### **Benefícios Entregues**
+- ✅ **Union Pool #5**: Problema crítico de limite desatualizado resolvido
+- ✅ **Compliance Automatizado**: Processos legais documentados nos JSONs
+- ✅ **Gestão de Originação**: Análise exata de capacidade disponível por sacado
+- ✅ **Template Padrão**: Estrutura híbrida para todos os novos pools
+
 ### Fase 1 (Atual): Fundação
 - ✅ Sistema de monitoramento básico
 - ✅ Processamento de dados core
 - ✅ JSON otimizado para monitoramento
+- ✅ **Estrutura híbrida processos legais implementada**
+- ✅ **Monitor concentração com análise sequencial**
 - ✅ Sistema de carregamento completo (data_loader.py)
 - ✅ Fluxo de 9 etapas com debug/normal mode
 - ✅ Sistema de ignore list e configurações

@@ -34,6 +34,7 @@ try:
     from .base.monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
     from .base.monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
     from .base.monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
+    from .base.monitor_concentracao import run_concentration_monitoring, _has_concentration_monitoring
     from .utils.data_loader import load_pool_data
     from .utils.alerts import log_alerta
     from .utils.file_loaders import load_dashboard, load_json_file
@@ -49,6 +50,7 @@ except (ImportError, ValueError):
     from monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
     from monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
     from monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
+    from monitor_concentracao import run_concentration_monitoring, _has_concentration_monitoring
     from data_loader import load_pool_data
     from alerts import log_alerta
     from file_loaders import load_dashboard, load_json_file
@@ -128,10 +130,10 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
     🎯 **Monitores Executados**: TODOS os monitores configurados
     - ✅ **Subordinação**: Índice de subordinação (SR) com limites mínimo/crítico
     - ✅ **Inadimplência**: Análise por janelas customizáveis (30d, 90d, etc.)
-    - ✅ **Concentração**: Sacados/cedentes individuais e top-N
-    - ✅ **Vencimento médio**: Prazo médio ponderado da carteira
-    - ✅ **Elegibilidade**: Critérios de ativos válidos
     - ✅ **PDD**: Provisão para devedores duvidosos
+    - ✅ **Concentração**: Sacados/cedentes individuais e top-N (**NOVO - Building Block 7**)
+    - 🔄 **Vencimento médio**: Prazo médio ponderado da carteira
+    - 🔄 **Elegibilidade**: Critérios de ativos válidos
     
     🔄 **Enriquecimento Progressivo**: 
     - DataFrame XLSX global enriquecido com campos calculados
@@ -221,6 +223,12 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
         >>>     pdd_result = pool_result['resultados']['pdd']['pdd_analysis']
         >>>     print(f"PDD Total: R$ {pdd_result['totais']['provisao_valor']:,.2f}")
         >>>     print(f"PDD %: {pdd_result['totais']['provisao_percentual']}%")
+        >>> 
+        >>> # Verificar concentração (se configurado)
+        >>> if 'concentracao' in pool_result['resultados']:
+        >>>     conc_result = pool_result['resultados']['concentracao']
+        >>>     print(f"Concentração: {conc_result['status_geral']}")
+        >>>     print(f"Limites analisados: {conc_result['resumo']['total_limites_analisados']}")
         >>> 
         >>> # 3. ACESSAR XLSX ENRIQUECIDO
         >>> xlsx_enriched = resultado['xlsx_enriched']
@@ -502,6 +510,52 @@ def _process_single_pool(pool_name: str, dados: Dict[str, Any]) -> Dict[str, Any
                     "tipo": "warning",
                     "pool": pool_name,
                     "mensagem": f"⚠️ Falha no monitor PDD: {resultado_pdd.get('erro', 'Desconhecido')}"
+                })
+        
+        # 4. Monitor de Concentração
+        if _has_concentration_monitoring(config):
+            log_alerta({
+                "tipo": "info",
+                "pool": pool_name,
+                "mensagem": "Executando monitor de concentração"
+            })
+            
+            resultado_conc = run_concentration_monitoring(pool_csv, dados["xlsx_data"], config)
+            resultados_monitores["concentracao"] = resultado_conc
+            
+            # Log do resultado
+            if resultado_conc.get("sucesso"):
+                status = resultado_conc.get("status_geral", "desconhecido")
+                if status == "sem_limites":
+                    log_alerta({
+                        "tipo": "info",
+                        "pool": pool_name,
+                        "mensagem": "ℹ️ Concentração: sem limites configurados"
+                    })
+                elif status == "enquadrado":
+                    log_alerta({
+                        "tipo": "info",
+                        "pool": pool_name,
+                        "mensagem": "✅ Concentração: todos os limites enquadrados"
+                    })
+                elif status == "violado":
+                    num_violados = resultado_conc.get("resumo", {}).get("limites_violados", 0)
+                    log_alerta({
+                        "tipo": "warning",
+                        "pool": pool_name,
+                        "mensagem": f"⚠️ Concentração: {num_violados} limite(s) violado(s)"
+                    })
+                else:
+                    log_alerta({
+                        "tipo": "warning",
+                        "pool": pool_name,
+                        "mensagem": f"⚠️ Concentração: status {status}"
+                    })
+            else:
+                log_alerta({
+                    "tipo": "warning",
+                    "pool": pool_name,
+                    "mensagem": f"⚠️ Falha no monitor concentração: {resultado_conc.get('erro', 'Desconhecido')}"
                 })
         
         return {

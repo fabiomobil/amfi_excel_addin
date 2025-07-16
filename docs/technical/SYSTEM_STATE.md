@@ -1,6 +1,6 @@
 # Estado do Sistema AmFi - Snapshot Técnico
 
-## Última Verificação: 2025-07-13 10:13
+## Última Verificação: 2025-07-15 23:45
 
 ### 📊 Estrutura de Dados Atual (Variável Diariamente)
 
@@ -18,9 +18,10 @@
   - **16 colunas originais** (estado inicial)
 
 #### **Configurações de Pools**
-- **JSONs ativos**: `/config/pools/*.json` (7 pools padronizados)
+- **JSONs ativos**: `/config/pools/*.json` (9 pools padronizados - **+UnionNational Pool #5, +E-ctare Pool #1**)
 - **JSONs legacy**: `/config/pools/legacy/*.json` (versões antigas)
 - **Config monitoramento**: `/config/monitoring/test_pools.json` (modo DEBUG)
+- **🆕 Template v2.3**: Estrutura híbrida com seção `processos_legais`
 
 ### 🔄 Processo de Enriquecimento Progressivo (Não Permanente)
 
@@ -116,6 +117,37 @@ from orchestrator import _has_delinquency_monitoring          # ✅ Funcional
 - Monitor inadimplência (2º pool): <1 segundo (reutiliza enriquecimento)
 
 **Total**: ~12 segundos para carregar + processar 2 pools com enriquecimento
+
+## 🆕 **ATUALIZAÇÕES 2025-07-15**
+
+### **Estrutura Híbrida de Processos Legais**
+- **Template v2.3**: Nova seção `processos_legais` em todos os JSONs
+- **Arquitetura Dual**: `triggers_aceleracao` (sistema) + `processos_legais` (compliance)
+- **Union Pool #5**: Problema crítico corrigido (60% → 70%) + estrutura híbrida completa
+- **Padrão Estabelecido**: Template para todos os novos pools
+
+### **Monitor de Concentração v2.1**
+- **Análise Sequencial**: Nova funcionalidade de capacidade incremental
+- **Interface**: `run_concentration_monitoring()` integrada automaticamente
+- **Saída**: Inclui `analises_capacidade` com análise cascata por sacado/cedente
+- **Performance**: <2 segundos adicionais por pool com top-N
+
+### **Monitoramento Atualizado**
+```python
+# NOVOS MONITORES FUNCIONAIS (2025-07-15):
+
+from monitor_concentracao import run_concentration_monitoring  # ✅ Funcional + análise sequencial
+# Saída inclui: resultados_por_limite + analises_capacidade
+
+# Análise sequencial automática para pools com individual + top-N
+resultado = run_monitoring("UnionNational Pool #5")
+# Inclui analises_capacidade.sacado.analise_sequencial
+```
+
+### **Pools Adicionados**
+- **UnionNational Pool #5**: Configuração completa + estrutura híbrida
+- **E-ctare Pool #1**: Pool agronegócio com 6 monitores customizados identificados
+- **Total pools configurados**: 9 (anteriormente 7)
 
 ### ⚠️ Limitações e Considerações
 

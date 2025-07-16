@@ -4,11 +4,11 @@
 
 A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de monitoramento AmFi. Todas as funções legacy foram removidas em 2025-07-14.
 
-### Monitores Disponíveis (2025-07-14)
+### Monitores Disponíveis (2025-07-15)
 - ✅ **Subordinação**: Índice de subordinação com limites
 - ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.)
 - ✅ **PDD**: Provisão para Devedores Duvidosos (grupos AA-H)
-- 🔄 **Concentração**: Sacados/cedentes (planejado)
+- ✅ **Concentração**: Sacados/cedentes individual e top-N + **🆕 análise sequencial de capacidade**
 - 🔄 **Elegibilidade**: Critérios de ativos (planejado)
 
 ## 1. Uso Básico
@@ -191,7 +191,163 @@ if resultado['sucesso']:
             print(f"      {grupo}: {count:,} títulos")
 ```
 
-## 6. Configuração de Modo Debug
+## 🆕 6. Análise Sequencial de Capacidade (2025-07-15)
+
+### Monitor de Concentração v2.1
+```python
+from monitor.orchestrator import run_monitoring
+
+# Executar monitoramento com análise sequencial automática
+resultado = run_monitoring(pool_name="UnionNational Pool #5")
+
+if resultado['sucesso']:
+    # Acessar resultados do monitor de concentração
+    for pool_resultado in resultado['resultados']:
+        if pool_resultado['pool_id'] == "UnionNational Pool #5":
+            monitor_concentracao = None
+            
+            # Encontrar monitor de concentração
+            for monitor in pool_resultado['monitores']:
+                if monitor['tipo'] == 'concentracao':
+                    monitor_concentracao = monitor
+                    break
+            
+            if monitor_concentracao and 'analises_capacidade' in monitor_concentracao:
+                print(f"\n🎯 ANÁLISE SEQUENCIAL DE CAPACIDADE")
+                
+                # Análise para sacados
+                if 'sacado' in monitor_concentracao['analises_capacidade']:
+                    analise_sacado = monitor_concentracao['analises_capacidade']['sacado']
+                    resumo = analise_sacado['resumo']
+                    
+                    print(f"\n📊 RESUMO SACADOS:")
+                    print(f"   PL Pool: R$ {resumo['pl_pool']:,.0f}")
+                    print(f"   Limite Individual: {resumo['limite_individual_pct']:.1f}%")
+                    print(f"   Limite Top-{resumo['top_n_size']}: {resumo['limite_top_n_pct']:.1f}%")
+                    print(f"   Exposição Atual: {resumo['percentual_top_n_atual']:.1f}%")
+                    print(f"   Espaço Disponível: {resumo['espaco_total_disponivel']:,.0f}")
+                    
+                    print(f"\n🔄 ANÁLISE SEQUENCIAL:")
+                    for item in analise_sacado['analise_sequencial']:
+                        print(f"   Posição {item['posicao']}: {item['entidade']}")
+                        print(f"      Atual: R$ {item['exposicao_atual']:,.0f} ({item['percentual_atual']:.1f}%)")
+                        print(f"      Pode crescer: R$ {item['capacidade_efetiva']:,.0f}")
+                        print(f"      Saldo após: R$ {item['saldo_apos']:,.0f}")
+                        print(f"      Limitado por: {item['limitada_por']}")
+                        print(f"      📝 {item['explicacao']}")
+                        print()
+                
+                # Análise para cedentes
+                if 'cedente' in monitor_concentracao['analises_capacidade']:
+                    analise_cedente = monitor_concentracao['analises_capacidade']['cedente']
+                    print(f"\n💼 ANÁLISE CEDENTES DISPONÍVEL")
+```
+
+### 🆕 Matriz de Sobra Tabular (2025-07-16)
+```python
+def visualizar_matriz_sobra(pool_name):
+    """Visualização da matriz de sobra com tabela ASCII formatada."""
+    resultado = run_monitoring(pool_name=pool_name)
+    
+    if not resultado['sucesso']:
+        print(f"❌ Erro ao processar {pool_name}")
+        return
+    
+    # Buscar análise de capacidade com matriz de sobra
+    for pool_resultado in resultado['resultados']:
+        if pool_resultado['pool_id'] == pool_name:
+            for monitor in pool_resultado['monitores']:
+                if monitor['tipo'] == 'concentracao' and 'analises_capacidade' in monitor:
+                    analise = monitor['analises_capacidade'].get('sacado')
+                    if analise and 'matriz_sobra' in analise:
+                        matriz = analise['matriz_sobra']
+                        
+                        print(f"\n🎯 MATRIZ DE SOBRA - {pool_name}")
+                        print("=" * 60)
+                        
+                        # Cabeçalho da matriz
+                        print(f"📊 {matriz['cabecalho']['titulo']}")
+                        print(f"   PL: {matriz['cabecalho']['pl_pool']:,.0f}")
+                        print(f"   Limite Individual: {matriz['cabecalho']['limite_individual']}")
+                        print(f"   Limite Top-N: {matriz['cabecalho']['limite_top_n']}")
+                        print(f"   Espaço Disponível: {matriz['cabecalho']['espaco_disponivel']:,.0f}")
+                        print()
+                        
+                        # Tabela ASCII formatada
+                        print(matriz['tabela_ascii'])
+                        
+                        return matriz
+    
+    print(f"⚠️ Matriz de sobra não disponível para {pool_name}")
+    return None
+
+# Exemplo de uso
+if __name__ == "__main__":
+    visualizar_matriz_sobra("UnionNational Pool #5")
+```
+
+**Exemplo de Saída:**
+```
+🎯 MATRIZ DE SOBRA - UnionNational Pool #5
+============================================================
+📊 MATRIZ DE SOBRA - ANÁLISE SEQUENCIAL
+   PL: 8,500,000
+   Limite Individual: 27.0%
+   Limite Top-N: 100.0%
+   Espaço Disponível: 1,275,000
+
+┌──────────────┬────────┬──────────┬─────────────┬─────────────┬───────────────┐
+│Entidade      │Atual   │Cap.Indiv │Cap.Efetiva  │Saldo Antes  │Limitado Por   │
+├──────────────┼────────┼──────────┼─────────────┼─────────────┼───────────────┤
+│Empresa ABC   │1200000 │+1095000  │+1095000     │1275000      │individual     │
+│Empresa XYZ   │800000  │+1495000  │+180000      │180000       │top_n          │
+│Empresa DEF   │600000  │+1695000  │+0           │0            │esgotado       │
+└──────────────┴────────┴──────────┴─────────────┴─────────────┴───────────────┘
+```
+
+### Casos de Uso Práticos
+```python
+def analisar_capacidade_originacao(pool_name):
+    """Exemplo de uso para gestão de originação."""
+    resultado = run_monitoring(pool_name=pool_name)
+    
+    if not resultado['sucesso']:
+        print(f"❌ Erro ao processar {pool_name}")
+        return
+    
+    # Buscar análise de capacidade
+    for pool_resultado in resultado['resultados']:
+        if pool_resultado['pool_id'] == pool_name:
+            for monitor in pool_resultado['monitores']:
+                if monitor['tipo'] == 'concentracao' and 'analises_capacidade' in monitor:
+                    analise = monitor['analises_capacidade'].get('sacado')
+                    if analise:
+                        print(f"\n🎯 CAPACIDADE DE ORIGINAÇÃO - {pool_name}")
+                        
+                        # Prioridades de originação
+                        for item in analise['analise_sequencial']:
+                            if item['capacidade_efetiva'] > 0:
+                                print(f"✅ {item['entidade']}: "
+                                      f"Pode originar até R$ {item['capacidade_efetiva']:,.0f}")
+                            else:
+                                print(f"❌ {item['entidade']}: Sem capacidade restante")
+                        
+                        # Mostrar matriz de sobra se disponível
+                        if 'matriz_sobra' in analise:
+                            print(f"\n📊 MATRIZ DE SOBRA DISPONÍVEL")
+                            print(f"   Use visualizar_matriz_sobra('{pool_name}') para ver tabela formatada")
+                        
+                        return analise
+    
+    print(f"⚠️ Análise de capacidade não disponível para {pool_name}")
+    return None
+
+# Exemplo de uso
+if __name__ == "__main__":
+    analisar_capacidade_originacao("UnionNational Pool #5")
+```
+
+## 7. Configuração de Modo Debug
 
 ### Arquivo test_pools.json
 ```json

@@ -146,6 +146,30 @@ docs/technical/ → Para implementação técnica
 - Recomendações baseadas em histórico
 - Otimização dinâmica do processo
 
+## 🆕 **ATUALIZAÇÕES RECENTES (2025-07-15)**
+
+### **Novos Arquivos Críticos para Daily Sync**
+- **Template v2.3**: `/config/pools/README.md` - Estrutura híbrida processos legais
+- **Monitor Concentração v2.1**: `/monitor/base/monitor_concentracao.py` - Análise sequencial
+- **Union Pool #5**: `/config/pools/UnionNational Pool #5.json` - Exemplo piloto estrutura híbrida
+- **E-ctare Pool #1**: `/config/pools/E-ctare Pool #1.json` - Pool agronegócio
+
+### **Funcionalidades Implementadas para Considerar**
+- ✅ **Estrutura Híbrida**: `triggers_aceleracao` + `processos_legais` em JSONs
+- ✅ **Análise Sequencial**: Capacidade incremental de concentração implementada
+- ✅ **Union Pool #5**: Problema crítico corrigido (60% → 70%)
+- ✅ **Template Padrão**: v2.3 estabelecido para novos pools
+
+### **Atualização das Métricas (Template)**
+```markdown
+## 📊 Métricas de Progresso (Atualizado 2025-07-15)
+- **Monitores base**: 4/5 (80% - Subordinação ✅, Inadimplência ✅, PDD ✅, Concentração ✅)
+- **Pools auditados**: 9/44 (20% - UnionNational Pool #5 + E-ctare Pool #1 adicionados)
+- **Template**: v2.3 com estrutura híbrida processos legais ✅
+- **Monitor Concentração**: v2.1 com análise sequencial ✅
+- **Documentação**: Sincronizada e atualizada ✅
+```
+
 ## 📈 Métricas de Sucesso do Framework
 
 ### **Eficiência:**
