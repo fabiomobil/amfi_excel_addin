@@ -4,11 +4,11 @@
 
 A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de monitoramento AmFi. Todas as funções legacy foram removidas em 2025-07-14.
 
-### Monitores Disponíveis (2025-07-15)
+### Monitores Disponíveis (2025-07-16)
 - ✅ **Subordinação**: Índice de subordinação com limites
 - ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.)
 - ✅ **PDD**: Provisão para Devedores Duvidosos (grupos AA-H)
-- ✅ **Concentração**: Sacados/cedentes individual e top-N + **🆕 análise sequencial de capacidade**
+- ✅ **Concentração**: Sacados/cedentes individual e top-N + **🆕 análise sequencial + matriz de sobra + filtro de entidades**
 - 🔄 **Elegibilidade**: Critérios de ativos (planejado)
 
 ## 1. Uso Básico
@@ -345,6 +345,80 @@ def analisar_capacidade_originacao(pool_name):
 # Exemplo de uso
 if __name__ == "__main__":
     analisar_capacidade_originacao("UnionNational Pool #5")
+```
+
+### 🔽 Filtro de Entidades Ignoradas (2025-07-16)
+```python
+def monitorar_com_filtro_entidades(pool_name):
+    """Exemplo de monitoramento com filtro automático de entidades."""
+    resultado = run_monitoring(pool_name=pool_name)
+    
+    if not resultado['sucesso']:
+        print(f"❌ Erro ao processar {pool_name}")
+        return
+    
+    # Buscar resultados de concentração
+    for pool_resultado in resultado['resultados']:
+        if pool_resultado['pool_id'] == pool_name:
+            for monitor in pool_resultado['monitores']:
+                if monitor['tipo'] == 'concentracao':
+                    print(f"\n🔽 FILTRO AUTOMÁTICO APLICADO - {pool_name}")
+                    print("   Entidades ignoradas: Amfi Digital Assets LTDA")
+                    print("   Configuração: /config/monitoring/concentration_filters.json")
+                    
+                    # Mostrar resultados de concentração
+                    for resultado_limite in monitor['resultados_por_limite']:
+                        tipo = resultado_limite['tipo']
+                        entidade = resultado_limite['entidade']
+                        
+                        if tipo == 'individual':
+                            maior = resultado_limite['maior_concentracao']
+                            print(f"   📊 Individual {entidade}: {maior['entidade']} ({maior['percentual_pl']:.1f}%)")
+                        elif tipo == 'top_n':
+                            n = resultado_limite['n']
+                            concentracao = resultado_limite['concentracao_top_n']
+                            print(f"   📊 Top-{n} {entidade}: {concentracao['percentual_pl']:.1f}%")
+                    
+                    # Verificar se houve filtros aplicados no log
+                    print(f"   💬 Verifique logs para detalhes sobre registros filtrados")
+                    
+                    return monitor
+    
+    print(f"⚠️ Monitor de concentração não encontrado para {pool_name}")
+    return None
+
+# Exemplo de uso
+if __name__ == "__main__":
+    monitorar_com_filtro_entidades("UnionNational Pool #5")
+```
+
+**Saída Esperada:**
+```
+🔽 Concentração cedente: 5 registros filtrados (entidades ignoradas)
+🔽 Concentração sacado: 3 registros filtrados (entidades ignoradas)
+
+🔽 FILTRO AUTOMÁTICO APLICADO - UnionNational Pool #5
+   Entidades ignoradas: Amfi Digital Assets LTDA
+   Configuração: /config/monitoring/concentration_filters.json
+   📊 Individual sacado: Empresa ABC (14.1%)
+   📊 Top-10 cedente: 67.5%
+   💬 Verifique logs para detalhes sobre registros filtrados
+```
+
+**Personalização do Filtro:**
+```json
+// Editar /config/monitoring/concentration_filters.json
+{
+  "entidades_ignoradas": {
+    "cedentes": ["Amfi Digital Assets LTDA", "Outra Entidade"],
+    "sacados": ["Amfi Digital Assets LTDA"]
+  },
+  "configuracoes_adicionais": {
+    "case_sensitive": false,
+    "normalize_names": true,
+    "partial_match": false
+  }
+}
 ```
 
 ## 7. Configuração de Modo Debug

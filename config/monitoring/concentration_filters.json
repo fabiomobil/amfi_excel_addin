@@ -1,0 +1,23 @@
+{
+  "metadata": {
+    "description": "Filtros globais para cálculos de concentração",
+    "version": "1.0",
+    "created": "2025-07-16",
+    "last_updated": "2025-07-16"
+  },
+  "entidades_ignoradas": {
+    "description": "Entidades que devem ser ignoradas nos cálculos de concentração (individual e top-N)",
+    "justificativa": "Amfi Digital Assets LTDA é considerada 'caixa' da própria gestora",
+    "cedentes": [
+      "Amfi Digital Assets LTDA"
+    ],
+    "sacados": [
+      "Amfi Digital Assets LTDA"
+    ]
+  },
+  "configuracoes_adicionais": {
+    "case_sensitive": false,
+    "normalize_names": true,
+    "partial_match": false
+  }
+}

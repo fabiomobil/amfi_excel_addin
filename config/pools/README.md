@@ -45,6 +45,8 @@ Presentes na maioria dos pools (limites variam por escritura):
 
 1. **Subordinação** - Índice mínimo e crítico (ex: 25% e 20%, mas podem variar)
 2. **Concentração** - Limites por sacado/cedente individual e top N (específicos por pool)
+   - ✅ **Filtro automático**: Ignora "Amfi Digital Assets LTDA" (considerada "caixa")
+   - ✅ **Análise sequencial**: Capacidade incremental com matriz de sobra
 3. **Inadimplência + PDD** - Prazos variáveis (comumente 30d/90d) + Provisões por grupos de risco
 4. **Vencimento Médio** - Prazo médio ponderado da carteira (limite específico por pool)
 5. **Critérios de Elegibilidade** - Validação de ativos elegíveis (critérios por escritura)

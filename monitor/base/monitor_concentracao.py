@@ -353,6 +353,9 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
+from pathlib import Path
+import os
+import json
 
 
 class ConcentrationType(Enum):
@@ -382,6 +385,160 @@ class ConcentrationLimit:
         
         if self.limite < 0 or self.limite > 1:
             raise ValueError(f"Limite deve estar entre 0 e 1, recebido: {self.limite}")
+
+
+def _load_concentration_filters() -> Dict[str, Any]:
+    """
+    Carrega configuração de filtros para concentração.
+    
+    Returns:
+        Dict com configuração de entidades ignoradas
+    """
+    try:
+        # Caminho para configuração de filtros
+        filters_path = Path(__file__).parent.parent.parent / "config" / "monitoring" / "concentration_filters.json"
+        
+        if filters_path.exists():
+            with open(filters_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            # Configuração padrão caso arquivo não exista
+            return {
+                "entidades_ignoradas": {
+                    "cedentes": ["Amfi Digital Assets LTDA"],
+                    "sacados": ["Amfi Digital Assets LTDA"]
+                },
+                "configuracoes_adicionais": {
+                    "case_sensitive": False,
+                    "normalize_names": True,
+                    "partial_match": False
+                }
+            }
+    except Exception as e:
+        print(f"⚠️ Erro ao carregar filtros de concentração: {e}")
+        # Retorna configuração padrão mínima
+        return {
+            "entidades_ignoradas": {
+                "cedentes": ["Amfi Digital Assets LTDA"],
+                "sacados": ["Amfi Digital Assets LTDA"]
+            },
+            "configuracoes_adicionais": {
+                "case_sensitive": False,
+                "normalize_names": True,
+                "partial_match": False
+            }
+        }
+
+
+def _should_ignore_entity(entity_name: str, entity_type: str, filters_config: Dict[str, Any]) -> bool:
+    """
+    Verifica se uma entidade deve ser ignorada nos cálculos de concentração.
+    
+    Args:
+        entity_name: Nome da entidade (cedente/sacado)
+        entity_type: Tipo da entidade ('cedente' ou 'sacado')
+        filters_config: Configuração de filtros
+        
+    Returns:
+        True se deve ignorar, False caso contrário
+    """
+    try:
+        entidades_ignoradas = filters_config.get("entidades_ignoradas", {})
+        lista_ignoradas = entidades_ignoradas.get(f"{entity_type}s", [])
+        
+        if not lista_ignoradas:
+            return False
+        
+        # Configurações de comparação
+        config_adicional = filters_config.get("configuracoes_adicionais", {})
+        case_sensitive = config_adicional.get("case_sensitive", False)
+        normalize_names = config_adicional.get("normalize_names", True)
+        partial_match = config_adicional.get("partial_match", False)
+        
+        # Normalizar nome se configurado
+        entity_check = entity_name
+        if normalize_names:
+            entity_check = entity_name.strip()
+        
+        # Verificar cada entidade na lista
+        for ignored_entity in lista_ignoradas:
+            ignored_check = ignored_entity
+            if normalize_names:
+                ignored_check = ignored_entity.strip()
+            
+            # Comparação case sensitive/insensitive
+            if case_sensitive:
+                if partial_match:
+                    if ignored_check in entity_check:
+                        return True
+                else:
+                    if ignored_check == entity_check:
+                        return True
+            else:
+                entity_lower = entity_check.lower()
+                ignored_lower = ignored_check.lower()
+                
+                if partial_match:
+                    if ignored_lower in entity_lower:
+                        return True
+                else:
+                    if ignored_lower == entity_lower:
+                        return True
+        
+        return False
+        
+    except Exception as e:
+        print(f"⚠️ Erro ao verificar entidade ignorada: {e}")
+        # Em caso de erro, não ignora para segurança
+        return False
+
+
+def _filter_concentration_data(df: pd.DataFrame, entity_type: str, filters_config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Filtra DataFrame removendo entidades que devem ser ignoradas.
+    
+    Args:
+        df: DataFrame com dados de concentração
+        entity_type: Tipo da entidade ('cedente' ou 'sacado')  
+        filters_config: Configuração de filtros
+        
+    Returns:
+        DataFrame filtrado
+    """
+    try:
+        # Determinar coluna baseada no tipo de entidade
+        if entity_type == "cedente":
+            entity_column = "nome_do_cedente"
+        elif entity_type == "sacado":
+            entity_column = "nome_do_sacado"
+        else:
+            return df
+        
+        # Verificar se coluna existe
+        if entity_column not in df.columns:
+            return df
+        
+        # Filtrar dados
+        mask = df[entity_column].apply(
+            lambda x: not _should_ignore_entity(str(x), entity_type, filters_config)
+        )
+        
+        filtered_df = df[mask].copy()
+        
+        # Log se alguma entidade foi filtrada
+        original_count = len(df)
+        filtered_count = len(filtered_df)
+        
+        if original_count != filtered_count:
+            removed_count = original_count - filtered_count
+            print(f"🔽 Concentração {entity_type}: {removed_count} registros filtrados (entidades ignoradas)")
+        
+        return filtered_df
+        
+    except Exception as e:
+        print(f"⚠️ Erro ao filtrar dados de concentração: {e}")
+        # Em caso de erro, retorna dados originais
+        return df
 
 
 def _has_concentration_monitoring(config: Dict[str, Any]) -> bool:
@@ -494,6 +651,29 @@ def _calculate_individual_concentration(carteira_df: pd.DataFrame,
             "erro": "Carteira vazia"
         }
     
+    # Carregar configuração de filtros
+    filters_config = _load_concentration_filters()
+    
+    # Filtrar dados removendo entidades ignoradas
+    filtered_df = _filter_concentration_data(carteira_df, limite.entidade.value, filters_config)
+    
+    # Verificar se ainda há dados após filtro
+    if filtered_df.empty:
+        return {
+            "tipo": "individual",
+            "entidade": limite.entidade.value,
+            "limite_configurado": limite.limite * 100,
+            "pl_pool": pl_pool,
+            "maior_concentracao": {
+                "entidade": "N/A",
+                "valor_absoluto": 0.0,
+                "percentual_pl": 0.0,
+                "quantidade_titulos": 0
+            },
+            "status": "sem_dados",
+            "observacao": "Todas as entidades foram filtradas (entidades ignoradas)"
+        }
+    
     # Mapear entidade para coluna
     if limite.entidade == ConcentrationEntity.SACADO:
         entidade_col = 'nome_do_sacado'
@@ -501,7 +681,7 @@ def _calculate_individual_concentration(carteira_df: pd.DataFrame,
         entidade_col = 'nome_do_cedente'
     
     # Verificar se coluna existe
-    if entidade_col not in carteira_df.columns:
+    if entidade_col not in filtered_df.columns:
         return {
             "tipo": "individual",
             "entidade": limite.entidade.value,
@@ -518,7 +698,7 @@ def _calculate_individual_concentration(carteira_df: pd.DataFrame,
         }
     
     # Calcular concentração por entidade
-    concentracao_df = carteira_df.groupby(entidade_col).agg({
+    concentracao_df = filtered_df.groupby(entidade_col).agg({
         'valor_presente': ['sum', 'count']
     }).reset_index()
     
@@ -584,6 +764,29 @@ def _calculate_top_n_concentration(carteira_df: pd.DataFrame,
             "erro": "Carteira vazia"
         }
     
+    # Carregar configuração de filtros
+    filters_config = _load_concentration_filters()
+    
+    # Filtrar dados removendo entidades ignoradas
+    filtered_df = _filter_concentration_data(carteira_df, limite.entidade.value, filters_config)
+    
+    # Verificar se ainda há dados após filtro
+    if filtered_df.empty:
+        return {
+            "tipo": "top_n",
+            "entidade": limite.entidade.value,
+            "n": limite.n,
+            "limite_configurado": limite.limite * 100,
+            "pl_pool": pl_pool,
+            "concentracao_top_n": {
+                "percentual_pl": 0.0,
+                "valor_absoluto": 0.0,
+                "quantidade_entidades": 0
+            },
+            "status": "sem_dados",
+            "observacao": "Todas as entidades foram filtradas (entidades ignoradas)"
+        }
+    
     # Mapear entidade para coluna
     if limite.entidade == ConcentrationEntity.SACADO:
         entidade_col = 'nome_do_sacado'
@@ -591,7 +794,7 @@ def _calculate_top_n_concentration(carteira_df: pd.DataFrame,
         entidade_col = 'nome_do_cedente'
     
     # Verificar se coluna existe
-    if entidade_col not in carteira_df.columns:
+    if entidade_col not in filtered_df.columns:
         return {
             "tipo": "top_n",
             "entidade": limite.entidade.value,
@@ -608,7 +811,7 @@ def _calculate_top_n_concentration(carteira_df: pd.DataFrame,
         }
     
     # Calcular concentração por entidade
-    concentracao_df = carteira_df.groupby(entidade_col).agg({
+    concentracao_df = filtered_df.groupby(entidade_col).agg({
         'valor_presente': ['sum', 'count']
     }).reset_index()
     
@@ -1058,8 +1261,12 @@ def run_concentration_monitoring(pool_data_csv: pd.DataFrame,
                     
                     # Verificar se coluna existe na carteira
                     if entidade_col in carteira_pool.columns:
-                        # Calcular concentração por entidade
-                        concentracao_df = carteira_pool.groupby(entidade_col).agg({
+                        # 🔧 CORREÇÃO: Aplicar filtro antes de processar dados
+                        filters_config = _load_concentration_filters()
+                        filtered_carteira = _filter_concentration_data(carteira_pool, entidade_tipo, filters_config)
+                        
+                        # Calcular concentração por entidade com dados filtrados
+                        concentracao_df = filtered_carteira.groupby(entidade_col).agg({
                             'valor_presente': ['sum', 'count']
                         }).reset_index()
                         

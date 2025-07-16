@@ -1168,6 +1168,35 @@ except (ImportError, ValueError):
 3. **Menos Dependências**: Imports simplificados
 4. **Funcionalidades Customizadas**: Separadas em `/custom/`
 
+### 🔽 Filtro de Entidades Ignoradas (2025-07-16)
+
+**Problema**: Amfi Digital Assets LTDA é considerada "caixa" da gestora e não deve ser contabilizada em concentração.
+
+**Solução**: Sistema de filtros configurável que remove entidades específicas dos cálculos.
+
+#### **Configuração**
+```json
+// /config/monitoring/concentration_filters.json
+{
+  "entidades_ignoradas": {
+    "cedentes": ["Amfi Digital Assets LTDA"],
+    "sacados": ["Amfi Digital Assets LTDA"]
+  },
+  "configuracoes_adicionais": {
+    "case_sensitive": false,
+    "normalize_names": true,
+    "partial_match": false
+  }
+}
+```
+
+#### **Funcionalidades**
+- ✅ **Filtro Individual**: Remove entidades da concentração individual
+- ✅ **Filtro Top-N**: Remove entidades da concentração top-N
+- ✅ **Filtro Análise Sequencial**: Remove entidades da análise de capacidade
+- ✅ **Configurável**: Adicionar/remover entidades via JSON
+- ✅ **Logging**: Informa quantos registros foram filtrados
+
 ### Compatibilidade
 
 ✅ **Interface mantida**: `run_concentration_monitoring()`
