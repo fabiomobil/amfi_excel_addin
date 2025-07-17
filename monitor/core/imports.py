@@ -46,8 +46,19 @@ class ImportResolver:
             Imported module or None if failed
         """
         try:
-            return importlib.import_module(module_path)
-        except (ImportError, ValueError, ModuleNotFoundError):
+            # If it's a relative import, convert to absolute 
+            if module_path.startswith('.'):
+                # Try absolute import instead
+                if module_path.startswith('.utils.'):
+                    abs_path = f"monitor.utils.{module_path[7:]}"
+                elif module_path.startswith('.core.'):
+                    abs_path = f"monitor.core.{module_path[6:]}"
+                else:
+                    abs_path = f"monitor{module_path[1:]}"
+                return importlib.import_module(abs_path)
+            else:
+                return importlib.import_module(module_path)
+        except (ImportError, ValueError, ModuleNotFoundError, TypeError):
             return None
     
     def _ensure_path_in_sys(self, path: str) -> None:

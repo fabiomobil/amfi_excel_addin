@@ -30,8 +30,17 @@ from dataclasses import dataclass, field
 
 from .imports import import_function
 
-# Import utility functions
-log_alerta = import_function('alerts', 'log_alerta', 'util')
+# Import utility functions with fallback
+try:
+    from ..utils.alerts import log_alerta
+except ImportError:
+    # Fallback to absolute import
+    try:
+        from monitor.utils.alerts import log_alerta
+    except ImportError:
+        # Last resort: no-op function
+        def log_alerta(msg):
+            print(f"ALERT: {msg}")
 
 
 @dataclass
