@@ -26,6 +26,15 @@ from typing import Dict, Any, Optional, List
 import pandas as pd
 from datetime import datetime
 
+# Importar ResultBuilder para padronização
+try:
+    from .result_builder import ResultBuilder
+except ImportError:
+    try:
+        from result_builder import ResultBuilder
+    except ImportError:
+        ResultBuilder = None
+
 
 class BaseMonitor(ABC):
     """
@@ -122,12 +131,7 @@ class BaseMonitor(ABC):
     def build_result(self, success: bool, data: Optional[Dict[str, Any]] = None, 
                     error: Optional[str] = None) -> Dict[str, Any]:
         """
-        Constrói resultado padronizado para todos os monitores.
-        
-        Centraliza estrutura de resultado identificada pelos agentes:
-        - Campos obrigatórios: sucesso, monitor, timestamp
-        - Dados específicos do monitor
-        - Tratamento de erros padronizado
+        Constrói resultado padronizado usando ResultBuilder.
         
         Args:
             success: True se monitor executou com sucesso
@@ -137,6 +141,13 @@ class BaseMonitor(ABC):
         Returns:
             Dict com resultado padronizado
         """
+        if ResultBuilder:
+            if success:
+                return ResultBuilder.build_success_result(self.monitor_id, data or {})
+            else:
+                return ResultBuilder.build_error_result(self.monitor_id, error or "Erro desconhecido")
+        
+        # Fallback se ResultBuilder não disponível
         result = {
             "sucesso": success,
             "monitor": self.monitor_id,
@@ -161,6 +172,15 @@ class BaseMonitor(ABC):
         pass
     
     @abstractmethod
+    def get_required_columns(self) -> List[str]:
+        """
+        Retorna colunas obrigatórias para o monitor.
+        
+        Cada monitor deve especificar suas colunas obrigatórias.
+        """
+        pass
+    
+    @abstractmethod
     def calculate(self, *args, **kwargs) -> Dict[str, Any]:
         """
         Lógica de cálculo específica do monitor.
@@ -179,13 +199,6 @@ class BaseMonitor(ABC):
         """
         pass
     
-    def get_required_columns(self) -> List[str]:
-        """
-        Retorna colunas obrigatórias para o monitor.
-        
-        Pode ser sobrescrito por monitores específicos.
-        """
-        return []
     
     def get_limits(self) -> Dict[str, Any]:
         """
@@ -196,6 +209,31 @@ class BaseMonitor(ABC):
         if self.monitor_config:
             return self.monitor_config.get('limites', {})
         return {}
+    
+    def get_pool_id(self) -> str:
+        """
+        Extrai pool_id da configuração.
+        
+        Padrão comum para acessar ID do pool.
+        """
+        return self.config.get('pool_id', '')
+    
+    def validate_monitor_result(self, result: Dict[str, Any]) -> bool:
+        """
+        Valida resultado do monitor usando ResultBuilder.
+        
+        Args:
+            result: Resultado a ser validado
+            
+        Returns:
+            True se resultado é válido
+        """
+        if ResultBuilder:
+            return ResultBuilder.validate_monitor_result(result)
+        
+        # Fallback básico
+        required_fields = ["sucesso", "monitor", "timestamp"]
+        return all(field in result for field in required_fields)
     
     def __str__(self) -> str:
         """Representação em string do monitor."""

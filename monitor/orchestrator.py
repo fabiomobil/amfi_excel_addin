@@ -3,121 +3,51 @@ Orquestrador de Monitoramento
 =============================
 
 Responsável por:
-- Orquestrar execução de monitores individuais via data_loader
+- Orquestrar execução de monitores OOP via data_loader
 - Enriquecimento progressivo de dados (XLSX global)
 - Gerenciar logging e alertas
 - Consolidar resultados com tratamento robusto de erros
 
-Arquitetura Nova (2025-07-14):
-- data_loader como CENTRALIZADOR (descoberta + config + carregamento)
-- XLSX global (79k+ registros, 36+ pools) enriquecido progressivamente
+Arquitetura OOP (2025-07-17):
+- Monitores OOP com herança de BaseMonitor
+- XLSX global enriquecido progressivamente
 - Execução condicional baseada em JSONs de configuração
 - Tratamento robusto: pool falha ≠ parar execução
-- Monitor PDD com arquitetura inteligente (separado mas eficiente)
 
 Fluxo de Execução:
 1. data_loader.load_pool_data() - centraliza tudo
-2. Para cada pool: execução condicional de monitores
+2. Para cada pool: execução condicional de monitores OOP
    - Subordinação: independente
    - Inadimplência: enriquece XLSX global (dias_atraso, grupo_de_risco)
-   - PDD: usa dados já enriquecidos (arquitetura inteligente)
+   - PDD: usa dados já enriquecidos
+   - Concentração: análise de exposição
 3. Campos adicionados globalmente: dias_atraso, grupo_de_risco
 """
 
-import sys
-import os
 from typing import Dict, Any, List
 from datetime import datetime
+import sys
+import os
 
-# Sistema de imports compatível com Spyder e outros ambientes
+# Adicionar path para compatibilidade com diferentes contextos
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Imports OOP com fallback para execução direta
 try:
-    from .base.monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
-    from .base.monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
-    from .base.monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
-    from .base.monitor_concentracao import run_concentration_monitoring, _has_concentration_monitoring
+    from .base.monitor_subordinacao_oop import SubordinationMonitor
+    from .base.monitor_inadimplencia_oop import run_delinquency_monitoring
+    from .base.monitor_pdd_oop import run_pdd_monitoring
+    from .base.monitor_concentracao_oop import run_concentration_monitoring
     from .utils.data_loader import load_pool_data
     from .utils.alerts import log_alerta
-    from .utils.file_loaders import load_dashboard, load_json_file
-except (ImportError, ValueError):
-    # Fallback para imports diretos (Spyder)
-    if os.path.dirname(__file__) not in sys.path:
-        sys.path.insert(0, os.path.dirname(__file__))
-    if os.path.join(os.path.dirname(__file__), 'base') not in sys.path:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'base'))
-    if os.path.join(os.path.dirname(__file__), 'utils') not in sys.path:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
-        
-    from monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
-    from monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
-    from monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
-    from monitor_concentracao import run_concentration_monitoring, _has_concentration_monitoring
-    from data_loader import load_pool_data
-    from alerts import log_alerta
-    from file_loaders import load_dashboard, load_json_file
-
-# Importar função de descoberta de caminhos do módulo centralizado
-try:
-    from .utils.path_resolver import get_possible_paths
-except (ImportError, ValueError):
-    try:
-        # Se estiver rodando de utils/
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
-        from path_resolver import get_possible_paths
-    except ImportError:
-        # Se ainda falhar, tentar do file_loaders como fallback
-        try:
-            from file_loaders import get_possible_paths
-        except ImportError:
-            # Último recurso: definir inline (não ideal, mas funciona)
-            print("⚠️ Usando função get_possible_paths inline como fallback")
-            def get_possible_paths(tipo, nome_base=None):
-                """Fallback inline quando todos os imports falham."""
-                caminhos_base = {
-                    'escrituras': [
-                        "config/pools",
-                        r"C:\amfi\config\pools",
-                        "/mnt/c/amfi/config/pools",
-                        "../../config/pools"
-                    ]
-                }
-                caminhos = caminhos_base.get(tipo, [])
-                if nome_base:
-                    return [os.path.join(c, nome_base) for c in caminhos]
-                return caminhos
-
-
-def _has_subordination_monitoring(config: Dict[str, Any]) -> bool:
-    """
-    Verifica se monitor de subordinação está ativo no JSON de configuração.
-    
-    Args:
-        config: Configuração do pool (JSON)
-        
-    Returns:
-        bool: True se monitor está configurado e ativo
-    """
-    try:
-        monitor = _find_subordination_monitor(config)
-        return monitor is not None and monitor.get('ativo', False)
-    except (ValueError, KeyError):
-        return False
-
-
-def _has_delinquency_monitoring(config: Dict[str, Any]) -> bool:
-    """
-    Verifica se monitores de inadimplência estão ativos no JSON de configuração.
-    
-    Args:
-        config: Configuração do pool (JSON)
-        
-    Returns:
-        bool: True se pelo menos um monitor de inadimplência está ativo
-    """
-    try:
-        monitors = _find_delinquency_monitors(config)
-        return len(monitors) > 0
-    except (ValueError, KeyError):
-        return False
+except ImportError:
+    # Fallback para execução direta
+    from base.monitor_subordinacao_oop import SubordinationMonitor
+    from base.monitor_inadimplencia_oop import run_delinquency_monitoring
+    from base.monitor_pdd_oop import run_pdd_monitoring
+    from base.monitor_concentracao_oop import run_concentration_monitoring
+    from utils.data_loader import load_pool_data
+    from utils.alerts import log_alerta
 
 
 def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
@@ -222,130 +152,51 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
         >>> if 'pdd' in pool_result['resultados']:
         >>>     pdd_result = pool_result['resultados']['pdd']['pdd_analysis']
         >>>     print(f"PDD Total: R$ {pdd_result['totais']['provisao_valor']:,.2f}")
-        >>>     print(f"PDD %: {pdd_result['totais']['provisao_percentual']}%")
-        >>> 
-        >>> # Verificar concentração (se configurado)
-        >>> if 'concentracao' in pool_result['resultados']:
-        >>>     conc_result = pool_result['resultados']['concentracao']
-        >>>     print(f"Concentração: {conc_result['status_geral']}")
-        >>>     print(f"Limites analisados: {conc_result['resumo']['total_limites_analisados']}")
-        >>> 
-        >>> # 3. ACESSAR XLSX ENRIQUECIDO
-        >>> xlsx_enriched = resultado['xlsx_enriched']
-        >>> print(f"Novos campos: {['dias_atraso', 'grupo_de_risco']}")
-        >>> print(f"Total registros: {len(xlsx_enriched)}")
-        
-    Modo DEBUG:
-        Se arquivo /config/monitoring/test_pools.json existir:
-        - Processa apenas pools listados em "debug_pools"
-        - Exemplo: ["AFA Pool #1", "LeCapital Pool #1"]
-        
-    Compatibilidade:
-        ✅ Windows (C:\\amfi\\...)
-        ✅ WSL (/mnt/c/amfi/...)
-        ✅ Spyder (descoberta automática de caminhos)
-        ✅ Linha de comando
-        
-    Raises:
-        Exception: Apenas em falhas críticas do data_loader
-        
-    Note:
-        Esta é a ÚNICA interface oficial do sistema. 
-        Funções legacy foram removidas em 2025-07-14.
     """
-    log_alerta({
-        "tipo": "info", 
-        "mensagem": f"🎯 Iniciando orquestração integrada",
-        "pool_especifico": pool_name
-    })
-    
     try:
-        # 1. CENTRALIZADOR: data_loader faz toda descoberta/config/carregamento
-        log_alerta({"tipo": "info", "mensagem": "Chamando data_loader como centralizador"})
+        # Carregar dados
         dados = load_pool_data()
         
         if not dados["sucesso"]:
-            log_alerta({
-                "tipo": "erro", 
-                "mensagem": f"Falha crítica no data_loader: {dados.get('erro', 'Desconhecido')}"
-            })
-            return dados  # Propagar erro crítico do data_loader
+            return dados
         
-        log_alerta({
-            "tipo": "info", 
-            "mensagem": f"✅ Data loader concluído: {len(dados['pools_processados'])} pools descobertos"
-        })
-        
-        # 2. FILTRAR pools se específico
+        # Filtrar pools se especifico
         if pool_name:
             if pool_name not in dados["pools_processados"]:
-                erro_msg = f"Pool '{pool_name}' não encontrado nos pools descobertos: {dados['pools_processados']}"
-                log_alerta({"tipo": "erro", "mensagem": erro_msg})
                 return {
                     "sucesso": False,
-                    "erro": erro_msg,
+                    "erro": f"Pool '{pool_name}' não encontrado",
                     "pools_disponiveis": dados["pools_processados"]
                 }
             pools_para_processar = [pool_name]
         else:
             pools_para_processar = dados["pools_processados"]
         
-        log_alerta({
-            "tipo": "info", 
-            "mensagem": f"Processando {len(pools_para_processar)} pools: {pools_para_processar}"
-        })
-        
-        # 3. LOOP por pool com tratamento robusto de erros
+        # Processar pools
         resultados_pools = {}
-        pools_com_sucesso = 0
-        pools_com_erro = 0
+        pools_com_sucesso = pools_com_erro = 0
         
         for pool in pools_para_processar:
-            log_alerta({
-                "tipo": "info", 
-                "pool": pool,
-                "mensagem": f"Processando pool {pool}"
-            })
-            
             try:
                 resultado_pool = _process_single_pool(pool, dados)
                 resultados_pools[pool] = resultado_pool
                 
                 if resultado_pool.get("sucesso", False):
                     pools_com_sucesso += 1
-                    log_alerta({
-                        "tipo": "info", 
-                        "pool": pool,
-                        "mensagem": f"✅ Pool processado com sucesso"
-                    })
                 else:
                     pools_com_erro += 1
-                    log_alerta({
-                        "tipo": "warning", 
-                        "pool": pool,
-                        "mensagem": f"⚠️ Pool processado com erros: {resultado_pool.get('erro', 'Desconhecido')}"
-                    })
                     
             except Exception as e:
-                # Pool específico falha ≠ parar tudo
                 pools_com_erro += 1
-                erro_msg = f"Falha crítica no pool: {str(e)}"
-                
-                log_alerta({
-                    "tipo": "erro", 
-                    "pool": pool,
-                    "mensagem": erro_msg
-                })
-                
                 resultados_pools[pool] = {
                     "sucesso": False,
-                    "erro": erro_msg,
+                    "erro": str(e),
                     "pool": pool,
                     "timestamp": datetime.now().isoformat()
                 }
         
-        # 4. CONSOLIDAR resultados finais
-        resultado_final = {
+        # Consolidar resultados
+        return {
             "sucesso": True,
             "timestamp": datetime.now().isoformat(),
             "pools_processados": pools_para_processar,
@@ -356,31 +207,14 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
                 "taxa_sucesso": round(pools_com_sucesso / len(pools_para_processar) * 100, 1) if pools_para_processar else 0
             },
             "resultados": resultados_pools,
-            "xlsx_enriched": dados["xlsx_data"],  # DataFrame globalmente enriquecido
+            "xlsx_enriched": dados["xlsx_data"],
             "metadados": dados.get("metadados", {})
         }
         
-        log_alerta({
-            "tipo": "info", 
-            "mensagem": f"🎯 Orquestração concluída",
-            "total_pools": len(pools_para_processar),
-            "sucesso": pools_com_sucesso,
-            "erro": pools_com_erro,
-            "taxa_sucesso": resultado_final["estatisticas"]["taxa_sucesso"]
-        })
-        
-        return resultado_final
-        
     except Exception as e:
-        erro_msg = f"Erro crítico na orquestração: {str(e)}"
-        log_alerta({
-            "tipo": "erro", 
-            "mensagem": erro_msg
-        })
-        
         return {
             "sucesso": False,
-            "erro": erro_msg,
+            "erro": str(e),
             "timestamp": datetime.now().isoformat()
         }
 
@@ -406,157 +240,52 @@ def _process_single_pool(pool_name: str, dados: Dict[str, Any]) -> Dict[str, Any
                 "pool": pool_name
             }
         
-        # Filtrar CSV para o pool específico
+        # Filtrar dados do pool
         csv_data = dados["csv_data"]
         nome_col = 'nome' if 'nome' in csv_data.columns else 'Nome'
         pool_csv = csv_data[csv_data[nome_col] == pool_name]
         
-        if pool_csv.empty:
-            return {
-                "sucesso": False,
-                "erro": f"Pool '{pool_name}' não encontrado nos dados CSV",
-                "pool": pool_name
-            }
-        
-        # Filtrar XLSX para o pool específico (para cálculos)
         xlsx_data = dados["xlsx_data"]
         pool_xlsx = xlsx_data[xlsx_data['pool'] == pool_name]
         
-        if pool_xlsx.empty:
+        if pool_csv.empty or pool_xlsx.empty:
             return {
                 "sucesso": False,
-                "erro": f"Pool '{pool_name}' não encontrado nos dados XLSX",
+                "erro": f"Pool '{pool_name}' não encontrado nos dados",
                 "pool": pool_name
             }
-        
-        log_alerta({
-            "tipo": "info",
-            "pool": pool_name,
-            "mensagem": f"Dados do pool: CSV {len(pool_csv)} registros, XLSX {len(pool_xlsx)} registros"
-        })
         
         # Resultados do pool
         resultados_monitores = {}
         
-        # EXECUÇÃO CONDICIONAL baseada no JSON de configuração
+        # Executar monitores ativos
         
         # 1. Monitor de Subordinação
-        if _has_subordination_monitoring(config):
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "mensagem": "Executando monitor de subordinação"
-            })
-            
-            resultado_sub = run_subordination_monitoring(pool_csv, config)
+        sub_monitor = SubordinationMonitor(config)
+        if sub_monitor.is_active():
+            resultado_sub = sub_monitor.run_monitoring(pool_csv)
             resultados_monitores["subordinacao"] = resultado_sub
         
         # 2. Monitor de Inadimplência (com enriquecimento)
         if _has_delinquency_monitoring(config):
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "mensagem": "Executando monitor de inadimplência (com enriquecimento)"
-            })
-            
-            # ENRIQUECIMENTO: modificar XLSX global in-place
             resultado_inad = run_delinquency_monitoring(pool_csv, dados["xlsx_data"], config)
             resultados_monitores["inadimplencia"] = resultado_inad
-            
-            # Log do enriquecimento
-            if "dias_atraso" in dados["xlsx_data"].columns:
-                log_alerta({
-                    "tipo": "info",
-                    "pool": pool_name,
-                    "mensagem": "✅ XLSX enriquecido com campo 'dias_atraso'"
-                })
-            
-            if "grupo_de_risco" in dados["xlsx_data"].columns:
-                log_alerta({
-                    "tipo": "info",
-                    "pool": pool_name,
-                    "mensagem": "✅ XLSX enriquecido com campo 'grupo_de_risco'"
-                })
         
-        # 3. Monitor de PDD (usa dados enriquecidos pelo monitor de inadimplência)
+        # 3. Monitor de PDD (usa dados enriquecidos)
         if _has_pdd_monitoring(config):
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "mensagem": "Executando monitor de PDD (usando dados enriquecidos)"
-            })
-            
-            # ARQUITETURA INTELIGENTE: Usar XLSX já enriquecido pelo monitor de inadimplência
-            # Filtrar apenas dados do pool atual para cálculos de PDD
             pool_xlsx_enriched = dados["xlsx_data"][dados["xlsx_data"]["pool"] == pool_name]
             
             if pool_xlsx_enriched.empty:
-                # Tentar com pool_name alternativo se pool_id não funcionar
                 pool_name_alt = config.get('pool_name', config.get('pool_id', ''))
                 pool_xlsx_enriched = dados["xlsx_data"][dados["xlsx_data"]["pool"] == pool_name_alt]
             
             resultado_pdd = run_pdd_monitoring(pool_xlsx_enriched, config)
             resultados_monitores["pdd"] = resultado_pdd
-            
-            # Log da dependência cumprida
-            if resultado_pdd.get("sucesso"):
-                log_alerta({
-                    "tipo": "info",
-                    "pool": pool_name,
-                    "mensagem": "✅ PDD calculado usando enriquecimento de inadimplência"
-                })
-            else:
-                log_alerta({
-                    "tipo": "warning",
-                    "pool": pool_name,
-                    "mensagem": f"⚠️ Falha no monitor PDD: {resultado_pdd.get('erro', 'Desconhecido')}"
-                })
         
         # 4. Monitor de Concentração
         if _has_concentration_monitoring(config):
-            log_alerta({
-                "tipo": "info",
-                "pool": pool_name,
-                "mensagem": "Executando monitor de concentração"
-            })
-            
             resultado_conc = run_concentration_monitoring(pool_csv, dados["xlsx_data"], config)
             resultados_monitores["concentracao"] = resultado_conc
-            
-            # Log do resultado
-            if resultado_conc.get("sucesso"):
-                status = resultado_conc.get("status_geral", "desconhecido")
-                if status == "sem_limites":
-                    log_alerta({
-                        "tipo": "info",
-                        "pool": pool_name,
-                        "mensagem": "ℹ️ Concentração: sem limites configurados"
-                    })
-                elif status == "enquadrado":
-                    log_alerta({
-                        "tipo": "info",
-                        "pool": pool_name,
-                        "mensagem": "✅ Concentração: todos os limites enquadrados"
-                    })
-                elif status == "violado":
-                    num_violados = resultado_conc.get("resumo", {}).get("limites_violados", 0)
-                    log_alerta({
-                        "tipo": "warning",
-                        "pool": pool_name,
-                        "mensagem": f"⚠️ Concentração: {num_violados} limite(s) violado(s)"
-                    })
-                else:
-                    log_alerta({
-                        "tipo": "warning",
-                        "pool": pool_name,
-                        "mensagem": f"⚠️ Concentração: status {status}"
-                    })
-            else:
-                log_alerta({
-                    "tipo": "warning",
-                    "pool": pool_name,
-                    "mensagem": f"⚠️ Falha no monitor concentração: {resultado_conc.get('erro', 'Desconhecido')}"
-                })
         
         return {
             "sucesso": True,
@@ -575,7 +304,22 @@ def _process_single_pool(pool_name: str, dados: Dict[str, Any]) -> Dict[str, Any
         }
 
 
-# Funções legacy removidas - usar run_monitoring() como interface única
+# Funções auxiliares simplificadas
+def _has_delinquency_monitoring(config: Dict[str, Any]) -> bool:
+    """Verifica se o pool tem monitoramento de inadimplência."""
+    monitoramentos = config.get('monitoramentos_ativos', [])
+    return any(monitor.get('tipo') == 'inadimplencia' and monitor.get('ativo', False) 
+               for monitor in monitoramentos)
+
+def _has_pdd_monitoring(config: Dict[str, Any]) -> bool:
+    """Verifica se o pool tem monitoramento de PDD."""
+    return bool(config.get('provisoes_pdd', {}).get('grupos_risco', {}))
+
+def _has_concentration_monitoring(config: Dict[str, Any]) -> bool:
+    """Verifica se o pool tem monitoramento de concentração."""
+    monitoramentos = config.get('monitoramentos_ativos', [])
+    return any(monitor.get('tipo') == 'concentracao' and monitor.get('ativo', False) 
+               for monitor in monitoramentos)
 
 
 if __name__ == "__main__":
