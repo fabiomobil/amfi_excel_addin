@@ -32,18 +32,40 @@ from typing import Dict, Any, List
 from datetime import datetime
 
 # CLASS-BASED MONITORS ONLY - New architecture using BaseMonitor
-from .core.imports import import_function
-from .core.subordinacao_monitor import SubordinacaoMonitor
-from .core.concentracao_monitor_simple import ConcentracaoMonitor
-from .core.inadimplencia_monitor import InadimplenciaMonitor
-from .core.pdd_monitor import PDDMonitor
+# Imports compatíveis com Spyder/Windows
+try:
+    # Try relative imports first (WSL/Linux)
+    from .core.imports import import_function
+    from .core.subordinacao_monitor import SubordinacaoMonitor
+    from .core.concentracao_monitor_simple import ConcentracaoMonitor
+    from .core.inadimplencia_monitor import InadimplenciaMonitor
+    from .core.pdd_monitor import PDDMonitor
+except ImportError:
+    # Fallback for Spyder/Windows absolute imports
+    import sys
+    import os
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.dirname(script_dir))
+    
+    from monitor.core.imports import import_function
+    from monitor.core.subordinacao_monitor import SubordinacaoMonitor
+    from monitor.core.concentracao_monitor_simple import ConcentracaoMonitor
+    from monitor.core.inadimplencia_monitor import InadimplenciaMonitor
+    from monitor.core.pdd_monitor import PDDMonitor
 
-# Import utilities
-load_pool_data = import_function('data_loader', 'load_pool_data', 'util')
-log_alerta = import_function('alerts', 'log_alerta', 'util')
-load_dashboard = import_function('file_loaders', 'load_dashboard', 'util')
-load_json_file = import_function('file_loaders', 'load_json_file', 'util')
-get_possible_paths = import_function('path_resolver', 'get_possible_paths', 'util')
+# Import utilities with fallback
+try:
+    load_pool_data = import_function('data_loader', 'load_pool_data', 'util')
+    log_alerta = import_function('alerts', 'log_alerta', 'util')
+    load_dashboard = import_function('file_loaders', 'load_dashboard', 'util')
+    load_json_file = import_function('file_loaders', 'load_json_file', 'util')
+    get_possible_paths = import_function('path_resolver', 'get_possible_paths', 'util')
+except:
+    # Fallback for direct imports
+    from monitor.utils.data_loader import load_pool_data
+    from monitor.utils.alerts import log_alerta
+    from monitor.utils.file_loaders import load_dashboard, load_json_file
+    from monitor.utils.path_resolver import get_possible_paths
 
 
 def _has_subordination_monitoring(config: Dict[str, Any]) -> bool:
