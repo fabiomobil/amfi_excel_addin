@@ -32,7 +32,9 @@
       "Bash(md5sum:*)",
       "Bash(echo:*)",
       "Bash(claude config get model)",
-      "Bash(claude --version)"
+      "Bash(claude --version)",
+      "Bash(git log:*)",
+      "Bash(gh auth:*)"
     ],
     "deny": []
   }
