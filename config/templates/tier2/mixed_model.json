@@ -1,0 +1,217 @@
+{
+  "template_metadata": {
+    "template_name": "mixed_model",
+    "tier": 2,
+    "version": "1.0",
+    "description": "Mixed model patterns for hybrid business models and flexible configurations",
+    "created_date": "2025-07-17",
+    "inheritance_strategy": "extends_universal_base",
+    "target_pools": [
+      "UnionNational Pool #5",
+      "hybrid_pools"
+    ],
+    "escritura_characteristics": {
+      "risk_profile": "balanced_adaptive",
+      "complexity_level": "medium_to_high_sophistication",
+      "asset_specialization": "mixed_assets",
+      "subordinada_ratio_range": [
+        0.2,
+        0.4
+      ],
+      "typical_term_months": [
+        18,
+        36
+      ],
+      "monitor_count_typical": [
+        5,
+        7
+      ]
+    }
+  },
+  "extends": "tier1/universal_base.json",
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "mixed_pattern": "balanced_subordination",
+      "limites": {
+        "minimo": "{{SUBORDINACAO_MINIMO|default:0.25}}",
+        "critico": "{{SUBORDINACAO_CRITICO|default:0.20}}",
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "{{SUBORDINACAO_ACAO|default:amortizacao_extraordinaria}}",
+        "prazo_cura_dias": "{{SUBORDINACAO_CURA_DIAS|default:7}}",
+        "tipo_prazo": "{{SUBORDINACAO_CURA_TIPO|default:corridos}}"
+      },
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "mixed_pattern": "flexible_concentration",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_SACADO|default:0.20}}",
+          "inclui_grupo_economico": "{{CONCENTRACAO_INCLUI_GRUPO_SACADO|default:true}}"
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_CEDENTE|default:0.35}}",
+          "inclui_grupo_economico": "{{CONCENTRACAO_INCLUI_GRUPO_CEDENTE|default:true}}"
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "sacado",
+          "n": "{{CONCENTRACAO_TOP_N_SACADO|default:10}}",
+          "limite": "{{CONCENTRACAO_TOP_N_SACADO_LIMITE|default:0.80}}"
+        }
+      ],
+      "campos_necessarios": [
+        "sacado",
+        "cedente",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "inadimplencia_30d",
+      "tipo": "inadimplencia",
+      "ativo": "{{INADIMPLENCIA_30D_ATIVO|default:true}}",
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "mixed_pattern": "adaptive_inadimplencia",
+      "limites": {
+        "prazo_dias": 30,
+        "limite": "{{INADIMPLENCIA_30D_LIMITE|default:0.03}}"
+      },
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "inadimplencia_90d",
+      "tipo": "inadimplencia",
+      "ativo": "{{INADIMPLENCIA_90D_ATIVO|default:true}}",
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "mixed_pattern": "adaptive_inadimplencia",
+      "limites": {
+        "prazo_dias": 90,
+        "limite": "{{INADIMPLENCIA_90D_LIMITE|default:0.015}}"
+      },
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "mixed_pattern": "flexible_eligibility",
+      "limites": {
+        "valor_minimo": "{{CRITERIOS_VALOR_MINIMO|default:100.0}}",
+        "vencimento_minimo_dias": "{{CRITERIOS_VENC_MINIMO|default:7}}",
+        "vencimento_maximo_dias": "{{CRITERIOS_VENC_MAXIMO|default:180}}",
+        "taxa_minima_cdi_anual": "{{CRITERIOS_TAXA_MINIMA|default:1.20}}",
+        "tipos_permitidos": "{{CRITERIOS_TIPOS_PERMITIDOS|default:[\"mixed_credit_types\"]}}",
+        "performadas_obrigatorio": "{{CRITERIOS_PERFORMADAS|default:true}}"
+      },
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "taxa_cdi",
+        "tipo_ativo"
+      ],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "mixed_pattern": "standard_pdd_monitoring",
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+  "mixed_model_configurations": {
+    "asset_management": {
+      "type": "diversified_mixed",
+      "flexibility_level": "high",
+      "adaptive_limits": true,
+      "multi_asset_support": true,
+      "business_model_agnostic": true
+    },
+    "operational_sophistication": {
+      "monitoring_frequency": "daily",
+      "reporting_complexity": "medium_to_high",
+      "custom_monitors_expected": true,
+      "manual_review_required": true,
+      "adaptive_configuration": true
+    },
+    "risk_management": {
+      "subordination_strategy": "balanced",
+      "concentration_approach": "flexible_multi_entity",
+      "term_structure": "medium_term_adaptive",
+      "asset_quality_focus": "medium_to_high",
+      "risk_tolerance": "moderate"
+    },
+    "adaptation_features": {
+      "configurable_limits": true,
+      "business_model_flexibility": true,
+      "monitor_activation_control": true,
+      "custom_trigger_support": true,
+      "progressive_enhancement": true
+    }
+  },
+  "mixed_model_triggers": {
+    "concentracao_violacao": {
+      "prazo_cura_dias": "{{TRIGGER_CONCENTRACAO_DIAS|default:30}}",
+      "tipo_prazo": "{{TRIGGER_CONCENTRACAO_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_CONCENTRACAO_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_CONCENTRACAO_NOTIF|default:true}}"
+    },
+    "subordinacao_violacao": {
+      "prazo_cura_dias": "{{TRIGGER_SUB_DIAS|default:7}}",
+      "tipo_prazo": "{{TRIGGER_SUB_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_SUB_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_SUB_NOTIF|default:true}}"
+    },
+    "inadimplencia_elevada": {
+      "prazo_cura_dias": "{{TRIGGER_INADIMPLENCIA_DIAS|default:15}}",
+      "tipo_prazo": "{{TRIGGER_INADIMPLENCIA_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_INADIMPLENCIA_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_INADIMPLENCIA_NOTIF|default:true}}"
+    }
+  },
+  "_tier3_extensions": {
+    "custom_monitoring_files": "{{CUSTOM_MONITORS|default:[]}}",
+    "business_model_configs": "{{BUSINESS_MODEL_CONFIGS}}",
+    "pool_specific_limits": "{{POOL_SPECIFIC_LIMITS}}",
+    "adaptive_configurations": "{{ADAPTIVE_CONFIGURATIONS}}",
+    "unique_triggers": "{{UNIQUE_TRIGGERS}}",
+    "enhancement_modules": "{{ENHANCEMENT_MODULES}}"
+  }
+}

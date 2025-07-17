@@ -283,9 +283,4 @@ def run_delinquency_monitoring(
         }
 
 
-def _find_delinquency_monitors(config: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Compatibility function for finding delinquency monitors."""
-    monitor = InadimplenciaMonitor('temp', config, pd.DataFrame(), pd.DataFrame())
-    if monitor.is_active():
-        return [monitor.monitor_config]
-    return []
+# _find_delinquency_monitors() removed - use BaseMonitor.is_active() instead

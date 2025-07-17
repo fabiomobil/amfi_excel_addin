@@ -1,0 +1,209 @@
+{
+  "template_metadata": {
+    "template_name": "traditional_corporate",
+    "tier": 2,
+    "version": "1.0",
+    "description": "Traditional corporate credit patterns with high sophistication monitoring",
+    "created_date": "2025-07-17",
+    "inheritance_strategy": "extends_universal_base",
+    "target_pools": [
+      "AFA Pool #1",
+      "LeCapital Pool #1",
+      "E-ctare Pool #1"
+    ],
+    "escritura_characteristics": {
+      "risk_profile": "conservative_to_moderate",
+      "complexity_level": "high_sophistication",
+      "asset_specialization": "traditional_assets",
+      "subordinada_ratio_range": [
+        0.15,
+        0.35
+      ],
+      "typical_term_months": [
+        24,
+        48
+      ],
+      "monitor_count_typical": [
+        6,
+        8
+      ]
+    }
+  },
+  "extends": "tier1/universal_base.json",
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "corporate_pattern": "conservative_subordination",
+      "limites": {
+        "minimo": "{{SUBORDINACAO_MINIMO|default:0.25}}",
+        "critico": "{{SUBORDINACAO_CRITICO|default:0.20}}",
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "amortizacao_extraordinaria_primeira_serie",
+        "prazo_cura_dias": "{{SUBORDINACAO_CURA_DIAS|default:5}}",
+        "tipo_prazo": "{{SUBORDINACAO_CURA_TIPO|default:uteis}}"
+      },
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "multi_entity_concentration",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_SACADO|default:0.27}}"
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_CEDENTE|default:0.30}}"
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "sacado",
+          "n": 10,
+          "limite": "{{CONCENTRACAO_TOP10_SACADO|default:1.00}}"
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "cedente",
+          "n": 10,
+          "limite": "{{CONCENTRACAO_TOP10_CEDENTE|default:0.70}}"
+        }
+      ],
+      "campos_necessarios": [
+        "sacado",
+        "cedente",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "inadimplencia_30d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "dual_timeframe_monitoring",
+      "limites": {
+        "prazo_dias": 30,
+        "limite": "{{INADIMPLENCIA_30D|default:0.04}}"
+      },
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "inadimplencia_90d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "dual_timeframe_monitoring",
+      "limites": {
+        "prazo_dias": 90,
+        "limite": "{{INADIMPLENCIA_90D|default:0.02}}"
+      },
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "vencimento_medio",
+      "tipo": "prazo",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "media",
+      "corporate_pattern": "sophisticated_maturity_management",
+      "limites": {
+        "maximo_dias": "{{VENCIMENTO_MEDIO_MAXIMO|default:90}}",
+        "ponderado_por_valor": true
+      },
+      "campos_necessarios": [
+        "data_vencimento",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_vencimento_medio"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "comprehensive_eligibility",
+      "limites": {
+        "valor_minimo": "{{CRITERIOS_VALOR_MINIMO|default:100.0}}",
+        "vencimento_minimo_dias": "{{CRITERIOS_VENC_MINIMO|default:7}}",
+        "vencimento_maximo_dias": "{{CRITERIOS_VENC_MAXIMO|default:180}}",
+        "taxa_minima_cdi_mensal": "{{CRITERIOS_TAXA_MINIMA|default:1.50}}",
+        "tipos_permitidos": "{{CRITERIOS_TIPOS_PERMITIDOS|default:[\"duplicata_mercantil\", \"duplicata_servico\"]}}",
+        "performadas_obrigatorio": "{{CRITERIOS_PERFORMADAS|default:true}}"
+      },
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "taxa_cdi",
+        "tipo_ativo"
+      ],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "standard_pdd_monitoring",
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+  "corporate_configurations": {
+    "sacados_management": {
+      "type": "curated_list",
+      "validation_required": true,
+      "minimum_count": "{{SACADOS_MIN_COUNT|default:15}}",
+      "maximum_count": "{{SACADOS_MAX_COUNT|default:50}}",
+      "rating_requirements": "{{SACADOS_RATING_REQ|default:investment_grade_preferred}}"
+    },
+    "operational_sophistication": {
+      "monitoring_frequency": "daily",
+      "reporting_complexity": "high",
+      "custom_monitors_expected": true,
+      "manual_review_required": true
+    },
+    "risk_management": {
+      "subordination_strategy": "conservative",
+      "concentration_approach": "diversified_multi_entity",
+      "term_structure": "medium_to_long_term",
+      "asset_quality_focus": "high"
+    }
+  },
+  "_tier3_extensions": {
+    "custom_monitoring_files": "{{CUSTOM_MONITORS|default:[]}}",
+    "specific_sacados_list": "{{POOL_SPECIFIC_SACADOS}}",
+    "pool_specific_limits": "{{POOL_SPECIFIC_LIMITS}}",
+    "special_amortization": "{{SPECIAL_AMORTIZATION}}",
+    "unique_triggers": "{{UNIQUE_TRIGGERS}}"
+  }
+}

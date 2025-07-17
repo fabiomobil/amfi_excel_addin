@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "description": "Global configuration constants shared across all pools and templates",
+    "version": "1.0",
+    "created_date": "2025-07-17",
+    "purpose": "Standardization and elimination of hardcoded values"
+  },
+  
+  "operacional": {
+    "prestador_servicos": {
+      "nome": "AMFI CONSULTING LTDA.",
+      "cnpj": "47.243.468/0001-70",
+      "razao_social": "AMFI CONSULTING LTDA.",
+      "endereco": "Endereço padrão AMFI Consulting",
+      "email_contato": "contato@amfi.com.br"
+    }
+  },
+  
+  "financeiro": {
+    "reservas_padrao": {
+      "reserva_despesas": 25000.0,
+      "reserva_extraordinaria": 30000.0,
+      "percentual_reserva_despesas": 0.0005
+    },
+    "taxas_padrao": {
+      "taxa_operacao_anual": 0.02,
+      "base_calculo_di": 252
+    }
+  },
+  
+  "monitoramento": {
+    "provisoes_pdd_padrao": {
+      "description": "Padrão universal para provisões PDD",
+      "grupos_risco": {
+        "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
+        "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
+        "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
+        "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
+        "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
+        "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
+        "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
+        "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
+        "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+      }
+    },
+    "triggers_padrao": {
+      "obrigacao_pecuniaria": {
+        "prazo_cura_dias": 5,
+        "tipo_prazo": "uteis",
+        "automatico": false,
+        "notificacao_requerida": true
+      },
+      "obrigacao_nao_pecuniaria": {
+        "prazo_cura_dias": 20,
+        "tipo_prazo": "corridos",
+        "automatico": false,
+        "notificacao_requerida": true
+      },
+      "falencia_recuperacao": {
+        "prazo_cura_dias": 0,
+        "automatico": true,
+        "notificacao_requerida": false
+      }
+    }
+  },
+  
+  "percentuais": {
+    "description": "Padronização de formatos de percentuais (sempre em decimal: 0.5% = 0.005)",
+    "concentracao": {
+      "individual_conservador": 0.27,
+      "individual_agressivo": 0.01,
+      "cedente_padrao": 0.30,
+      "top_10_sacado": 1.00,
+      "top_10_cedente": 0.70
+    },
+    "subordinacao": {
+      "minimo_conservador": 0.25,
+      "critico_conservador": 0.20,
+      "minimo_agressivo": 0.35,
+      "critico_agressivo": 0.30
+    },
+    "inadimplencia": {
+      "limite_30d": 0.04,
+      "limite_90d": 0.02
+    }
+  },
+  
+  "formatos": {
+    "datas": {
+      "formato_padrao": "YYYY-MM-DD",
+      "exemplo": "2025-07-17"
+    },
+    "valores_monetarios": {
+      "formato": "float",
+      "precisao": 2,
+      "exemplo": 1000000.00
+    }
+  }
+}

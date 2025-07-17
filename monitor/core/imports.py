@@ -85,14 +85,14 @@ class ImportResolver:
             
         full_module_name = f"monitor_{monitor_name}"
         
-        # Strategy 1: Relative import from base
-        module = self._try_import(f".base.{full_module_name}")
+        # Strategy 1: Relative import from core (updated from base)
+        module = self._try_import(f".core.{full_module_name}")
         if module:
             self.import_cache[cache_key] = module
             return module
         
         # Strategy 2: Direct import (for Spyder/IDE execution)
-        self._ensure_path_in_sys(os.path.join(self.base_path, 'base'))
+        self._ensure_path_in_sys(os.path.join(self.base_path, 'core'))
         module = self._try_import(full_module_name)
         if module:
             self.import_cache[cache_key] = module
@@ -100,7 +100,7 @@ class ImportResolver:
             
         # Strategy 3: Absolute import
         self._ensure_path_in_sys(os.path.dirname(self.base_path))
-        module = self._try_import(f"monitor.base.{full_module_name}")
+        module = self._try_import(f"monitor.core.{full_module_name}")
         if module:
             self.import_cache[cache_key] = module
             return module

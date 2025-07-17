@@ -1,80 +1,178 @@
 {
-  "// ================================================": "",
-  "// SEÇÃO 1: IDENTIFICAÇÃO E METADADOS": "",
-  "// Dados básicos de identificação do pool": "",
-  "// ================================================": "",
-
   "pool_id": "E-ctare Pool #1",
   "pool_name": "E-ctare Pool #1",
   "status": "ativo",
   "data_emissao": "2024-02-27",
   "data_vencimento": "2027-02-27",
-
   "metadata": {
     "versao": "2.2",
     "data_atualizacao": "2025-07-15",
     "fonte_original": "Escritura-Debenture---Pool-E-ctare-1---Final-limpa-pdf-D4Sign.md",
     "schema_version": "monitoring_v2",
     "completude": "100%",
-    "secoes_restauradas": ["estrutura_completa_extraida_da_escritura_original"]
+    "secoes_restauradas": [
+      "estrutura_completa_extraida_da_escritura_original"
+    ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 2: ESTRUTURA FINANCEIRA": "",
-  "// Core financeiro - valores, pagamentos, remuneração": "",
-  "// ================================================": "",
-
   "valores": {
     "total_emissao": 10000000.0,
     "senior": 8000000.0,
     "subordinada": 2000000.0,
     "reserva_despesas": 25000.0,
-    "reserva_extraordinaria": 30000.0
+    "reserva_extraordinaria": 30000.0,
+    "_reserva_despesas_reference": "global_constants.financeiro.reservas_padrao.reserva_despesas",
+    "_reserva_extraordinaria_reference": "global_constants.financeiro.reservas_padrao.reserva_extraordinaria"
   },
-
   "cronograma_pagamentos": {
     "carencia_meses": 12,
     "inicio_amortizacao": "2025-03-28",
     "cronograma_amortizacao": [
-      {"data": "2024-03-28", "percentual": 0.0},
-      {"data": "2024-04-28", "percentual": 0.0},
-      {"data": "2024-05-28", "percentual": 0.0},
-      {"data": "2024-06-28", "percentual": 0.0},
-      {"data": "2024-07-28", "percentual": 0.0},
-      {"data": "2024-08-28", "percentual": 0.0},
-      {"data": "2024-09-28", "percentual": 0.0},
-      {"data": "2024-10-28", "percentual": 0.0},
-      {"data": "2024-11-28", "percentual": 0.0},
-      {"data": "2024-12-28", "percentual": 0.0},
-      {"data": "2025-01-28", "percentual": 0.0},
-      {"data": "2025-02-28", "percentual": 0.0},
-      {"data": "2025-03-28", "percentual": 0.0417},
-      {"data": "2025-04-28", "percentual": 0.0435},
-      {"data": "2025-05-28", "percentual": 0.0455},
-      {"data": "2025-06-28", "percentual": 0.0476},
-      {"data": "2025-07-28", "percentual": 0.0500},
-      {"data": "2025-08-28", "percentual": 0.0526},
-      {"data": "2025-09-28", "percentual": 0.0556},
-      {"data": "2025-10-28", "percentual": 0.0588},
-      {"data": "2025-11-28", "percentual": 0.0625},
-      {"data": "2025-12-28", "percentual": 0.0667},
-      {"data": "2026-01-28", "percentual": 0.0714},
-      {"data": "2026-02-28", "percentual": 0.0769},
-      {"data": "2026-03-28", "percentual": 0.0833},
-      {"data": "2026-04-28", "percentual": 0.0909},
-      {"data": "2026-05-28", "percentual": 0.1000},
-      {"data": "2026-06-28", "percentual": 0.1111},
-      {"data": "2026-07-28", "percentual": 0.1250},
-      {"data": "2026-08-28", "percentual": 0.1429},
-      {"data": "2026-09-28", "percentual": 0.1667},
-      {"data": "2026-10-28", "percentual": 0.2000},
-      {"data": "2026-11-28", "percentual": 0.2500},
-      {"data": "2026-12-28", "percentual": 0.3333},
-      {"data": "2027-01-28", "percentual": 0.5000},
-      {"data": "2027-02-27", "percentual": 1.0000}
+      {
+        "data": "2024-03-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-04-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-05-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-06-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-07-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-08-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-09-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-10-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-11-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2024-12-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2025-01-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2025-02-28",
+        "percentual": 0.0
+      },
+      {
+        "data": "2025-03-28",
+        "percentual": 0.0417
+      },
+      {
+        "data": "2025-04-28",
+        "percentual": 0.0435
+      },
+      {
+        "data": "2025-05-28",
+        "percentual": 0.0455
+      },
+      {
+        "data": "2025-06-28",
+        "percentual": 0.0476
+      },
+      {
+        "data": "2025-07-28",
+        "percentual": 0.05
+      },
+      {
+        "data": "2025-08-28",
+        "percentual": 0.0526
+      },
+      {
+        "data": "2025-09-28",
+        "percentual": 0.0556
+      },
+      {
+        "data": "2025-10-28",
+        "percentual": 0.0588
+      },
+      {
+        "data": "2025-11-28",
+        "percentual": 0.0625
+      },
+      {
+        "data": "2025-12-28",
+        "percentual": 0.0667
+      },
+      {
+        "data": "2026-01-28",
+        "percentual": 0.0714
+      },
+      {
+        "data": "2026-02-28",
+        "percentual": 0.0769
+      },
+      {
+        "data": "2026-03-28",
+        "percentual": 0.0833
+      },
+      {
+        "data": "2026-04-28",
+        "percentual": 0.0909
+      },
+      {
+        "data": "2026-05-28",
+        "percentual": 0.1
+      },
+      {
+        "data": "2026-06-28",
+        "percentual": 0.1111
+      },
+      {
+        "data": "2026-07-28",
+        "percentual": 0.125
+      },
+      {
+        "data": "2026-08-28",
+        "percentual": 0.1429
+      },
+      {
+        "data": "2026-09-28",
+        "percentual": 0.1667
+      },
+      {
+        "data": "2026-10-28",
+        "percentual": 0.2
+      },
+      {
+        "data": "2026-11-28",
+        "percentual": 0.25
+      },
+      {
+        "data": "2026-12-28",
+        "percentual": 0.3333
+      },
+      {
+        "data": "2027-01-28",
+        "percentual": 0.5
+      },
+      {
+        "data": "2027-02-27",
+        "percentual": 1.0
+      }
     ]
   },
-
   "remuneracao": {
     "series_senior": {
       "tipo": "pos_fixado",
@@ -88,29 +186,49 @@
       "descricao": "Prêmio Sobre a Receita dos Direitos Creditórios, se houver recursos suficientes após consideradas as alocações mais prioritárias"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 3: REGRAS DE NEGÓCIO": "",
-  "// Critérios, limites e regras específicas": "",
-  "// ================================================": "",
-
   "provisoes_pdd": {
     "grupos_risco": {
-      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
-      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
-      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
-      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
-      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
-      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
-      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
-      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
-      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+      "AA": {
+        "atraso_max_dias": 0,
+        "provisao_pct": 0.0
+      },
+      "A": {
+        "atraso_max_dias": 15,
+        "provisao_pct": 0.005
+      },
+      "B": {
+        "atraso_max_dias": 30,
+        "provisao_pct": 0.01
+      },
+      "C": {
+        "atraso_max_dias": 60,
+        "provisao_pct": 0.03
+      },
+      "D": {
+        "atraso_max_dias": 90,
+        "provisao_pct": 0.1
+      },
+      "E": {
+        "atraso_max_dias": 120,
+        "provisao_pct": 0.3
+      },
+      "F": {
+        "atraso_max_dias": 150,
+        "provisao_pct": 0.5
+      },
+      "G": {
+        "atraso_max_dias": 180,
+        "provisao_pct": 0.7
+      },
+      "H": {
+        "atraso_max_dias": 999,
+        "provisao_pct": 1.0
+      }
     }
   },
-
   "sacados_elegiveis": [
     "PRIME",
-    "AVIAÇÃO", 
+    "AVIAÇÃO",
     "BUENO CAFE",
     "COFFEE SOUL",
     "COTRIBA",
@@ -123,13 +241,15 @@
     "POLENGHI",
     "PENEIRA ALTA"
   ],
-
   "periodos_especiais": {
     "formacao_carteira": {
       "dias": 15,
       "inicio": "2024-02-27",
       "fim": "2024-03-13",
-      "regras_especiais": ["limites_concentracao_flexibilizados", "cessoes_diretas_obrigatorias_apos_periodo"]
+      "regras_especiais": [
+        "limites_concentracao_flexibilizados",
+        "cessoes_diretas_obrigatorias_apos_periodo"
+      ]
     },
     "carencia_amortizacao": {
       "meses": 12,
@@ -141,12 +261,6 @@
       "data_limite": "2027-02-27"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 4: SISTEMA DE MONITORAMENTO": "",
-  "// Engine de monitoramento e triggers": "",
-  "// ================================================": "",
-
   "monitoramentos_ativos": [
     {
       "id": "subordinacao",
@@ -155,14 +269,17 @@
       "frequencia": "diaria",
       "prioridade": "critica",
       "limites": {
-        "minimo": 0.20,
+        "minimo": 0.2,
         "critico": 0.15,
         "calculo": "subordinada / (senior + subordinada)",
         "acao_violacao": "resgate_antecipado_obrigatorio",
         "prazo_cura_dias": 7,
         "tipo_prazo": "corridos"
       },
-      "campos_necessarios": ["sr", "jr"],
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
       "funcao_calculo": "calc_subordinacao"
     },
     {
@@ -182,15 +299,28 @@
         {
           "tipo": "setor",
           "limite": 1.0,
-          "setores_elegiveis": ["pecuaria_leiteira", "cafe", "graos"]
+          "setores_elegiveis": [
+            "pecuaria_leiteira",
+            "cafe",
+            "graos"
+          ]
         },
         {
           "tipo": "tipo_ativo",
           "limite": 1.0,
-          "tipos_elegiveis": ["duplicata_mercantil", "cpr_financeira"]
+          "tipos_elegiveis": [
+            "duplicata_mercantil",
+            "cpr_financeira"
+          ]
         }
       ],
-      "campos_necessarios": ["sacado", "cedente", "valor_presente", "setor", "tipo_ativo"],
+      "campos_necessarios": [
+        "sacado",
+        "cedente",
+        "valor_presente",
+        "setor",
+        "tipo_ativo"
+      ],
       "funcao_calculo": "calc_concentracao"
     },
     {
@@ -205,7 +335,10 @@
         "prazo_cura_dias": 7,
         "tipo_prazo": "corridos"
       },
-      "campos_necessarios": ["valor_garantia", "valor_direito_creditorio"],
+      "campos_necessarios": [
+        "valor_garantia",
+        "valor_direito_creditorio"
+      ],
       "funcao_calculo": "calc_razao_garantia"
     },
     {
@@ -219,7 +352,10 @@
         "limite": 0.03,
         "acao_violacao": "interromper_aquisicoes"
       },
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_inadimplencia"
     },
     {
@@ -230,14 +366,33 @@
       "prioridade": "media",
       "limites": {
         "cronograma_redutivo": [
-          {"periodo_inicio": "2024-02-27", "periodo_fim": "2025-02-27", "prazo_maximo_dias": 300},
-          {"periodo_inicio": "2025-02-28", "periodo_fim": "2026-02-27", "prazo_maximo_dias": 240},
-          {"periodo_inicio": "2026-02-28", "periodo_fim": "2026-08-27", "prazo_maximo_dias": 180},
-          {"periodo_inicio": "2026-08-28", "periodo_fim": "2027-02-27", "prazo_maximo_dias": 120}
+          {
+            "periodo_inicio": "2024-02-27",
+            "periodo_fim": "2025-02-27",
+            "prazo_maximo_dias": 300
+          },
+          {
+            "periodo_inicio": "2025-02-28",
+            "periodo_fim": "2026-02-27",
+            "prazo_maximo_dias": 240
+          },
+          {
+            "periodo_inicio": "2026-02-28",
+            "periodo_fim": "2026-08-27",
+            "prazo_maximo_dias": 180
+          },
+          {
+            "periodo_inicio": "2026-08-28",
+            "periodo_fim": "2027-02-27",
+            "prazo_maximo_dias": 120
+          }
         ],
         "ponderado_por_valor": true
       },
-      "campos_necessarios": ["data_vencimento", "valor_presente"],
+      "campos_necessarios": [
+        "data_vencimento",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_prazo_medio_redutivo"
     },
     {
@@ -250,15 +405,32 @@
         "valor_minimo": 500.0,
         "vencimento_minimo_dias": 3,
         "taxa_minima_mensal": 0.0125,
-        "tipos_permitidos": ["duplicata_mercantil_performada", "cpr_financeira_registrada"],
-        "setores_permitidos": ["pecuaria_leiteira", "cafe", "graos"],
+        "tipos_permitidos": [
+          "duplicata_mercantil_performada",
+          "cpr_financeira_registrada"
+        ],
+        "setores_permitidos": [
+          "pecuaria_leiteira",
+          "cafe",
+          "graos"
+        ],
         "garantias_obrigatorias": {
-          "cafe": ["cda_wa_minimo_130_pct"],
-          "graos": ["direito_regresso_integral"]
+          "cafe": [
+            "cda_wa_minimo_130_pct"
+          ],
+          "graos": [
+            "direito_regresso_integral"
+          ]
         },
         "cessoes_diretas_obrigatorias": true
       },
-      "campos_necessarios": ["valor_presente", "data_vencimento", "taxa_mensal", "tipo_ativo", "setor"],
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "taxa_mensal",
+        "tipo_ativo",
+        "setor"
+      ],
       "funcao_calculo": "calc_criterios_elegibilidade_agro"
     },
     {
@@ -267,11 +439,13 @@
       "ativo": true,
       "frequencia": "diaria",
       "prioridade": "alta",
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_pdd"
     }
   ],
-
   "triggers_aceleracao": {
     "obrigacao_pecuniaria": {
       "prazo_cura_dias": 5,
@@ -289,7 +463,11 @@
       "prazo_cura_dias": 0,
       "automatico": true,
       "notificacao_requerida": false,
-      "entidades": ["emissora", "originador", "avalistas"]
+      "entidades": [
+        "emissora",
+        "originador",
+        "avalistas"
+      ]
     },
     "fusao_cisao_mudanca_controle": {
       "prazo_cura_dias": 0,
@@ -320,7 +498,7 @@
       "automatico": false
     },
     "tomadores_inadimplentes": {
-      "limite_percentual": 0.50,
+      "limite_percentual": 0.5,
       "base_calculo": "valor_total_emissao",
       "automatico": false
     },
@@ -342,11 +520,10 @@
       "automatico": false
     }
   },
-
   "monitores_customizados": {
     "arquivos_necessarios": [
       "ectare_pool_1_agronegocio.py",
-      "ectare_pool_1_cda_wa_garantias.py", 
+      "ectare_pool_1_cda_wa_garantias.py",
       "ectare_pool_1_cessoes_diretas.py",
       "ectare_pool_1_setores_agrícolas.py",
       "ectare_pool_1_ancoras_eligible.py",
@@ -361,18 +538,11 @@
       "Cronograma redutivo de prazo médio conforme período da emissão"
     ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 5: DADOS OPERACIONAIS": "",
-  "// Entidades, prestadores e informações operacionais": "",
-  "// ================================================": "",
-
   "prestador_servicos_operacionais": {
     "nome": null,
     "cnpj": null,
     "contrato_data": null
   },
-
   "originador_detalhado": {
     "razao_social": "ECTARE PAY SERVICOS DE GESTAO DE PAGAMENTOS S/A",
     "nome_comercial": "E-ctare",
@@ -381,7 +551,6 @@
     "email_contato": "paulo.viola@ectare.com.br",
     "responsavel": "Paulo Viola"
   },
-
   "debenturistas_detalhados": {
     "serie_senior": {
       "nome": "AMFI REPRESENTAÇÃO OPERACIONAL LTDA.",
@@ -393,14 +562,13 @@
     },
     "serie_subordinada": {
       "nome": "AMFI REPRESENTAÇÃO OPERACIONAL LTDA.",
-      "cnpj": "51.752.334/0001-52", 
+      "cnpj": "51.752.334/0001-52",
       "tipo": "procuradora_debenturistas",
       "endereco": "Rua Cardeal Arcoverde 2365, cj. 33 (parte), Pinheiros, na cidade de São Paulo, estado de São Paulo",
       "email_contato": "rodrigo@amfi.finance",
       "responsavel": "Rodrigo Sousa"
     }
   },
-
   "avalistas": [
     {
       "nome": "FERNANDO MONTANS ALVARENGA",
@@ -418,7 +586,6 @@
       "representante": "Fernando Montans Alvarenga"
     }
   ],
-
   "detalhes_emissao": {
     "emissao_numero": "4ª (quarta)",
     "emissora": "AMFI COMPANHIA SECURITIZADORA V S.A.",
@@ -429,7 +596,7 @@
       "conta": "08142565-4"
     },
     "conta_vinculada_originador": {
-      "banco": "274", 
+      "banco": "274",
       "agencia": "0001",
       "conta": "08195264-0"
     },
@@ -449,20 +616,30 @@
       "aplicacao": "duration_remanescente"
     }
   },
-
   "setores_agrícolas": {
     "pecuaria_leiteira": {
-      "tipos_ativos": ["duplicata_mercantil_performada", "cpr_financeira_registrada"],
+      "tipos_ativos": [
+        "duplicata_mercantil_performada",
+        "cpr_financeira_registrada"
+      ],
       "garantias_especiais": [],
       "direito_regresso": "opcional"
     },
     "cafe": {
-      "tipos_ativos": ["duplicata_mercantil_performada", "cpr_financeira_registrada"],
-      "garantias_obrigatorias": ["cda_wa_130_pct"],
+      "tipos_ativos": [
+        "duplicata_mercantil_performada",
+        "cpr_financeira_registrada"
+      ],
+      "garantias_obrigatorias": [
+        "cda_wa_130_pct"
+      ],
       "direito_regresso": "opcional"
     },
     "graos": {
-      "tipos_ativos": ["duplicata_mercantil_performada", "cpr_financeira_registrada"],
+      "tipos_ativos": [
+        "duplicata_mercantil_performada",
+        "cpr_financeira_registrada"
+      ],
       "garantias_especiais": [],
       "direito_regresso": "obrigatorio_integral"
     }

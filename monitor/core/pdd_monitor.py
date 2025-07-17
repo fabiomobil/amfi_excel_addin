@@ -11,6 +11,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 from .base_monitor import BaseMonitor
+from ..constants import get_pdd_rate
 
 
 class PDDMonitor(BaseMonitor):
@@ -103,13 +104,13 @@ class PDDMonitor(BaseMonitor):
                 'percentual_nivel_6': 1.0     # GG-HH
             }
         
-        # Map risk groups to provision levels
+        # Map risk groups to provision levels with centralized defaults
         mapping = {
-            'AA': pdd_config.get('percentual_nivel_1', 0.005),
-            'BB': pdd_config.get('percentual_nivel_2', 0.03),
-            'CC': pdd_config.get('percentual_nivel_3', 0.1),
-            'DD': pdd_config.get('percentual_nivel_4', 0.3),
-            'EE': pdd_config.get('percentual_nivel_5', 0.6),
+            'AA': pdd_config.get('percentual_nivel_1', get_pdd_rate('AA')),
+            'BB': pdd_config.get('percentual_nivel_2', get_pdd_rate('BB')),
+            'CC': pdd_config.get('percentual_nivel_3', get_pdd_rate('CC')),
+            'DD': pdd_config.get('percentual_nivel_4', get_pdd_rate('DD')),
+            'EE': pdd_config.get('percentual_nivel_5', 0.6),  # Extended levels not in constants
             'FF': pdd_config.get('percentual_nivel_5', 0.6),
             'GG': pdd_config.get('percentual_nivel_6', 1.0),
             'HH': pdd_config.get('percentual_nivel_6', 1.0)

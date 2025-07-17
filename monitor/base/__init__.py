@@ -1,3 +1,0 @@
-"""
-Utilitários compartilhados para monitoramento
-"""

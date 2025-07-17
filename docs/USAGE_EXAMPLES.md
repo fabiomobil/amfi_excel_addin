@@ -4,12 +4,12 @@
 
 A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de monitoramento AmFi. Todas as funções legacy foram removidas em 2025-07-14.
 
-### Monitores Disponíveis (2025-07-16)
-- ✅ **Subordinação**: Índice de subordinação com limites
-- ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.)
-- ✅ **PDD**: Provisão para Devedores Duvidosos (grupos AA-H)
-- ✅ **Concentração**: Sacados/cedentes individual e top-N + **🆕 análise sequencial + matriz de sobra + filtro de entidades**
-- 🔄 **Elegibilidade**: Critérios de ativos (planejado)
+### Monitores Disponíveis (2025-07-17)
+- ✅ **Subordinação**: Índice de subordinação com limites (BaseMonitor implementado)
+- ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.) com drill-down completo
+- ✅ **PDD**: Provisão para Devedores Duvidosos (grupos AA-H) ⚠️ CCB não implementada
+- ✅ **Concentração**: Sacados/cedentes individual e top-N + análise sequencial + matriz de sobra + filtro de entidades
+- ✅ **Elegibilidade**: Critérios de ativos (implementação planejada - usar BaseMonitor)
 
 ## 1. Uso Básico
 
@@ -439,6 +439,153 @@ if __name__ == "__main__":
    📊 Individual sacado: Empresa ABC (14.1%)
    📊 Top-10 cedente: 67.5%
    💬 Verifique logs para detalhes sobre registros filtrados
+```
+
+## 🏗️ **NOVO: Usando BaseMonitor para Monitores Customizados (2025-07-17)**
+
+### **Criando Monitor Customizado com BaseMonitor**
+
+```python
+from monitor.core.base_monitor import BaseMonitor
+
+class MonitorVencimentoMedio(BaseMonitor):
+    def get_monitor_type(self):
+        return 'vencimento_medio'
+    
+    def calculate(self):
+        # Acessar dados do pool automaticamente
+        pool_data = self._get_pool_data()
+        
+        # Buscar configurações específicas
+        limite_maximo = self._get_config_value('limite_maximo_dias', 90)
+        
+        # Usar dados XLSX se disponível
+        if self.xlsx_data is not None:
+            # Calcular vencimento médio ponderado
+            carteira = self.xlsx_data[self.xlsx_data['pool'] == self.pool_id]
+            
+            # Calcular dias até vencimento
+            carteira['dias_vencimento'] = (
+                pd.to_datetime(carteira['vencimento_original']) - pd.Timestamp.now()
+            ).dt.days
+            
+            # Vencimento médio ponderado por valor
+            vencimento_medio = (
+                carteira['dias_vencimento'] * carteira['valor_presente']
+            ).sum() / carteira['valor_presente'].sum()
+            
+            # Verificar conformidade
+            status = 'enquadrado' if vencimento_medio <= limite_maximo else 'violado'
+            
+            return {
+                'vencimento_medio_dias': round(vencimento_medio, 1),
+                'limite_maximo_dias': limite_maximo,
+                'status': status,
+                'quantidade_titulos': len(carteira),
+                'valor_total_carteira': carteira['valor_presente'].sum()
+            }
+        else:
+            # Fallback se não houver dados XLSX
+            self._log('warning', 'Dados XLSX não disponíveis para cálculo detalhado')
+            return {
+                'erro': 'Dados XLSX necessários para cálculo de vencimento médio'
+            }
+
+# Configuração no JSON do pool
+json_config = {
+    "monitoramentos_ativos": [
+        {
+            "id": "vencimento_medio",
+            "tipo": "vencimento_medio", 
+            "ativo": True,
+            "limite_maximo_dias": 85,
+            "descricao": "Prazo médio ponderado da carteira"
+        }
+    ]
+}
+
+# Uso do monitor
+monitor = MonitorVencimentoMedio(
+    pool_id="AFA Pool #1",
+    config=json_config,
+    csv_data=csv_data,
+    xlsx_data=xlsx_data
+)
+
+# Execução automática com validação e logging
+result = monitor.run()
+
+if result.is_success():
+    print(f"✅ Vencimento médio: {result.data['vencimento_medio_dias']} dias")
+    print(f"📊 Status: {result.data['status']}")
+else:
+    print(f"❌ Erro: {result.metadata['error']}")
+```
+
+### **Integração Automática com Orchestrator**
+
+```python
+# 1. Registrar o monitor no orchestrator
+# Em orchestrator.py, adicionar:
+def _execute_vencimento_medio_monitoring():
+    """Executa monitor de vencimento médio se configurado."""
+    from monitor.custom.monitor_vencimento_medio import MonitorVencimentoMedio
+    
+    monitor = MonitorVencimentoMedio(pool_id, config, csv_data, xlsx_data)
+    if monitor.is_active():
+        return monitor.run().to_dict()
+    return None
+
+# 2. Usar via run_monitoring() automaticamente
+resultado = run_monitoring("AFA Pool #1")
+
+# 3. Acessar resultado do novo monitor
+if resultado['sucesso']:
+    vencimento_result = resultado['resultados']['AFA Pool #1']['resultados']['vencimento_medio']
+    print(f"Vencimento médio: {vencimento_result['vencimento_medio_dias']} dias")
+```
+
+### **Vantagens do BaseMonitor**
+
+✅ **Validação Automática**: Dados são validados automaticamente  
+✅ **Logging Integrado**: Sistema de logs padronizado  
+✅ **Tratamento de Erros**: Handling robusto de exceções  
+✅ **Compatibilidade**: Funciona com run_monitoring() automaticamente  
+✅ **Testabilidade**: Framework de testes já configurado  
+✅ **Performance**: Otimizações automáticas aplicadas  
+
+### **Template para Novos Monitores**
+
+```python
+from monitor.core.base_monitor import BaseMonitor
+
+class MeuNovoMonitor(BaseMonitor):
+    def get_monitor_type(self):
+        return 'meu_monitor'  # ID único do monitor
+    
+    def calculate(self):
+        """Implementa apenas a lógica específica do monitor."""
+        
+        # 1. Obter dados já validados
+        pool_data = self._get_pool_data()
+        
+        # 2. Buscar configurações específicas  
+        limite = self._get_config_value('limite', 0.05)
+        
+        # 3. Sua lógica de cálculo aqui
+        valor_calculado = self._minha_logica(pool_data)
+        
+        # 4. Retornar resultado estruturado
+        return {
+            'valor_calculado': valor_calculado,
+            'limite_configurado': limite,
+            'status': 'enquadrado' if valor_calculado <= limite else 'violado'
+        }
+    
+    def _minha_logica(self, pool_data):
+        """Implementa cálculo específico."""
+        # Sua implementação aqui
+        return resultado
 ```
 
 ## 🧪 **NOVO: Executando Testes (Framework Implementado)**

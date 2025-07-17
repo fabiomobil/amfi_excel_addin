@@ -1,0 +1,170 @@
+{
+  "template_metadata": {
+    "template_name": "agronegocio_specialty",
+    "tier": 2,
+    "version": "1.0",
+    "description": "Agronegócio specialty patterns with group concentration management",
+    "created_date": "2025-07-17",
+    "inheritance_strategy": "extends_universal_base",
+    "target_pools": [
+      "Formento Pool #3",
+      "Up Vendas Pool #2"
+    ],
+    "escritura_characteristics": {
+      "risk_profile": "conservative_to_moderate",
+      "complexity_level": "medium_sophistication",
+      "asset_specialization": "agro_assets",
+      "subordinada_ratio_range": [
+        0.15,
+        0.3
+      ],
+      "typical_term_months": [
+        12,
+        48
+      ],
+      "monitor_count_typical": [
+        4,
+        6
+      ]
+    }
+  },
+  "extends": "tier1/universal_base.json",
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "agro_pattern": "conservative_subordination",
+      "limites": {
+        "minimo": "{{SUBORDINACAO_MINIMO|default:0.20}}",
+        "critico": "{{SUBORDINACAO_CRITICO|default:0.025}}",
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "amortizacao_extraordinaria",
+        "prazo_cura_dias": "{{SUBORDINACAO_CURA_DIAS|default:7}}",
+        "tipo_prazo": "{{SUBORDINACAO_CURA_TIPO|default:corridos}}"
+      },
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "agro_pattern": "group_economic_concentration",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_SACADO|default:0.15}}",
+          "inclui_grupo_economico": "{{CONCENTRACAO_INCLUI_GRUPO_SACADO|default:true}}",
+          "metodo_calculo": "{{CONCENTRACAO_METODO_CALCULO|default:8_digitos_cnpj_raiz}}"
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_CEDENTE|default:0.50}}",
+          "inclui_grupo_economico": "{{CONCENTRACAO_INCLUI_GRUPO_CEDENTE|default:true}}"
+        }
+      ],
+      "campos_necessarios": [
+        "sacado",
+        "cedente",
+        "valor_presente",
+        "grupo_economico"
+      ],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "agro_pattern": "diversified_credit_rights",
+      "limites": {
+        "valor_minimo": "{{CRITERIOS_VALOR_MINIMO|default:null}}",
+        "vencimento_minimo_dias": "{{CRITERIOS_VENC_MINIMO|default:null}}",
+        "vencimento_maximo_dias": "{{CRITERIOS_VENC_MAXIMO|default:null}}",
+        "taxa_minima_cdi_anual": "{{CRITERIOS_TAXA_MINIMA|default:null}}",
+        "tipos_permitidos": "{{CRITERIOS_TIPOS_PERMITIDOS|default:[\"direitos_creditorios_diversificados\"]}}",
+        "performadas_obrigatorio": "{{CRITERIOS_PERFORMADAS|default:true}}"
+      },
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "tipo_ativo"
+      ],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "agro_pattern": "standard_pdd_monitoring",
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+  "agronegocio_configurations": {
+    "asset_management": {
+      "type": "diversified_credit_rights",
+      "seasonal_awareness": true,
+      "group_concentration_focus": true,
+      "maximum_individual_exposure": "{{AGRO_MAX_INDIVIDUAL|default:0.15}}",
+      "agricultural_sector_exposure": "{{AGRO_SECTOR_EXPOSURE|default:unlimited}}"
+    },
+    "operational_sophistication": {
+      "monitoring_frequency": "daily",
+      "reporting_complexity": "medium",
+      "custom_monitors_expected": false,
+      "manual_review_required": true,
+      "group_economic_analysis": true
+    },
+    "risk_management": {
+      "subordination_strategy": "conservative",
+      "concentration_approach": "group_economic_aware",
+      "term_structure": "medium_term_flexible",
+      "asset_quality_focus": "medium_to_high",
+      "seasonal_risk_consideration": true
+    },
+    "concentration_specifics": {
+      "cnpj_grouping_method": "8_digits_root",
+      "group_economic_inclusion": true,
+      "cedente_concentration_tolerance": "high",
+      "sacado_concentration_tolerance": "medium"
+    }
+  },
+  "agronegocio_triggers": {
+    "concentracao_violacao": {
+      "prazo_cura_dias": "{{TRIGGER_CONCENTRACAO_DIAS|default:15}}",
+      "tipo_prazo": "{{TRIGGER_CONCENTRACAO_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_CONCENTRACAO_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_CONCENTRACAO_NOTIF|default:true}}"
+    },
+    "subordinacao_violacao": {
+      "prazo_cura_dias": "{{TRIGGER_SUB_DIAS|default:7}}",
+      "tipo_prazo": "{{TRIGGER_SUB_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_SUB_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_SUB_NOTIF|default:true}}"
+    }
+  },
+  "_tier3_extensions": {
+    "custom_monitoring_files": "{{CUSTOM_MONITORS|default:[]}}",
+    "sector_specific_configs": "{{SECTOR_CONFIGS}}",
+    "pool_specific_limits": "{{POOL_SPECIFIC_LIMITS}}",
+    "seasonal_adjustments": "{{SEASONAL_ADJUSTMENTS}}",
+    "unique_triggers": "{{UNIQUE_TRIGGERS}}"
+  }
+}

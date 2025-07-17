@@ -1,0 +1,63 @@
+{
+  "template_metadata": {
+    "template_name": "example_pool_overrides",
+    "tier": 3,
+    "version": "1.0",
+    "description": "Example of pool-specific overrides for customization",
+    "created_date": "2025-07-17",
+    "target_pool": "EXAMPLE_POOL"
+  },
+  "valores": {
+    "total_emissao": 50000000.0,
+    "senior": 35000000.0,
+    "subordinada": 15000000.0,
+    "reserva_despesas": 50000.0,
+    "reserva_extraordinaria": 40000.0
+  },
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "limites": {
+        "minimo": 0.28,
+        "critico": 0.22
+      }
+    },
+    {
+      "id": "concentracao",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": 0.25
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": 0.35
+        }
+      ]
+    }
+  ],
+  "sacados_elegiveis": [
+    "EMPRESA A LTDA",
+    "EMPRESA B S.A.",
+    "EMPRESA C PARTICIPAÇÕES"
+  ],
+  "periodos_especiais": {
+    "formacao_carteira": {
+      "dias": 90,
+      "regras_especiais": [
+        "limites_concentracao_flexibilizados",
+        "validacao_manual_sacados"
+      ]
+    }
+  },
+  "monitores_customizados": {
+    "arquivos_necessarios": [
+      "example_pool_custom_validation.py"
+    ],
+    "descricoes": [
+      "Validação customizada específica para este pool"
+    ]
+  }
+}

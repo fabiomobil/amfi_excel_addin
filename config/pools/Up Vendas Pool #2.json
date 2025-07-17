@@ -1,29 +1,19 @@
 {
-  "// ================================================": "",
-  "// SEÇÃO 1: IDENTIFICAÇÃO E METADADOS": "",
-  "// Dados básicos de identificação do pool": "",
-  "// ================================================": "",
-
   "pool_id": "Up Vendas Pool #2",
   "pool_name": "Up Vendas Pool #2",
   "status": "ativo",
   "data_emissao": "2025-04-30",
   "data_vencimento": "2028-04-28",
-
   "metadata": {
     "versao": "2.2",
     "data_atualizacao": "2025-07-11",
     "fonte_original": "Up Vendas Pool #2.json",
     "schema_version": "monitoring_v2",
     "completude": "100%",
-    "secoes_restauradas": ["estrutura_completa_migrada_para_template_v2.2"]
+    "secoes_restauradas": [
+      "estrutura_completa_migrada_para_template_v2.2"
+    ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 2: ESTRUTURA FINANCEIRA": "",
-  "// Core financeiro - valores, pagamentos, remuneração": "",
-  "// ================================================": "",
-
   "valores": {
     "total_emissao": 22000000.0,
     "senior": 17600000.0,
@@ -31,7 +21,6 @@
     "reserva_despesas": null,
     "reserva_extraordinaria": null
   },
-
   "cronograma_pagamentos": {
     "carencia_meses": null,
     "inicio_amortizacao": "2028-04-28",
@@ -42,7 +31,6 @@
       }
     ]
   },
-
   "remuneracao": {
     "series_senior": {
       "tipo": "pos_fixado",
@@ -56,28 +44,47 @@
       "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 3: REGRAS DE NEGÓCIO": "",
-  "// Critérios, limites e regras específicas": "",
-  "// ================================================": "",
-
   "provisoes_pdd": {
     "grupos_risco": {
-      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
-      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
-      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
-      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
-      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
-      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
-      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
-      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
-      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+      "AA": {
+        "atraso_max_dias": 0,
+        "provisao_pct": 0.0
+      },
+      "A": {
+        "atraso_max_dias": 15,
+        "provisao_pct": 0.005
+      },
+      "B": {
+        "atraso_max_dias": 30,
+        "provisao_pct": 0.01
+      },
+      "C": {
+        "atraso_max_dias": 60,
+        "provisao_pct": 0.03
+      },
+      "D": {
+        "atraso_max_dias": 90,
+        "provisao_pct": 0.1
+      },
+      "E": {
+        "atraso_max_dias": 120,
+        "provisao_pct": 0.3
+      },
+      "F": {
+        "atraso_max_dias": 150,
+        "provisao_pct": 0.5
+      },
+      "G": {
+        "atraso_max_dias": 180,
+        "provisao_pct": 0.7
+      },
+      "H": {
+        "atraso_max_dias": 999,
+        "provisao_pct": 1.0
+      }
     }
   },
-
   "sacados_elegiveis": [],
-
   "periodos_especiais": {
     "formacao_carteira": {
       "dias": null,
@@ -95,12 +102,6 @@
       "data_limite": "2028-04-28"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 4: SISTEMA DE MONITORAMENTO": "",
-  "// Engine de monitoramento e triggers": "",
-  "// ================================================": "",
-
   "monitoramentos_ativos": [
     {
       "id": "subordinacao",
@@ -109,7 +110,7 @@
       "frequencia": "diaria",
       "prioridade": "critica",
       "limites": {
-        "minimo": 0.20,
+        "minimo": 0.2,
         "critico": 0.15,
         "target": 0.225,
         "calculo": "subordinada / (senior + subordinada)",
@@ -117,7 +118,10 @@
         "prazo_cura_dias": 15,
         "tipo_prazo": "corridos"
       },
-      "campos_necessarios": ["sr", "jr"],
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
       "funcao_calculo": "calc_subordinacao"
     },
     {
@@ -131,7 +135,10 @@
         "tipo": "percentual_geral",
         "base_calculo": "valor_carteira"
       },
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_inadimplencia"
     },
     {
@@ -144,7 +151,10 @@
         "limite": 0.015,
         "acao": "veto_novas_aquisicoes"
       },
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_inadimplencia_veto"
     },
     {
@@ -158,10 +168,17 @@
         "vencimento_minimo_dias": null,
         "vencimento_maximo_dias": null,
         "taxa_minima_cdi_anual": null,
-        "tipos_permitidos": ["unidades_recebiveis_cartao", "pix_parcelado"],
+        "tipos_permitidos": [
+          "unidades_recebiveis_cartao",
+          "pix_parcelado"
+        ],
         "performadas_obrigatorio": true
       },
-      "campos_necessarios": ["valor_presente", "data_vencimento", "tipo_ativo"],
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "tipo_ativo"
+      ],
       "funcao_calculo": "calc_criterios_elegibilidade"
     },
     {
@@ -170,11 +187,13 @@
       "ativo": true,
       "frequencia": "diaria",
       "prioridade": "alta",
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_pdd"
     }
   ],
-
   "triggers_aceleracao": {
     "obrigacao_pecuniaria": {
       "prazo_cura_dias": 15,
@@ -202,7 +221,6 @@
       "notificacao_requerida": true
     }
   },
-
   "monitores_customizados": {
     "arquivos_necessarios": [
       "upvendas_pool_2_pix_parcelado.py",
@@ -217,18 +235,11 @@
       "Sistema de veto para novas aquisições quando inadimplência > 1.5%"
     ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 5: DADOS OPERACIONAIS": "",
-  "// Entidades, prestadores e informações operacionais": "",
-  "// ================================================": "",
-
   "prestador_servicos_operacionais": {
     "nome": null,
     "cnpj": null,
     "contrato_data": null
   },
-
   "originador_detalhado": {
     "razao_social": "UP VENDAS GESTÃO DE PAGAMENTOS S.A.",
     "cnpj": "42.679.816/0001-33",
@@ -236,7 +247,6 @@
     "email_contato": null,
     "responsavel": null
   },
-
   "debenturistas_detalhados": {
     "serie_senior": {
       "nome": null,

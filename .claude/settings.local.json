@@ -33,7 +33,8 @@
       "Bash(echo:*)",
       "Bash(claude config get model)",
       "Bash(claude --version)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

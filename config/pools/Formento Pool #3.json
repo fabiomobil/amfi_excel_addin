@@ -1,29 +1,19 @@
 {
-  "// ================================================": "",
-  "// SEÇÃO 1: IDENTIFICAÇÃO E METADADOS": "",
-  "// Dados básicos de identificação do pool": "",
-  "// ================================================": "",
-
   "pool_id": "Formento Pool #3",
   "pool_name": "Formento Pool #3",
   "status": "ativo",
   "data_emissao": "2025-03-31",
   "data_vencimento": "2027-12-31",
-
   "metadata": {
     "versao": "2.2",
     "data_atualizacao": "2025-07-11",
     "fonte_original": "Formento Pool #3.json",
     "schema_version": "monitoring_v2",
     "completude": "100%",
-    "secoes_restauradas": ["estrutura_completa_migrada_para_template_v2.2"]
+    "secoes_restauradas": [
+      "estrutura_completa_migrada_para_template_v2.2"
+    ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 2: ESTRUTURA FINANCEIRA": "",
-  "// Core financeiro - valores, pagamentos, remuneração": "",
-  "// ================================================": "",
-
   "valores": {
     "total_emissao": 2500000.0,
     "senior": 2000000.0,
@@ -31,7 +21,6 @@
     "reserva_despesas": null,
     "reserva_extraordinaria": null
   },
-
   "cronograma_pagamentos": {
     "carencia_meses": null,
     "inicio_amortizacao": "2027-12-31",
@@ -42,7 +31,6 @@
       }
     ]
   },
-
   "remuneracao": {
     "series_senior": {
       "tipo": "pos_fixado",
@@ -56,28 +44,47 @@
       "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 3: REGRAS DE NEGÓCIO": "",
-  "// Critérios, limites e regras específicas": "",
-  "// ================================================": "",
-
   "provisoes_pdd": {
     "grupos_risco": {
-      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
-      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
-      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
-      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
-      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
-      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
-      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
-      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
-      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+      "AA": {
+        "atraso_max_dias": 0,
+        "provisao_pct": 0.0
+      },
+      "A": {
+        "atraso_max_dias": 15,
+        "provisao_pct": 0.005
+      },
+      "B": {
+        "atraso_max_dias": 30,
+        "provisao_pct": 0.01
+      },
+      "C": {
+        "atraso_max_dias": 60,
+        "provisao_pct": 0.03
+      },
+      "D": {
+        "atraso_max_dias": 90,
+        "provisao_pct": 0.1
+      },
+      "E": {
+        "atraso_max_dias": 120,
+        "provisao_pct": 0.3
+      },
+      "F": {
+        "atraso_max_dias": 150,
+        "provisao_pct": 0.5
+      },
+      "G": {
+        "atraso_max_dias": 180,
+        "provisao_pct": 0.7
+      },
+      "H": {
+        "atraso_max_dias": 999,
+        "provisao_pct": 1.0
+      }
     }
   },
-
   "sacados_elegiveis": [],
-
   "periodos_especiais": {
     "formacao_carteira": {
       "dias": null,
@@ -95,12 +102,6 @@
       "data_limite": "2027-12-31"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 4: SISTEMA DE MONITORAMENTO": "",
-  "// Engine de monitoramento e triggers": "",
-  "// ================================================": "",
-
   "monitoramentos_ativos": [
     {
       "id": "subordinacao",
@@ -109,14 +110,17 @@
       "frequencia": "diaria",
       "prioridade": "critica",
       "limites": {
-        "minimo": 0.20,
+        "minimo": 0.2,
         "critico": 0.025,
         "calculo": "subordinada / (senior + subordinada)",
         "acao_violacao": "amortizacao_extraordinaria",
         "prazo_cura_dias": 7,
         "tipo_prazo": "corridos"
       },
-      "campos_necessarios": ["sr", "jr"],
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
       "funcao_calculo": "calc_subordinacao"
     },
     {
@@ -136,11 +140,16 @@
         {
           "tipo": "individual",
           "entidade": "cedente",
-          "limite": 0.50,
+          "limite": 0.5,
           "inclui_grupo_economico": true
         }
       ],
-      "campos_necessarios": ["sacado", "cedente", "valor_presente", "grupo_economico"],
+      "campos_necessarios": [
+        "sacado",
+        "cedente",
+        "valor_presente",
+        "grupo_economico"
+      ],
       "funcao_calculo": "calc_concentracao"
     },
     {
@@ -154,10 +163,16 @@
         "vencimento_minimo_dias": null,
         "vencimento_maximo_dias": null,
         "taxa_minima_cdi_anual": null,
-        "tipos_permitidos": ["direitos_creditorios_diversificados"],
+        "tipos_permitidos": [
+          "direitos_creditorios_diversificados"
+        ],
         "performadas_obrigatorio": true
       },
-      "campos_necessarios": ["valor_presente", "data_vencimento", "tipo_ativo"],
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "tipo_ativo"
+      ],
       "funcao_calculo": "calc_criterios_elegibilidade"
     },
     {
@@ -166,11 +181,13 @@
       "ativo": true,
       "frequencia": "diaria",
       "prioridade": "alta",
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_pdd"
     }
   ],
-
   "triggers_aceleracao": {
     "obrigacao_pecuniaria": {
       "prazo_cura_dias": 15,
@@ -197,7 +214,6 @@
       "notificacao_requerida": true
     }
   },
-
   "monitores_customizados": {
     "arquivos_necessarios": [
       "formento_pool_3_agronegocio_monitoring.py",
@@ -210,18 +226,13 @@
       "Sistema de recompra com participação da consultora para decisões estratégicas"
     ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 5: DADOS OPERACIONAIS": "",
-  "// Entidades, prestadores e informações operacionais": "",
-  "// ================================================": "",
-
   "prestador_servicos_operacionais": {
     "nome": "AMFI CONSULTING LTDA.",
     "cnpj": "47.243.468/0001-70",
-    "contrato_data": "2025-03-31"
+    "razao_social": "AMFI CONSULTING LTDA.",
+    "contrato_data": "2025-03-31",
+    "_reference": "global_constants.operacional.prestador_servicos"
   },
-
   "originador_detalhado": {
     "razao_social": "FORMENTO SECURITIZADORA S.A.",
     "cnpj": null,
@@ -229,7 +240,6 @@
     "email_contato": null,
     "responsavel": null
   },
-
   "debenturistas_detalhados": {
     "serie_senior": {
       "nome": "CORUJA I FUNDO DE INVESTIMENTO EM DIREITOS CREDITÓRIOS",
@@ -248,7 +258,6 @@
       "responsavel": null
     }
   },
-
   "consultora_especializada": {
     "nome": "CORUJA CAPITAL INVESTIMENTOS E PARTICIPAÇÕES LTDA.",
     "cnpj": null,

@@ -1,0 +1,163 @@
+{
+  "template_metadata": {
+    "template_name": "fintech_simplified",
+    "tier": 2,
+    "version": "1.0",
+    "description": "Fintech simplified patterns with streamlined monitoring for digital assets",
+    "created_date": "2025-07-17",
+    "inheritance_strategy": "extends_universal_base",
+    "target_pools": [
+      "SuperSim Pool #1",
+      "Credmei Pool #1",
+      "a55 Pool #2"
+    ],
+    "escritura_characteristics": {
+      "risk_profile": "moderate_to_aggressive",
+      "complexity_level": "simplified",
+      "asset_specialization": "fintech_assets",
+      "subordinada_ratio_range": [
+        0.3,
+        0.5
+      ],
+      "typical_term_months": [
+        12,
+        24
+      ],
+      "monitor_count_typical": [
+        3,
+        5
+      ]
+    }
+  },
+  "extends": "tier1/universal_base.json",
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "fintech_pattern": "aggressive_subordination",
+      "limites": {
+        "minimo": "{{SUBORDINACAO_MINIMO|default:0.35}}",
+        "critico": "{{SUBORDINACAO_CRITICO|default:0.30}}",
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "amortizacao_extraordinaria",
+        "prazo_cura_dias": "{{SUBORDINACAO_CURA_DIAS|default:15}}",
+        "tipo_prazo": "{{SUBORDINACAO_CURA_TIPO|default:corridos}}"
+      },
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "fintech_pattern": "ultra_granular_concentration",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": "{{CONCENTRACAO_INDIVIDUAL_SACADO|default:0.01}}",
+          "inclui_grupo_economico": "{{CONCENTRACAO_INCLUI_GRUPO|default:false}}"
+        }
+      ],
+      "campos_necessarios": [
+        "sacado",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "fintech_pattern": "short_term_digital_assets",
+      "limites": {
+        "valor_minimo": "{{CRITERIOS_VALOR_MINIMO|default:null}}",
+        "vencimento_minimo_dias": "{{CRITERIOS_VENC_MINIMO|default:15}}",
+        "vencimento_maximo_dias": "{{CRITERIOS_VENC_MAXIMO|default:45}}",
+        "taxa_minima_cdi_anual": "{{CRITERIOS_TAXA_MINIMA|default:1.08}}",
+        "tipos_permitidos": "{{CRITERIOS_TIPOS_PERMITIDOS|default:[\"ccb_instituicoes_parceiras\"]}}",
+        "performadas_obrigatorio": "{{CRITERIOS_PERFORMADAS|default:true}}"
+      },
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "taxa_cdi",
+        "tipo_ativo"
+      ],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "fintech_pattern": "standard_pdd_monitoring",
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+  "fintech_configurations": {
+    "asset_management": {
+      "type": "digital_ccb_focus",
+      "partner_institutions": true,
+      "minimum_volume": "{{FINTECH_MIN_VOLUME|default:null}}",
+      "maximum_individual_exposure": "{{FINTECH_MAX_INDIVIDUAL|default:0.01}}",
+      "automated_origination": true
+    },
+    "operational_sophistication": {
+      "monitoring_frequency": "daily",
+      "reporting_complexity": "simplified",
+      "custom_monitors_expected": true,
+      "manual_review_required": false,
+      "automated_triggers": true
+    },
+    "risk_management": {
+      "subordination_strategy": "aggressive",
+      "concentration_approach": "ultra_granular",
+      "term_structure": "short_term",
+      "asset_quality_focus": "medium"
+    },
+    "recovery_mechanisms": {
+      "recovery_rate_monitoring": true,
+      "recompra_obrigatoria": "{{FINTECH_RECOMPRA|default:true}}",
+      "minimum_recovery_rate": "{{FINTECH_MIN_RECOVERY|default:0.95}}",
+      "recovery_window_months": "{{FINTECH_RECOVERY_WINDOW|default:3}}"
+    }
+  },
+  "fintech_triggers": {
+    "recovery_rate_baixo": {
+      "prazo_cura_dias": "{{TRIGGER_RECOVERY_DIAS|default:0}}",
+      "limite_recovery": "{{TRIGGER_RECOVERY_LIMITE|default:0.95}}",
+      "janela_meses": "{{TRIGGER_RECOVERY_JANELA|default:3}}",
+      "automatico": "{{TRIGGER_RECOVERY_AUTO|default:true}}",
+      "notificacao_requerida": "{{TRIGGER_RECOVERY_NOTIF|default:false}}"
+    },
+    "subordinacao_violacao": {
+      "prazo_cura_dias": "{{TRIGGER_SUB_DIAS|default:15}}",
+      "tipo_prazo": "{{TRIGGER_SUB_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_SUB_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_SUB_NOTIF|default:true}}"
+    }
+  },
+  "_tier3_extensions": {
+    "custom_monitoring_files": "{{CUSTOM_MONITORS|default:[]}}",
+    "partner_specific_configs": "{{PARTNER_CONFIGS}}",
+    "pool_specific_limits": "{{POOL_SPECIFIC_LIMITS}}",
+    "recovery_customizations": "{{RECOVERY_CUSTOMIZATIONS}}",
+    "unique_triggers": "{{UNIQUE_TRIGGERS}}"
+  }
+}

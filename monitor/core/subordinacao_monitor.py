@@ -11,6 +11,7 @@ This serves as a template for refactoring other monitors.
 import pandas as pd
 from typing import Dict, Any, Optional
 from .base_monitor import BaseMonitor
+from ..constants import get_subordination_limit
 
 
 class SubordinacaoMonitor(BaseMonitor):
@@ -49,9 +50,9 @@ class SubordinacaoMonitor(BaseMonitor):
         # Calculate subordination ratio
         subordinacao_ratio = self._calculate_subordination_ratio(pl_senior, pl_subordinado, valor_carteira)
         
-        # Get limits from configuration
-        limite_minimo = self._get_config_value('limite_minimo', 0.05)  # 5% default
-        limite_critico = self._get_config_value('limite_critico', 0.03)  # 3% default
+        # Get limits from configuration with centralized defaults
+        limite_minimo = self._get_config_value('limite_minimo', get_subordination_limit('minimum'))
+        limite_critico = self._get_config_value('limite_critico', get_subordination_limit('critical'))
         
         # Check compliance
         status_resultado = self._check_subordination_limits(subordinacao_ratio, limite_minimo, limite_critico)
@@ -172,17 +173,4 @@ def run_subordination_monitoring(pool_id: str, config: Dict[str, Any],
     return result.to_dict()
 
 
-def _find_subordination_monitor(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Compatibility function for finding subordination monitor in config.
-    
-    This maintains backward compatibility with existing code.
-    """
-    if 'monitoramentos_ativos' not in config:
-        return None
-        
-    for monitor in config['monitoramentos_ativos']:
-        if monitor.get('id') == 'subordinacao':
-            return monitor
-    
-    return None
+# _find_subordination_monitor() removed - use BaseMonitor._find_monitor_in_config() instead

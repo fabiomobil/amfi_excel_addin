@@ -1,0 +1,154 @@
+{
+  "template_metadata": {
+    "template_name": "universal_base",
+    "tier": 1,
+    "version": "1.0",
+    "description": "Universal base template with 100% common fields across all pool types",
+    "created_date": "2025-07-17",
+    "inheritance_strategy": "base_template"
+  },
+  "pool_id": "{{POOL_ID}}",
+  "pool_name": "{{POOL_NAME}}",
+  "status": "{{STATUS|default:ativo}}",
+  "data_emissao": "{{DATA_EMISSAO}}",
+  "data_vencimento": "{{DATA_VENCIMENTO}}",
+  "metadata": {
+    "versao": "{{VERSION|default:2.2}}",
+    "data_atualizacao": "{{DATA_ATUALIZACAO}}",
+    "fonte_original": "{{FONTE_ORIGINAL}}",
+    "schema_version": "{{SCHEMA_VERSION|default:monitoring_v2}}",
+    "completude": "{{COMPLETUDE|default:100%}}",
+    "secoes_restauradas": "{{SECOES_RESTAURADAS|default:[]}}"
+  },
+  "valores": {
+    "total_emissao": "{{TOTAL_EMISSAO}}",
+    "senior": "{{SENIOR}}",
+    "subordinada": "{{SUBORDINADA}}",
+    "reserva_despesas": "{{RESERVA_DESPESAS}}",
+    "reserva_extraordinaria": "{{RESERVA_EXTRAORDINARIA}}"
+  },
+  "cronograma_pagamentos": {
+    "carencia_meses": "{{CARENCIA_MESES}}",
+    "inicio_amortizacao": "{{INICIO_AMORTIZACAO}}",
+    "cronograma_amortizacao": [
+      {
+        "data": "{{DATA_AMORTIZACAO}}",
+        "percentual": "{{PERCENTUAL_AMORTIZACAO|default:1.0}}"
+      }
+    ]
+  },
+  "remuneracao": {
+    "series_senior": {
+      "tipo": "{{TIPO_REMUNERACAO_SENIOR|default:pos_fixado}}",
+      "indexador": "{{INDEXADOR|default:Taxa_DI}}",
+      "premio_risco": "{{PREMIO_RISCO_SENIOR}}",
+      "base_calculo": "{{BASE_CALCULO|default:252}}",
+      "formula": "{{FORMULA_SENIOR}}"
+    },
+    "series_subordinadas": {
+      "tipo": "{{TIPO_REMUNERACAO_SUB|default:residual}}",
+      "descricao": "{{DESC_REMUNERACAO_SUB|default:Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos}}"
+    }
+  },
+  "provisoes_pdd": {
+    "grupos_risco": {
+      "AA": {
+        "atraso_max_dias": 0,
+        "provisao_pct": 0.0
+      },
+      "A": {
+        "atraso_max_dias": 15,
+        "provisao_pct": 0.005
+      },
+      "B": {
+        "atraso_max_dias": 30,
+        "provisao_pct": 0.01
+      },
+      "C": {
+        "atraso_max_dias": 60,
+        "provisao_pct": 0.03
+      },
+      "D": {
+        "atraso_max_dias": 90,
+        "provisao_pct": 0.1
+      },
+      "E": {
+        "atraso_max_dias": 120,
+        "provisao_pct": 0.3
+      },
+      "F": {
+        "atraso_max_dias": 150,
+        "provisao_pct": 0.5
+      },
+      "G": {
+        "atraso_max_dias": 180,
+        "provisao_pct": 0.7
+      },
+      "H": {
+        "atraso_max_dias": 999,
+        "provisao_pct": 1.0
+      }
+    }
+  },
+  "sacados_elegiveis": "{{SACADOS_ELEGIVEIS|default:[]}}",
+  "periodos_especiais": {
+    "formacao_carteira": {
+      "dias": "{{FORMACAO_CARTEIRA_DIAS}}",
+      "inicio": "{{FORMACAO_CARTEIRA_INICIO}}",
+      "fim": "{{FORMACAO_CARTEIRA_FIM}}",
+      "regras_especiais": "{{FORMACAO_REGRAS_ESPECIAIS|default:[]}}"
+    },
+    "carencia_amortizacao": {
+      "meses": "{{CARENCIA_AMORTIZACAO_MESES}}",
+      "inicio": "{{CARENCIA_AMORTIZACAO_INICIO}}",
+      "fim": "{{CARENCIA_AMORTIZACAO_FIM}}"
+    },
+    "limite_aquisicoes": {
+      "meses": "{{LIMITE_AQUISICOES_MESES}}",
+      "data_limite": "{{LIMITE_AQUISICOES_DATA}}"
+    }
+  },
+  "triggers_aceleracao": {
+    "obrigacao_pecuniaria": {
+      "prazo_cura_dias": "{{TRIGGER_PECUNIARIA_DIAS|default:5}}",
+      "tipo_prazo": "{{TRIGGER_PECUNIARIA_TIPO|default:uteis}}",
+      "automatico": "{{TRIGGER_PECUNIARIA_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_PECUNIARIA_NOTIF|default:true}}"
+    },
+    "obrigacao_nao_pecuniaria": {
+      "prazo_cura_dias": "{{TRIGGER_NAO_PECUNIARIA_DIAS|default:20}}",
+      "tipo_prazo": "{{TRIGGER_NAO_PECUNIARIA_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_NAO_PECUNIARIA_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_NAO_PECUNIARIA_NOTIF|default:true}}"
+    },
+    "falencia_recuperacao": {
+      "prazo_cura_dias": "{{TRIGGER_FALENCIA_DIAS|default:0}}",
+      "automatico": "{{TRIGGER_FALENCIA_AUTO|default:true}}",
+      "notificacao_requerida": "{{TRIGGER_FALENCIA_NOTIF|default:false}}"
+    },
+    "limite_concentracao": {
+      "prazo_cura_dias": "{{TRIGGER_CONCENTRACAO_DIAS|default:30}}",
+      "tipo_prazo": "{{TRIGGER_CONCENTRACAO_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_CONCENTRACAO_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_CONCENTRACAO_NOTIF|default:true}}"
+    },
+    "subordinacao_inadimplencia": {
+      "prazo_cura_dias": "{{TRIGGER_SUBORDINACAO_DIAS|default:7}}",
+      "tipo_prazo": "{{TRIGGER_SUBORDINACAO_TIPO|default:corridos}}",
+      "automatico": "{{TRIGGER_SUBORDINACAO_AUTO|default:false}}",
+      "notificacao_requerida": "{{TRIGGER_SUBORDINACAO_NOTIF|default:true}}"
+    }
+  },
+  "monitoramentos_ativos": "{{TIER2_MONITORAMENTOS}}",
+  "_tier2_extensions": {
+    "monitoring_patterns": "{{TIER2_MONITORING_PATTERNS}}",
+    "risk_profile_configs": "{{TIER2_RISK_CONFIGS}}",
+    "operational_complexity": "{{TIER2_OPERATIONAL_COMPLEXITY}}",
+    "asset_specialization": "{{TIER2_ASSET_SPECIALIZATION}}"
+  },
+  "_tier3_overrides": {
+    "pool_specific_configs": "{{TIER3_POOL_CONFIGS}}",
+    "custom_monitoring": "{{TIER3_CUSTOM_MONITORING}}",
+    "special_rules": "{{TIER3_SPECIAL_RULES}}"
+  }
+}

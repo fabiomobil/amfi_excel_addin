@@ -1,0 +1,338 @@
+{
+  "template_metadata": {
+    "template_name": "universal_base",
+    "tier": 1,
+    "version": "1.0",
+    "description": "Universal base template with 100% common fields across all pool types",
+    "created_date": "2025-07-17",
+    "inheritance_strategy": "base_template"
+  },
+  "pool_id": "TESTE_CORP_001",
+  "pool_name": "Teste Corporate Pool",
+  "status": "ativo",
+  "data_emissao": "2025-01-15",
+  "data_vencimento": "2028-01-15",
+  "metadata": {
+    "versao": 2.2,
+    "data_atualizacao": "{{DATA_ATUALIZACAO}}",
+    "fonte_original": "{{FONTE_ORIGINAL}}",
+    "schema_version": "monitoring_v2",
+    "completude": "100%",
+    "secoes_restauradas": []
+  },
+  "valores": {
+    "total_emissao": 45000000,
+    "senior": 30000000,
+    "subordinada": 15000000,
+    "reserva_despesas": "{{RESERVA_DESPESAS}}",
+    "reserva_extraordinaria": "{{RESERVA_EXTRAORDINARIA}}"
+  },
+  "cronograma_pagamentos": {
+    "carencia_meses": "{{CARENCIA_MESES}}",
+    "inicio_amortizacao": "{{INICIO_AMORTIZACAO}}",
+    "cronograma_amortizacao": [
+      {
+        "data": "{{DATA_AMORTIZACAO}}",
+        "percentual": 1.0
+      }
+    ]
+  },
+  "remuneracao": {
+    "series_senior": {
+      "tipo": "pos_fixado",
+      "indexador": "Taxa_DI",
+      "premio_risco": "{{PREMIO_RISCO_SENIOR}}",
+      "base_calculo": 252,
+      "formula": "{{FORMULA_SENIOR}}"
+    },
+    "series_subordinadas": {
+      "tipo": "residual",
+      "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
+    }
+  },
+  "provisoes_pdd": {
+    "grupos_risco": {
+      "AA": {
+        "atraso_max_dias": 0,
+        "provisao_pct": 0.0
+      },
+      "A": {
+        "atraso_max_dias": 15,
+        "provisao_pct": 0.005
+      },
+      "B": {
+        "atraso_max_dias": 30,
+        "provisao_pct": 0.01
+      },
+      "C": {
+        "atraso_max_dias": 60,
+        "provisao_pct": 0.03
+      },
+      "D": {
+        "atraso_max_dias": 90,
+        "provisao_pct": 0.1
+      },
+      "E": {
+        "atraso_max_dias": 120,
+        "provisao_pct": 0.3
+      },
+      "F": {
+        "atraso_max_dias": 150,
+        "provisao_pct": 0.5
+      },
+      "G": {
+        "atraso_max_dias": 180,
+        "provisao_pct": 0.7
+      },
+      "H": {
+        "atraso_max_dias": 999,
+        "provisao_pct": 1.0
+      }
+    }
+  },
+  "sacados_elegiveis": [
+    "EMPRESA TESTE A LTDA",
+    "EMPRESA TESTE B S.A.",
+    "EMPRESA TESTE C PARTICIPAÇÕES"
+  ],
+  "periodos_especiais": {
+    "formacao_carteira": {
+      "dias": 75,
+      "inicio": "{{FORMACAO_CARTEIRA_INICIO}}",
+      "fim": "{{FORMACAO_CARTEIRA_FIM}}",
+      "regras_especiais": [
+        "validacao_especial_teste"
+      ]
+    },
+    "carencia_amortizacao": {
+      "meses": "{{CARENCIA_AMORTIZACAO_MESES}}",
+      "inicio": "{{CARENCIA_AMORTIZACAO_INICIO}}",
+      "fim": "{{CARENCIA_AMORTIZACAO_FIM}}"
+    },
+    "limite_aquisicoes": {
+      "meses": "{{LIMITE_AQUISICOES_MESES}}",
+      "data_limite": "{{LIMITE_AQUISICOES_DATA}}"
+    }
+  },
+  "triggers_aceleracao": {
+    "obrigacao_pecuniaria": {
+      "prazo_cura_dias": 5,
+      "tipo_prazo": "uteis",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "obrigacao_nao_pecuniaria": {
+      "prazo_cura_dias": 20,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "falencia_recuperacao": {
+      "prazo_cura_dias": 0,
+      "automatico": true,
+      "notificacao_requerida": false
+    },
+    "limite_concentracao": {
+      "prazo_cura_dias": 30,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "subordinacao_inadimplencia": {
+      "prazo_cura_dias": 7,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    }
+  },
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "corporate_pattern": "conservative_subordination",
+      "limites": {
+        "minimo": 0.3,
+        "critico": 0.25,
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "amortizacao_extraordinaria_primeira_serie",
+        "prazo_cura_dias": 5,
+        "tipo_prazo": "uteis"
+      },
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "multi_entity_concentration",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": 0.25
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": 0.35
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "sacado",
+          "n": 10,
+          "limite": 1.0
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "cedente",
+          "n": 10,
+          "limite": 0.7
+        }
+      ],
+      "campos_necessarios": [
+        "sacado",
+        "cedente",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "inadimplencia_30d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "dual_timeframe_monitoring",
+      "limites": {
+        "prazo_dias": 30,
+        "limite": 0.04
+      },
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "inadimplencia_90d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "dual_timeframe_monitoring",
+      "limites": {
+        "prazo_dias": 90,
+        "limite": 0.02
+      },
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "vencimento_medio",
+      "tipo": "prazo",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "media",
+      "corporate_pattern": "sophisticated_maturity_management",
+      "limites": {
+        "maximo_dias": 90,
+        "ponderado_por_valor": true
+      },
+      "campos_necessarios": [
+        "data_vencimento",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_vencimento_medio"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "comprehensive_eligibility",
+      "limites": {
+        "valor_minimo": 100.0,
+        "vencimento_minimo_dias": 7,
+        "vencimento_maximo_dias": 180,
+        "taxa_minima_cdi_mensal": 1.5,
+        "tipos_permitidos": [
+          "duplicata_mercantil",
+          "duplicata_servico"
+        ],
+        "performadas_obrigatorio": true
+      },
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "taxa_cdi",
+        "tipo_ativo"
+      ],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "corporate_pattern": "standard_pdd_monitoring",
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+  "_tier2_extensions": {
+    "monitoring_patterns": "{{TIER2_MONITORING_PATTERNS}}",
+    "risk_profile_configs": "{{TIER2_RISK_CONFIGS}}",
+    "operational_complexity": "{{TIER2_OPERATIONAL_COMPLEXITY}}",
+    "asset_specialization": "{{TIER2_ASSET_SPECIALIZATION}}"
+  },
+  "_tier3_overrides": {
+    "pool_specific_configs": "{{TIER3_POOL_CONFIGS}}",
+    "custom_monitoring": "{{TIER3_CUSTOM_MONITORING}}",
+    "special_rules": "{{TIER3_SPECIAL_RULES}}"
+  },
+  "corporate_configurations": {
+    "sacados_management": {
+      "type": "curated_list",
+      "validation_required": true,
+      "minimum_count": 15,
+      "maximum_count": 50,
+      "rating_requirements": "investment_grade_preferred"
+    },
+    "operational_sophistication": {
+      "monitoring_frequency": "daily",
+      "reporting_complexity": "high",
+      "custom_monitors_expected": true,
+      "manual_review_required": true
+    },
+    "risk_management": {
+      "subordination_strategy": "conservative",
+      "concentration_approach": "diversified_multi_entity",
+      "term_structure": "medium_to_long_term",
+      "asset_quality_focus": "high"
+    }
+  },
+  "_tier3_extensions": {
+    "custom_monitoring_files": [],
+    "specific_sacados_list": "{{POOL_SPECIFIC_SACADOS}}",
+    "pool_specific_limits": "{{POOL_SPECIFIC_LIMITS}}",
+    "special_amortization": "{{SPECIAL_AMORTIZATION}}",
+    "unique_triggers": "{{UNIQUE_TRIGGERS}}"
+  }
+}

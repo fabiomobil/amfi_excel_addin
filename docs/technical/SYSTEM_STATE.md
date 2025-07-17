@@ -1,6 +1,6 @@
 # Estado do Sistema AmFi - Snapshot Técnico
 
-## Última Verificação: 2025-07-16 15:30
+## Última Verificação: 2025-07-17 09:00
 
 ### 📊 Estrutura de Dados Atual (Variável Diariamente)
 
@@ -19,7 +19,6 @@
 
 #### **Configurações de Pools**
 - **JSONs ativos**: `/config/pools/*.json` (9 pools padronizados - **+UnionNational Pool #5, +E-ctare Pool #1**)
-- **JSONs legacy**: `/config/pools/legacy/*.json` (versões antigas)
 - **Config monitoramento**: `/config/monitoring/test_pools.json` (modo DEBUG)
 - **🆕 Template v2.3**: Estrutura híbrida com seção `processos_legais`
 

@@ -1,30 +1,22 @@
 {
-  "// ================================================": "",
-  "// SEÇÃO 1: IDENTIFICAÇÃO E METADADOS": "",
-  "// Dados básicos de identificação do pool": "",
-  "// ================================================": "",
-
   "pool_id": "a55 Pool #2",
   "pool_name": "A55 Pool Cartão #2",
   "status": "ativo",
   "data_emissao": "2025-02-14",
   "data_vencimento": "2028-02-14",
-
   "metadata": {
     "versao": "2.2",
     "data_atualizacao": "2025-07-11",
     "fonte_original": "a55 Pool #2.json",
     "schema_version": "monitoring_v2",
     "completude": "100%",
-    "secoes_restauradas": ["estrutura_completa_migrada_para_template_v2.2"],
-    "observacoes": ["valores_nulos_preservados_conforme_legacy"]
+    "secoes_restauradas": [
+      "estrutura_completa_migrada_para_template_v2.2"
+    ],
+    "observacoes": [
+      "valores_nulos_preservados_conforme_legacy"
+    ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 2: ESTRUTURA FINANCEIRA": "",
-  "// Core financeiro - valores, pagamentos, remuneração": "",
-  "// ================================================": "",
-
   "valores": {
     "total_emissao": null,
     "senior": null,
@@ -32,7 +24,6 @@
     "reserva_despesas": null,
     "reserva_extraordinaria": null
   },
-
   "cronograma_pagamentos": {
     "carencia_meses": null,
     "inicio_amortizacao": "2028-02-14",
@@ -43,7 +34,6 @@
       }
     ]
   },
-
   "remuneracao": {
     "series_senior": {
       "tipo": "pos_fixado",
@@ -57,28 +47,47 @@
       "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 3: REGRAS DE NEGÓCIO": "",
-  "// Critérios, limites e regras específicas": "",
-  "// ================================================": "",
-
   "provisoes_pdd": {
     "grupos_risco": {
-      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
-      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
-      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
-      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
-      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
-      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
-      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
-      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
-      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+      "AA": {
+        "atraso_max_dias": 0,
+        "provisao_pct": 0.0
+      },
+      "A": {
+        "atraso_max_dias": 15,
+        "provisao_pct": 0.005
+      },
+      "B": {
+        "atraso_max_dias": 30,
+        "provisao_pct": 0.01
+      },
+      "C": {
+        "atraso_max_dias": 60,
+        "provisao_pct": 0.03
+      },
+      "D": {
+        "atraso_max_dias": 90,
+        "provisao_pct": 0.1
+      },
+      "E": {
+        "atraso_max_dias": 120,
+        "provisao_pct": 0.3
+      },
+      "F": {
+        "atraso_max_dias": 150,
+        "provisao_pct": 0.5
+      },
+      "G": {
+        "atraso_max_dias": 180,
+        "provisao_pct": 0.7
+      },
+      "H": {
+        "atraso_max_dias": 999,
+        "provisao_pct": 1.0
+      }
     }
   },
-
   "sacados_elegiveis": [],
-
   "periodos_especiais": {
     "formacao_carteira": {
       "dias": null,
@@ -96,12 +105,6 @@
       "data_limite": "2028-02-14"
     }
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 4: SISTEMA DE MONITORAMENTO": "",
-  "// Engine de monitoramento e triggers": "",
-  "// ================================================": "",
-
   "monitoramentos_ativos": [
     {
       "id": "subordinacao",
@@ -110,14 +113,17 @@
       "frequencia": "diaria",
       "prioridade": "critica",
       "limites": {
-        "minimo": 0.10,
+        "minimo": 0.1,
         "critico": 0.05,
         "calculo": "subordinada / (senior + subordinada)",
         "acao_violacao": "vencimento_antecipado",
         "prazo_cura_dias": null,
         "tipo_prazo": null
       },
-      "campos_necessarios": ["sr", "jr"],
+      "campos_necessarios": [
+        "sr",
+        "jr"
+      ],
       "funcao_calculo": "calc_subordinacao"
     },
     {
@@ -130,7 +136,10 @@
         "maximo_dias": 90,
         "ponderado_por_valor": true
       },
-      "campos_necessarios": ["data_vencimento", "valor_presente"],
+      "campos_necessarios": [
+        "data_vencimento",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_vencimento_medio"
     },
     {
@@ -145,10 +154,17 @@
         "vencimento_minimo_dias": 5,
         "vencimento_maximo_dias": 360,
         "taxa_minima_cdi_anual": 1.055,
-        "tipos_permitidos": ["urs_cartao_pos_pago"],
+        "tipos_permitidos": [
+          "urs_cartao_pos_pago"
+        ],
         "performadas_obrigatorio": true
       },
-      "campos_necessarios": ["valor_presente", "data_vencimento", "taxa_cdi", "tipo_ativo"],
+      "campos_necessarios": [
+        "valor_presente",
+        "data_vencimento",
+        "taxa_cdi",
+        "tipo_ativo"
+      ],
       "funcao_calculo": "calc_criterios_elegibilidade"
     },
     {
@@ -157,11 +173,13 @@
       "ativo": true,
       "frequencia": "diaria",
       "prioridade": "alta",
-      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "campos_necessarios": [
+        "dias_atraso",
+        "valor_presente"
+      ],
       "funcao_calculo": "calc_pdd"
     }
   ],
-
   "triggers_aceleracao": {
     "obrigacao_pecuniaria": {
       "prazo_cura_dias": 15,
@@ -187,7 +205,6 @@
       "notificacao_requerida": true
     }
   },
-
   "monitores_customizados": {
     "arquivos_necessarios": [
       "a55_pool_cartao_2_urs_monitoring.py",
@@ -200,18 +217,11 @@
       "Substituição obrigatória de direitos creditórios inelegíveis pelo originador"
     ]
   },
-
-  "// ================================================": "",
-  "// SEÇÃO 5: DADOS OPERACIONAIS": "",
-  "// Entidades, prestadores e informações operacionais": "",
-  "// ================================================": "",
-
   "prestador_servicos_operacionais": {
     "nome": null,
     "cnpj": null,
     "contrato_data": null
   },
-
   "originador_detalhado": {
     "razao_social": "A55 PAYMENTS LTDA.",
     "cnpj": null,
@@ -219,7 +229,6 @@
     "email_contato": null,
     "responsavel": null
   },
-
   "debenturistas_detalhados": {
     "serie_senior": {
       "nome": null,
