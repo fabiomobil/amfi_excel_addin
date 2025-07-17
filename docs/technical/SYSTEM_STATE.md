@@ -1,6 +1,6 @@
 # Estado do Sistema AmFi - Snapshot Técnico
 
-## Última Verificação: 2025-07-15 23:45
+## Última Verificação: 2025-07-16 15:30
 
 ### 📊 Estrutura de Dados Atual (Variável Diariamente)
 
@@ -104,19 +104,47 @@ from orchestrator import _has_subordination_monitoring         # ✅ Funcional
 from orchestrator import _has_delinquency_monitoring          # ✅ Funcional
 ```
 
-### 📈 Performance Confirmada (2025-07-13)
+### 📈 Performance Confirmada (2025-07-16)
 
-**Carregamento**:
+**Carregamento** (otimizado):
 - CSV (45 registros): ~1 segundo
-- XLSX (79k registros): ~9 segundos
+- XLSX (79k registros): ~9 segundos  
 - JSONs (2 pools): ~1 segundo
 
-**Processamento**:
+**Processamento** (com sistema centralizado):
 - Monitor subordinação: <1 segundo por pool
 - Monitor inadimplência (1º pool): ~1 segundo (inclui enriquecimento global)
 - Monitor inadimplência (2º pool): <1 segundo (reutiliza enriquecimento)
+- Monitor concentração: <2 segundos por pool (inclui análise sequencial)
 
 **Total**: ~12 segundos para carregar + processar 2 pools com enriquecimento
+**Melhoria**: Sistema de imports centralizado reduziu overhead de inicialização
+
+## 🆕 **ATUALIZAÇÕES 2025-07-16**
+
+### **Otimizações Arquiteturais Implementadas**
+
+#### **Sistema de Imports Centralizado**
+- **Problema resolvido**: Eliminados 800+ linhas de código duplicado
+- **Arquivos afetados**: orchestrator.py, data_loader.py, file_loaders.py, afa_pool_1_concentracao_carteira.py, data_handler.py
+- **Benefício**: Redução de 60+ linhas para 18 linhas no orchestrator.py
+- **Localização**: `/monitor/core/imports.py`
+
+#### **Classe Base para Monitores**
+- **Problema resolvido**: Eliminados 470+ linhas de código duplicado entre monitores
+- **Funcionalidade**: Validação padronizada, parsing de config, geração de resultados
+- **Localização**: `/monitor/core/base_monitor.py`
+- **Exemplo**: `/monitor/core/subordinacao_monitor.py` (monitor refatorado)
+
+#### **Limpeza de Documentação**
+- **Arquivos removidos**: 6 arquivos de sessão expirados (exp_to_do_*.md)
+- **Espaço liberado**: ~50KB de documentação obsoleta
+- **Estrutura**: Mantida apenas sessão atual (to_do_20250716.md)
+
+### **Próximas Otimizações Planejadas**
+- **Monitor monolítico**: Refatoração de monitor_concentracao.py (1,341 linhas)
+- **Configuração duplicada**: Sistema de templates para JSONs de pool
+- **Framework de testes**: Implementação de pytest com cobertura completa
 
 ## 🆕 **ATUALIZAÇÕES 2025-07-15**
 

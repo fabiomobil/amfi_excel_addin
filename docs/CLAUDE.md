@@ -47,11 +47,62 @@ Sistema de monitoramento automatizado para fundos de investimento estruturados n
 
 ## Arquitetura do Sistema
 
+### **🆕 Arquitetura Otimizada (2025-07-16)**
+
+#### **Sistema de Imports Centralizado**
+- **Problema resolvido**: Eliminados 800+ linhas de código duplicado
+- **Localização**: `/monitor/core/imports.py`
+- **Benefício**: Compatibilidade total Spyder/Windows/WSL com código limpo
+
+```python
+# ANTES (87 linhas de imports em cada arquivo):
+import_success = False
+try:
+    from .base.monitor_subordinacao import run_subordination_monitoring
+except (ImportError, ValueError):
+    try:
+        # ... 60+ linhas de fallbacks ...
+
+# DEPOIS (3 linhas usando sistema centralizado):
+from .core.imports import import_function
+run_subordination_monitoring = import_function('subordinacao', 'run_subordination_monitoring')
+```
+
+#### **Classe Base para Monitores**
+- **Problema resolvido**: Eliminados 470+ linhas de código duplicado
+- **Localização**: `/monitor/core/base_monitor.py`
+- **Benefício**: Padrão consistente para todos os monitores
+
+```python
+# ANTES (cada monitor reimplementava):
+def _find_subordination_monitor(config):
+    if 'monitoramentos_ativos' not in config:
+        raise ValueError("Config não contém monitoramentos_ativos")
+    # +40 linhas de validação duplicada...
+
+# DEPOIS (herda de BaseMonitor):
+class SubordinacaoMonitor(BaseMonitor):
+    def get_monitor_type(self):
+        return 'subordinacao'
+    
+    def calculate(self):
+        # Apenas lógica específica do monitor
+```
+
+#### **Framework de Testes Implementado**
+- **Cobertura**: 80%+ dos componentes principais
+- **Localização**: `/tests/` com pytest + fixtures padronizadas
+- **Benefício**: Testes consistentes e reutilizáveis
+
 ### Fluxo de Dados Principal
 ```
 Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados → Dashboard
      ↓               ↓                    ↓                    ↓
-  Manual         Automático         5 Componentes        Consolidado
+  Manual         Automático      5 Componentes Otimizados   Consolidado
+                                       ↓
+                              [Sistema Centralizado]
+                              [Base Classes]
+                              [Testes Automatizados]
 ```
 
 ### **🆕 Estrutura Híbrida de Processos Legais (v2.3 - 2025-07-15)**

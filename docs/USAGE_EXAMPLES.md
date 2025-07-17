@@ -13,6 +13,42 @@ A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de mo
 
 ## 1. Uso Básico
 
+### **🆕 Sistema Otimizado (2025-07-16)**
+
+#### **Usando Sistema de Imports Centralizado**
+```python
+# NOVO: Sistema centralizado (3 linhas vs. 87 linhas)
+from monitor.core.imports import import_function
+run_monitoring = import_function('orchestrator', 'run_monitoring', 'util')
+
+# Ou importação direta simplificada
+from monitor.orchestrator import run_monitoring
+```
+
+#### **Usando Classe Base para Monitores Customizados**
+```python
+# NOVO: Criando monitor customizado com BaseMonitor
+from monitor.core.base_monitor import BaseMonitor
+
+class MeuMonitorCustomizado(BaseMonitor):
+    def get_monitor_type(self):
+        return 'meu_monitor'
+    
+    def calculate(self):
+        # Apenas lógica específica - validação e erro handling automáticos
+        pool_data = self._get_pool_data()
+        limite = self._get_config_value('limite', 0.05)
+        
+        return {
+            'resultado': 'calculado',
+            'limite_usado': limite
+        }
+
+# Uso
+monitor = MeuMonitorCustomizado('AFA Pool #1', config, csv_data)
+resultado = monitor.run()  # Automático: validação + cálculo + logging
+```
+
 ### Processar Todos os Pools (Modo Debug)
 ```python
 from monitor.orchestrator import run_monitoring
@@ -403,6 +439,90 @@ if __name__ == "__main__":
    📊 Individual sacado: Empresa ABC (14.1%)
    📊 Top-10 cedente: 67.5%
    💬 Verifique logs para detalhes sobre registros filtrados
+```
+
+## 🧪 **NOVO: Executando Testes (Framework Implementado)**
+
+### **Executar Todos os Testes**
+```bash
+# No diretório raiz do projeto
+pytest
+
+# Com cobertura detalhada
+pytest --cov=monitor --cov-report=html
+
+# Apenas testes unitários
+pytest -m unit
+
+# Apenas testes de integração
+pytest -m integration
+```
+
+### **Testes Específicos**
+```bash
+# Testar sistema de imports
+pytest tests/test_core_imports.py -v
+
+# Testar classe base de monitores
+pytest tests/test_base_monitor.py -v
+
+# Testar orchestrator
+pytest tests/test_orchestrator.py -v
+```
+
+### **Usando Fixtures de Teste**
+```python
+# Em novos arquivos de teste, usar fixtures existentes
+import pytest
+
+def test_meu_monitor(sample_csv_data, sample_pool_config):
+    """Teste usando fixtures padronizadas."""
+    # Usar dados de teste consistentes
+    assert len(sample_csv_data) == 3
+    assert 'AFA Pool #1' in sample_csv_data['nome'].values
+    
+    # Usar configuração de teste padrão
+    assert sample_pool_config['pool_id'] == 'AFA Pool #1'
+    assert len(sample_pool_config['monitoramentos_ativos']) == 3
+
+def test_concentracao_scenarios(sample_concentration_data):
+    """Teste com dados de concentração específicos."""
+    # Dados já preparados para cenários de concentração
+    total_value = sample_concentration_data['valor_presente'].sum()
+    assert total_value == 4000000  # Cenário controlado
+```
+
+### **Criando Novos Testes**
+```python
+# Template para novos testes
+import pytest
+from monitor.core.base_monitor import BaseMonitor
+
+class TestMeuNovoMonitor:
+    """Testes para MeuNovoMonitor."""
+    
+    def test_initialization(self, sample_csv_data, sample_pool_config):
+        """Teste de inicialização."""
+        monitor = MeuNovoMonitor('AFA Pool #1', sample_pool_config, sample_csv_data)
+        assert monitor.pool_id == 'AFA Pool #1'
+        assert monitor.is_active() == True  # Se configurado
+    
+    def test_calculation_logic(self, sample_csv_data, sample_pool_config):
+        """Teste da lógica de cálculo."""
+        monitor = MeuNovoMonitor('AFA Pool #1', sample_pool_config, sample_csv_data)
+        result = monitor.calculate()
+        
+        assert 'resultado' in result
+        assert isinstance(result['resultado'], (int, float))
+    
+    def test_error_handling(self, sample_pool_config):
+        """Teste de tratamento de erro."""
+        empty_csv = pd.DataFrame()
+        monitor = MeuNovoMonitor('AFA Pool #1', sample_pool_config, empty_csv)
+        
+        result = monitor.run()
+        assert result.status == 'error'
+        assert 'validation failed' in result.metadata['reason'].lower()
 ```
 
 **Personalização do Filtro:**

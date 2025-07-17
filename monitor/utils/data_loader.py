@@ -15,56 +15,29 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
-# Sistema de imports robusto para compatibilidade com Spyder e outros ambientes
-import_success = False
+# Centralized import system - eliminates 80+ lines of complex import logic
+from ..core.imports import import_function
 
-# Método 1: Tentar imports relativos (execução como módulo)
+# Import all required functions using centralized system
 try:
-    from .file_loaders import load_dashboard, load_portfolio, load_json_file, get_file_metadata
-    from .data_handler import data_validation, gerar_metadados_carregamento, validar_dados_por_pool
-    from .alerts import log_alerta
-    # from .file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
-    from .data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
-    import_success = True
-except (ImportError, ValueError):
-    pass
-
-# Método 2: Tentar imports diretos (Spyder/execução direta)
-if not import_success:
-    try:
-        # Adicionar diretório atual ao path se necessário
-        import sys
-        if os.path.dirname(__file__) not in sys.path:
-            sys.path.insert(0, os.path.dirname(__file__))
-            
-        from file_loaders import load_dashboard, load_portfolio, load_json_file, get_file_metadata
-        from data_handler import data_validation, gerar_metadados_carregamento, validar_dados_por_pool
-        from alerts import log_alerta
-        # from file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
-        from data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
-        import_success = True
-    except ImportError:
-        pass
-
-# Método 3: Tentar com caminho absoluto
-if not import_success:
-    try:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-        from monitor.utils.file_loaders import load_dashboard, load_portfolio, load_json_file, get_file_metadata
-        from monitor.utils.data_handler import data_validation, gerar_metadados_carregamento, validar_dados_por_pool
-        from monitor.utils.alerts import log_alerta
-        # from monitor.utils.file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
-        from monitor.utils.data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
-        import_success = True
-    except ImportError:
-        pass
-
-# Se todos falharem, usar funções mock
-if not import_success:
+    load_dashboard = import_function('file_loaders', 'load_dashboard', 'util')
+    load_portfolio = import_function('file_loaders', 'load_portfolio', 'util')
+    load_json_file = import_function('file_loaders', 'load_json_file', 'util')
+    get_file_metadata = import_function('file_loaders', 'get_file_metadata', 'util')
+    data_validation = import_function('data_handler', 'data_validation', 'util')
+    gerar_metadados_carregamento = import_function('data_handler', 'gerar_metadados_carregamento', 'util')
+    validar_dados_por_pool = import_function('data_handler', 'validar_dados_por_pool', 'util')
+    log_alerta = import_function('alerts', 'log_alerta', 'util')
+    validar_data_d1 = import_function('data_handler', 'validar_data_d1', 'util')
+    date_check_alert = import_function('data_handler', 'date_check_alert', 'util')
+    gerar_alerta_nao_d1 = import_function('data_handler', 'gerar_alerta_nao_d1', 'util')
+    
+except ImportError as e:
+    # Fallback to mock functions if imports fail
     def log_alerta(alerta):
         print(f"📝 Log: {alerta.get('mensagem', 'Log desconhecido')}")
     
-    log_alerta({"tipo": "warning", "mensagem": "⚠️ Alguns módulos auxiliares não foram encontrados. Usando versões simplificadas."})
+    log_alerta({"tipo": "warning", "mensagem": f"⚠️ Alguns módulos auxiliares não foram encontrados: {e}. Usando versões simplificadas."})
     
     def date_check_alert(csv_date, xlsx_date):
         return {"tipo": "warning", "mensagem": "Verificação de data simplificada"}
@@ -96,6 +69,12 @@ if not import_success:
     
     def get_file_metadata(df):
         return {"arquivo": "mock", "data_arquivo": None, "registros": 0, "colunas": 0}
+    
+    def validar_data_d1(data):
+        return True
+    
+    def gerar_alerta_nao_d1(data):
+        return {"tipo": "warning", "mensagem": "Alerta mock de data não D-1"}
 
 
 def load_pool_data(data: str = None) -> Dict:

@@ -16,22 +16,16 @@ import csv
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
-# Sistema de imports compatível com Spyder e outros ambientes
-import sys
-import os
+# Centralized import system - eliminates complex import logic
+from ..core.imports import import_function
 
-# Tentar imports relativos primeiro
-try:
-    from .data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalize_column_name
-    from .alerts import log_alerta
-    from .path_resolver import get_possible_paths, find_existing_path
-except (ImportError, ValueError):
-    # Fallback para imports diretos (Spyder)
-    if os.path.dirname(__file__) not in sys.path:
-        sys.path.insert(0, os.path.dirname(__file__))
-    from data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalize_column_name
-    from alerts import log_alerta
-    from path_resolver import get_possible_paths, find_existing_path
+# Import required functions using centralized system
+aplicar_conversoes_csv = import_function('data_converters', 'aplicar_conversoes_csv', 'util')
+aplicar_conversoes_xlsx = import_function('data_converters', 'aplicar_conversoes_xlsx', 'util')
+normalize_column_name = import_function('data_converters', 'normalize_column_name', 'util')
+log_alerta = import_function('alerts', 'log_alerta', 'util')
+get_possible_paths = import_function('path_resolver', 'get_possible_paths', 'util')
+find_existing_path = import_function('path_resolver', 'find_existing_path', 'util')
 
 
 # Funções get_possible_paths e find_existing_path agora vêm do path_resolver

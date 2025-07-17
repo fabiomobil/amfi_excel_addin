@@ -16,18 +16,11 @@ import pandas as pd
 import json
 import os
 
-# Sistema de imports compatível com Spyder e outros ambientes
-import sys
-import os
+# Centralized import system - eliminates complex import logic
+from ..core.imports import import_function
 
-# Tentar imports relativos primeiro
-try:
-    from .alerts import log_alerta
-except (ImportError, ValueError):
-    # Fallback para imports diretos (Spyder)
-    if os.path.dirname(__file__) not in sys.path:
-        sys.path.insert(0, os.path.dirname(__file__))
-    from alerts import log_alerta
+# Import required functions using centralized system
+log_alerta = import_function('alerts', 'log_alerta', 'util')
 
 
 def validar_data_d1(data_arquivo: datetime) -> Dict:

@@ -24,47 +24,26 @@ import sys
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 
-# Sistema de imports robusto para compatibilidade com Spyder e outros ambientes
-import_success = False
+# Centralized import system - eliminates complex import logic
+from ..core.imports import import_function
 
-# Método 1: Tentar imports relativos (execução como módulo)
+# Import required functions using centralized system
 try:
-    from ..utils.alerts import log_alerta
-    from ..utils.data_handler import validar_data_d1
-    from ..base.monitor_concentracao import (
-        validar_dados, calcular_concentracao_individual, calcular_concentracao_top_n,
-        gerar_tabela_analise_concentracao, verificar_limite, processar_ignore_list
-    )
-    import_success = True
-except (ImportError, ValueError):
-    pass
-
-# Método 2: Tentar imports diretos (Spyder/execução direta)
-if not import_success:
-    try:
-        # Adicionar diretórios necessários ao path
-        base_path = os.path.dirname(os.path.dirname(__file__))
-        utils_path = os.path.join(base_path, 'utils')
-        base_monitor_path = os.path.join(base_path, 'base')
-        
-        for path in [utils_path, base_monitor_path]:
-            if path not in sys.path:
-                sys.path.insert(0, path)
-                
-        from alerts import log_alerta
-        from data_handler import validar_data_d1
-        from monitor_concentracao import (
-            validar_dados, calcular_concentracao_individual, calcular_concentracao_top_n,
-            gerar_tabela_analise_concentracao, verificar_limite, processar_ignore_list
-        )
-        import_success = True
-    except ImportError:
-        # Fallback: funções básicas sem dependências
-        def log_alerta(alerta):
-            print(f"ALERTA AFA: {alerta}")
-        
-        def validar_data_d1(data):
-            return {"is_d1": True, "data_arquivo": str(data)}
+    log_alerta = import_function('alerts', 'log_alerta', 'util')
+    validar_data_d1 = import_function('data_handler', 'validar_data_d1', 'util')
+    validar_dados = import_function('concentracao', 'validar_dados')
+    calcular_concentracao_individual = import_function('concentracao', 'calcular_concentracao_individual')
+    calcular_concentracao_top_n = import_function('concentracao', 'calcular_concentracao_top_n')
+    gerar_tabela_analise_concentracao = import_function('concentracao', 'gerar_tabela_analise_concentracao')
+    verificar_limite = import_function('concentracao', 'verificar_limite')
+    processar_ignore_list = import_function('concentracao', 'processar_ignore_list')
+except ImportError:
+    # Fallback: funções básicas sem dependências
+    def log_alerta(alerta):
+        print(f"ALERTA AFA: {alerta}")
+    
+    def validar_data_d1(data):
+        return {"is_d1": True, "data_arquivo": str(data)}
 
 
 def obter_valor_carteira_afa(csv_data: Dict[str, Any]) -> float:

@@ -29,61 +29,25 @@ import os
 from typing import Dict, Any, List
 from datetime import datetime
 
-# Sistema de imports compatível com Spyder e outros ambientes
-try:
-    from .base.monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
-    from .base.monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
-    from .base.monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
-    from .base.monitor_concentracao import run_concentration_monitoring, _has_concentration_monitoring
-    from .utils.data_loader import load_pool_data
-    from .utils.alerts import log_alerta
-    from .utils.file_loaders import load_dashboard, load_json_file
-except (ImportError, ValueError):
-    # Fallback para imports diretos (Spyder)
-    if os.path.dirname(__file__) not in sys.path:
-        sys.path.insert(0, os.path.dirname(__file__))
-    if os.path.join(os.path.dirname(__file__), 'base') not in sys.path:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'base'))
-    if os.path.join(os.path.dirname(__file__), 'utils') not in sys.path:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
-        
-    from monitor_subordinacao import run_subordination_monitoring, _find_subordination_monitor
-    from monitor_inadimplencia import run_delinquency_monitoring, _find_delinquency_monitors
-    from monitor_pdd import run_pdd_monitoring, _has_pdd_monitoring
-    from monitor_concentracao import run_concentration_monitoring, _has_concentration_monitoring
-    from data_loader import load_pool_data
-    from alerts import log_alerta
-    from file_loaders import load_dashboard, load_json_file
+# Centralized import system - eliminates 60+ lines of complex import logic
+from .core.imports import import_function, import_util
 
-# Importar função de descoberta de caminhos do módulo centralizado
-try:
-    from .utils.path_resolver import get_possible_paths
-except (ImportError, ValueError):
-    try:
-        # Se estiver rodando de utils/
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
-        from path_resolver import get_possible_paths
-    except ImportError:
-        # Se ainda falhar, tentar do file_loaders como fallback
-        try:
-            from file_loaders import get_possible_paths
-        except ImportError:
-            # Último recurso: definir inline (não ideal, mas funciona)
-            print("⚠️ Usando função get_possible_paths inline como fallback")
-            def get_possible_paths(tipo, nome_base=None):
-                """Fallback inline quando todos os imports falham."""
-                caminhos_base = {
-                    'escrituras': [
-                        "config/pools",
-                        r"C:\amfi\config\pools",
-                        "/mnt/c/amfi/config/pools",
-                        "../../config/pools"
-                    ]
-                }
-                caminhos = caminhos_base.get(tipo, [])
-                if nome_base:
-                    return [os.path.join(c, nome_base) for c in caminhos]
-                return caminhos
+# Import all required functions using centralized system
+run_subordination_monitoring = import_function('subordinacao', 'run_subordination_monitoring')
+_find_subordination_monitor = import_function('subordinacao', '_find_subordination_monitor')
+run_delinquency_monitoring = import_function('inadimplencia', 'run_delinquency_monitoring')
+_find_delinquency_monitors = import_function('inadimplencia', '_find_delinquency_monitors')
+run_pdd_monitoring = import_function('pdd', 'run_pdd_monitoring')
+_has_pdd_monitoring = import_function('pdd', '_has_pdd_monitoring')
+run_concentration_monitoring = import_function('concentracao', 'run_concentration_monitoring')
+_has_concentration_monitoring = import_function('concentracao', '_has_concentration_monitoring')
+
+# Import utilities
+load_pool_data = import_function('data_loader', 'load_pool_data', 'util')
+log_alerta = import_function('alerts', 'log_alerta', 'util')
+load_dashboard = import_function('file_loaders', 'load_dashboard', 'util')
+load_json_file = import_function('file_loaders', 'load_json_file', 'util')
+get_possible_paths = import_function('path_resolver', 'get_possible_paths', 'util')
 
 
 def _has_subordination_monitoring(config: Dict[str, Any]) -> bool:
