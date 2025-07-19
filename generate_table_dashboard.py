@@ -150,17 +150,35 @@ def get_historical_analysis(pool_name, historical_data):
         else:
             status = "ENQUADRADO"
         
-        # Extrair aporte necessário
+        # Extrair aporte necessário ou calcular saque disponível
         aporte_data = subordinacao.get('aporte_necessario', {})
         aporte_minimo = aporte_data.get('para_limite_minimo', 0)
         aporte_critico = aporte_data.get('para_limite_critico', 0)
-        aporte_enquadrar = max(aporte_minimo, aporte_critico)
+        
+        # Verificar se está violado
+        is_violation = violado_critico or violado_minimo
+        
+        if is_violation:
+            # Pool violado: mostrar aporte necessário
+            valor_final_hist = max(aporte_minimo, aporte_critico)
+        else:
+            # Pool enquadrado: calcular saque disponível
+            limite_minimo_decimal = subordinacao.get('limite_minimo', 0)
+            dados_financeiros = subordinacao.get('dados_financeiros', {})
+            pl_atual_hist = dados_financeiros.get('pl_atual', 0)
+            
+            if pl_atual_hist > 0 and limite_minimo_decimal > 0:
+                margem_seguranca = valor_atual/100 - limite_minimo_decimal  # Ambos em decimal
+                saque_disponivel = margem_seguranca * pl_atual_hist
+                valor_final_hist = max(0, saque_disponivel)
+            else:
+                valor_final_hist = 0
         
         analysis.append({
             'data': data_analise,
             'status': status,
             'valor_atual': valor_atual,
-            'aporte_enquadrar': aporte_enquadrar
+            'aporte_enquadrar': valor_final_hist  # Pode ser aporte ou saque
         })
     
     return analysis
@@ -211,8 +229,17 @@ def extract_subordinacao_data(data, historical_data):
                 aporte_minimo = aporte_data.get('para_limite_minimo', 0)
                 aporte_critico = aporte_data.get('para_limite_critico', 0)
                 
-                # O aporte para enquadrar é o maior entre mínimo e crítico
-                aporte_enquadrar = max(aporte_minimo, aporte_critico)
+                # Calcular aporte necessário ou saque disponível
+                if is_violation:
+                    # Para pools violados: aporte para enquadrar
+                    aporte_enquadrar = max(aporte_minimo, aporte_critico)
+                    valor_final_display = aporte_enquadrar
+                else:
+                    # Para pools enquadrados: saque disponível 
+                    # Fórmula: (SubordinaçãoAtual - LimiteMínimo) * PL_atual
+                    margem_seguranca = (valor_atual - limite_minimo) / 100  # Converter para decimal
+                    saque_disponivel = margem_seguranca * pl_atual
+                    valor_final_display = max(0, saque_disponivel)  # Não pode ser negativo
                 
                 # Calcular dias consecutivos de violação
                 dias_consecutivos = calculate_consecutive_violation_days(pool_name, historical_data)
@@ -228,7 +255,7 @@ def extract_subordinacao_data(data, historical_data):
                     'dias_consecutivos': dias_consecutivos,
                     'limite_minimo': limite_minimo,
                     'limite_critico': limite_critico,
-                    'aporte_enquadrar': aporte_enquadrar,
+                    'valor_final_display': valor_final_display,  # Pode ser aporte ou saque
                     'pl_atual': pl_atual,
                     'sr_atual': sr_atual,
                     'jr_atual': jr_atual,
@@ -262,7 +289,7 @@ def generate_subordinacao_table(subordinacao_data):
                         <th>Valor Atual</th>
                         <th>Limite Mínimo</th>
                         <th>Limite Crítico</th>
-                        <th>Aporte para Enquadrar</th>
+                        <th>Aporte p/ Enquadrar / Saque Disponível</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -276,7 +303,7 @@ def generate_subordinacao_table(subordinacao_data):
         valor_atual = f"{pool['valor_atual']:.2f}%"
         limite_minimo = f"{pool['limite_minimo']:.1f}%" if pool['limite_minimo'] else "N/A"
         limite_critico = f"{pool['limite_critico']:.1f}%" if pool['limite_critico'] else "N/A"
-        aporte_enquadrar = f"R$ {pool['aporte_enquadrar']:,.2f}" if pool['aporte_enquadrar'] > 0 else "-"
+        valor_final = f"R$ {pool['valor_final_display']:,.2f}" if pool['valor_final_display'] > 0 else "-"
         
         # Formatar dias consecutivos
         dias_consecutivos = pool['dias_consecutivos']
@@ -300,7 +327,7 @@ def generate_subordinacao_table(subordinacao_data):
                         <td class="value">{valor_atual}</td>
                         <td class="limit">{limite_minimo}</td>
                         <td class="limit">{limite_critico}</td>
-                        <td class="financial">{aporte_enquadrar}</td>
+                        <td class="financial">{valor_final}</td>
                     </tr>
                     <tr id="sub_{pool_id}" class="drilldown-row" style="display: none;">
                         <td colspan="7">
@@ -329,7 +356,7 @@ def generate_subordinacao_table(subordinacao_data):
                                                 <th>Data</th>
                                                 <th>Status</th>
                                                 <th>Valor IS (%)</th>
-                                                <th>Aporte p/ Enquadrar</th>
+                                                <th>Aporte p/ Enquadrar / Saque Disponível</th>
                                             </tr>
                                         </thead>
                                         <tbody>"""
