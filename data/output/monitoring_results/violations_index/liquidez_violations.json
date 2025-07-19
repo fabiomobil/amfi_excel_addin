@@ -1,6 +1,6 @@
 {
   "tipo": "liquidez",
-  "last_updated": "2025-07-18T23:13:30.262843",
+  "last_updated": "2025-07-18T23:28:54.847490",
   "violations": [
     {
       "pool": "Up Vendas Pool #2",
@@ -997,7 +997,7 @@
           }
         }
       },
-      "timestamp": "2025-07-18T23:13:30.256186"
+      "timestamp": "2025-07-18T23:28:54.840300"
     }
   ]
 }

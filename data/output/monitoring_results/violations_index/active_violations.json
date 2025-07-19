@@ -1,5 +1,5 @@
 {
-  "last_updated": "2025-07-18T23:13:30.256196",
+  "last_updated": "2025-07-18T23:28:54.840309",
   "summary": {
     "total_violations": 4,
     "critical_violations": 2,
@@ -26,7 +26,7 @@
         "jr_atual": 2002694.71,
         "denominador_calculo": 23330944.37
       },
-      "timestamp": "2025-07-18T23:13:30.256175"
+      "timestamp": "2025-07-18T23:28:54.840291"
     },
     {
       "pool": "AFA Pool #1",
@@ -43,7 +43,7 @@
         "jr_atual": 2002694.71,
         "denominador_calculo": 23330944.37
       },
-      "timestamp": "2025-07-18T23:13:30.256169"
+      "timestamp": "2025-07-18T23:28:54.840286"
     },
     {
       "pool": "E-ctare Pool #1",
@@ -60,7 +60,7 @@
         "jr_atual": 1951793.47,
         "denominador_calculo": 10316323.21
       },
-      "timestamp": "2025-07-18T23:13:30.256188"
+      "timestamp": "2025-07-18T23:28:54.840303"
     }
   ],
   "concentracao": [],
@@ -1061,7 +1061,7 @@
           }
         }
       },
-      "timestamp": "2025-07-18T23:13:30.256186"
+      "timestamp": "2025-07-18T23:28:54.840300"
     }
   ]
 }

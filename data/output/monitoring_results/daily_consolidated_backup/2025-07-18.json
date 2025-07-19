@@ -1,6 +1,6 @@
 {
-  "execution_date": "2025-07-17",
-  "execution_timestamp": "2025-07-17T18:00:00.000000",
+  "execution_date": "2025-07-18",
+  "execution_timestamp": "2025-07-18T23:13:30.215367",
   "data_sources": {
     "csv_file": "",
     "xlsx_file": ""
@@ -26,17 +26,17 @@
         "subordinacao": {
           "sucesso": true,
           "monitor": "subordination_ratio",
-          "timestamp": "2025-07-18T23:28:54.339288",
-          "data_analise": "2025-07-17",
-          "subordination_ratio": 0.0855,
-          "subordination_ratio_percent": 8.55,
+          "timestamp": "2025-07-18T23:13:29.730147",
+          "data_analise": "2025-07-18",
+          "subordination_ratio": 0.0858,
+          "subordination_ratio_percent": 8.58,
           "limite_minimo": 0.25,
           "limite_critico": 0.2,
           "status_limite_minimo": "violado",
           "status_limite_critico": "violado",
           "aporte_necessario": {
-            "para_limite_minimo": 6346520.30,
-            "para_limite_critico": 4255821.39
+            "para_limite_minimo": 6360100.92,
+            "para_limite_critico": 4269402.01
           },
           "dados_financeiros": {
             "pl_atual": 27091081.59,
@@ -49,7 +49,7 @@
           "sucesso": true,
           "monitor": "inadimplencia",
           "pool_id": "AFA Pool #1",
-          "data_analise": "2025-07-18T23:28:54.407186",
+          "data_analise": "2025-07-18T23:13:29.799558",
           "pl_pool": 27091081.59,
           "enriquecimento": {
             "dias_atraso_adicionado": true,
@@ -717,7 +717,7 @@
           "sucesso": true,
           "monitor": "pdd",
           "pool_id": "AFA Pool #1",
-          "data_analise": "2025-07-18T23:28:54.420828",
+          "data_analise": "2025-07-18T23:13:29.812661",
           "dependencias": {
             "monitor_inadimplencia": "OK - Dados enriquecidos presentes",
             "campos_utilizados": [
@@ -964,8 +964,8 @@
         "concentracao": {
           "sucesso": true,
           "monitor": "concentracao",
-          "timestamp": "2025-07-18T23:28:54.437762",
-          "data_analise": "2025-07-17",
+          "timestamp": "2025-07-18T23:13:29.826402",
+          "data_analise": "2025-07-18",
           "pool_id": "AFA Pool #1",
           "pl_pool": 27091081.59,
           "status_geral": "enquadrado",
@@ -2529,10 +2529,10 @@
             "best_case_surplus": 224121589.11
           },
           "success": true,
-          "timestamp": "2025-07-18T23:28:54.505118"
+          "timestamp": "2025-07-18T23:13:29.892661"
         }
       },
-      "timestamp": "2025-07-18T23:28:54.505127"
+      "timestamp": "2025-07-18T23:13:29.892669"
     },
     "LeCapital Pool #1": {
       "sucesso": true,
@@ -2548,8 +2548,8 @@
         "subordinacao": {
           "sucesso": true,
           "monitor": "subordination_ratio",
-          "timestamp": "2025-07-18T23:28:54.508151",
-          "data_analise": "2025-07-17",
+          "timestamp": "2025-07-18T23:13:29.896282",
+          "data_analise": "2025-07-18",
           "subordination_ratio": 0.2512,
           "subordination_ratio_percent": 25.12,
           "limite_minimo": 0.25,
@@ -2571,7 +2571,7 @@
           "sucesso": true,
           "monitor": "inadimplencia",
           "pool_id": "LeCapital Pool #1",
-          "data_analise": "2025-07-18T23:28:54.514266",
+          "data_analise": "2025-07-18T23:13:29.901983",
           "pl_pool": 8786447.29,
           "enriquecimento": {
             "dias_atraso_adicionado": true,
@@ -2683,7 +2683,7 @@
           "sucesso": true,
           "monitor": "pdd",
           "pool_id": "LeCapital Pool #1",
-          "data_analise": "2025-07-18T23:28:54.525705",
+          "data_analise": "2025-07-18T23:13:29.912814",
           "dependencias": {
             "monitor_inadimplencia": "OK - Dados enriquecidos presentes",
             "campos_utilizados": [
@@ -2881,8 +2881,8 @@
         "concentracao": {
           "sucesso": true,
           "monitor": "concentracao",
-          "timestamp": "2025-07-18T23:28:54.541199",
-          "data_analise": "2025-07-17",
+          "timestamp": "2025-07-18T23:13:29.927698",
+          "data_analise": "2025-07-18",
           "pool_id": "LeCapital Pool #1",
           "pl_pool": 8786447.29,
           "status_geral": "enquadrado",
@@ -4246,10 +4246,10 @@
             "best_case_surplus": 209674806.17
           },
           "success": true,
-          "timestamp": "2025-07-18T23:28:54.606977"
+          "timestamp": "2025-07-18T23:13:29.994364"
         }
       },
-      "timestamp": "2025-07-18T23:28:54.606986"
+      "timestamp": "2025-07-18T23:13:29.994372"
     },
     "Up Vendas Pool #2": {
       "sucesso": true,
@@ -4264,8 +4264,8 @@
         "subordinacao": {
           "sucesso": true,
           "monitor": "subordination_ratio",
-          "timestamp": "2025-07-18T23:28:54.610041",
-          "data_analise": "2025-07-17",
+          "timestamp": "2025-07-18T23:13:29.997461",
+          "data_analise": "2025-07-18",
           "subordination_ratio": 0.3218,
           "subordination_ratio_percent": 32.18,
           "limite_minimo": 0.2,
@@ -4287,7 +4287,7 @@
           "sucesso": true,
           "monitor": "inadimplencia",
           "pool_id": "Up Vendas Pool #2",
-          "data_analise": "2025-07-18T23:28:54.615903",
+          "data_analise": "2025-07-18T23:13:30.003210",
           "pl_pool": 5138882.07,
           "enriquecimento": {
             "dias_atraso_adicionado": true,
@@ -4399,7 +4399,7 @@
           "sucesso": true,
           "monitor": "pdd",
           "pool_id": "Up Vendas Pool #2",
-          "data_analise": "2025-07-18T23:28:54.623712",
+          "data_analise": "2025-07-18T23:13:30.011897",
           "dependencias": {
             "monitor_inadimplencia": "OK - Dados enriquecidos presentes",
             "campos_utilizados": [
@@ -5526,10 +5526,10 @@
             "best_case_surplus": 202279884.36
           },
           "success": true,
-          "timestamp": "2025-07-18T23:28:54.697649"
+          "timestamp": "2025-07-18T23:13:30.103408"
         }
       },
-      "timestamp": "2025-07-18T23:28:54.697656"
+      "timestamp": "2025-07-18T23:13:30.103426"
     },
     "E-ctare Pool #1": {
       "sucesso": true,
@@ -5545,16 +5545,16 @@
         "subordinacao": {
           "sucesso": true,
           "monitor": "subordination_ratio",
-          "timestamp": "2025-07-18T23:28:54.700569",
-          "data_analise": "2025-07-17",
-          "subordination_ratio": 0.1889,
-          "subordination_ratio_percent": 18.89,
+          "timestamp": "2025-07-18T23:13:30.106439",
+          "data_analise": "2025-07-18",
+          "subordination_ratio": 0.1892,
+          "subordination_ratio_percent": 18.92,
           "limite_minimo": 0.2,
           "limite_critico": 0.15,
           "status_limite_minimo": "violado",
           "status_limite_critico": "enquadrado",
           "aporte_necessario": {
-            "para_limite_minimo": 136248.59,
+            "para_limite_minimo": 139338.97,
             "para_limite_critico": 0.0
           },
           "dados_financeiros": {
@@ -5568,7 +5568,7 @@
           "sucesso": true,
           "monitor": "inadimplencia",
           "pool_id": "E-ctare Pool #1",
-          "data_analise": "2025-07-18T23:28:54.710415",
+          "data_analise": "2025-07-18T23:13:30.116546",
           "pl_pool": 10316323.21,
           "enriquecimento": {
             "dias_atraso_adicionado": true,
@@ -5988,7 +5988,7 @@
           "sucesso": true,
           "monitor": "pdd",
           "pool_id": "E-ctare Pool #1",
-          "data_analise": "2025-07-18T23:28:54.719925",
+          "data_analise": "2025-07-18T23:13:30.126255",
           "dependencias": {
             "monitor_inadimplencia": "OK - Dados enriquecidos presentes",
             "campos_utilizados": [
@@ -6172,8 +6172,8 @@
         "concentracao": {
           "sucesso": true,
           "monitor": "concentracao",
-          "timestamp": "2025-07-18T23:28:54.729019",
-          "data_analise": "2025-07-17",
+          "timestamp": "2025-07-18T23:13:30.135179",
+          "data_analise": "2025-07-18",
           "pool_id": "E-ctare Pool #1",
           "pl_pool": 10316323.21,
           "status_geral": "violado",
@@ -7202,10 +7202,10 @@
             "best_case_surplus": 57368467.73
           },
           "success": true,
-          "timestamp": "2025-07-18T23:28:54.790949"
+          "timestamp": "2025-07-18T23:13:30.202632"
         }
       },
-      "timestamp": "2025-07-18T23:28:54.790961"
+      "timestamp": "2025-07-18T23:13:30.202640"
     }
   },
   "violations": [
@@ -7214,34 +7214,34 @@
       "tipo": "subordinacao",
       "subtipo": "limite_minimo",
       "status": "violado",
-      "valor_atual": 8.55,
+      "valor_atual": 8.58,
       "limite_configurado": 25.0,
       "criticidade": "alta",
-      "aporte_necessario": 6346520.30,
+      "aporte_necessario": 6360100.92,
       "dados_financeiros": {
         "pl_atual": 27091081.59,
         "sr_atual": 21328249.66,
         "jr_atual": 2002694.71,
         "denominador_calculo": 23330944.37
       },
-      "timestamp": "2025-07-18T23:28:54.797935"
+      "timestamp": "2025-07-18T23:13:30.215321"
     },
     {
       "pool": "AFA Pool #1",
       "tipo": "subordinacao",
       "subtipo": "limite_critico",
       "status": "violado",
-      "valor_atual": 8.55,
+      "valor_atual": 8.58,
       "limite_configurado": 20.0,
       "criticidade": "critica",
-      "aporte_necessario": 4255821.39,
+      "aporte_necessario": 4269402.01,
       "dados_financeiros": {
         "pl_atual": 27091081.59,
         "sr_atual": 21328249.66,
         "jr_atual": 2002694.71,
         "denominador_calculo": 23330944.37
       },
-      "timestamp": "2025-07-18T23:28:54.797943"
+      "timestamp": "2025-07-18T23:13:30.215329"
     },
     {
       "pool": "Up Vendas Pool #2",
@@ -8238,29 +8238,163 @@
           }
         }
       },
-      "timestamp": "2025-07-18T23:28:54.797958"
+      "timestamp": "2025-07-18T23:13:30.215340"
     },
     {
       "pool": "E-ctare Pool #1",
       "tipo": "subordinacao",
       "subtipo": "limite_minimo",
       "status": "violado",
-      "valor_atual": 18.89,
+      "valor_atual": 18.92,
       "limite_configurado": 20.0,
       "criticidade": "alta",
-      "aporte_necessario": 136248.59,
+      "aporte_necessario": 139338.97,
       "dados_financeiros": {
         "pl_atual": 10316323.21,
         "sr_atual": 8364529.74,
         "jr_atual": 1951793.47,
         "denominador_calculo": 10316323.21
       },
-      "timestamp": "2025-07-18T23:28:54.797961"
+      "timestamp": "2025-07-18T23:13:30.215342"
     }
   ],
   "temporal_analysis": {
-    "status": "no_previous_data",
-    "pools": {}
+    "status": "with_comparison",
+    "comparison_date": "2025-07-17",
+    "pools": {
+      "AFA Pool #1": {
+        "status": "compared",
+        "indicators": {
+          "subordinacao": {
+            "type": "subordinacao",
+            "current_value": 8.58,
+            "previous_value": 8.58,
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "trend": "stable",
+            "status_current": "violado",
+            "status_previous": "violado",
+            "status_changed": false
+          },
+          "concentracao": {
+            "type": "concentracao",
+            "current_violations": 0,
+            "previous_violations": 0,
+            "delta_violations": 0,
+            "trend": "stable",
+            "status_changed": false
+          },
+          "inadimplencia": {
+            "type": "inadimplencia",
+            "status": "insufficient_data"
+          },
+          "liquidez": {
+            "type": "liquidez",
+            "current_sufficient": true,
+            "previous_sufficient": true,
+            "status_changed": false,
+            "trend": "stable"
+          }
+        }
+      },
+      "LeCapital Pool #1": {
+        "status": "compared",
+        "indicators": {
+          "subordinacao": {
+            "type": "subordinacao",
+            "current_value": 25.12,
+            "previous_value": 25.12,
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "trend": "stable",
+            "status_current": "enquadrado",
+            "status_previous": "enquadrado",
+            "status_changed": false
+          },
+          "concentracao": {
+            "type": "concentracao",
+            "current_violations": 0,
+            "previous_violations": 0,
+            "delta_violations": 0,
+            "trend": "stable",
+            "status_changed": false
+          },
+          "inadimplencia": {
+            "type": "inadimplencia",
+            "status": "insufficient_data"
+          },
+          "liquidez": {
+            "type": "liquidez",
+            "current_sufficient": true,
+            "previous_sufficient": true,
+            "status_changed": false,
+            "trend": "stable"
+          }
+        }
+      },
+      "Up Vendas Pool #2": {
+        "status": "compared",
+        "indicators": {
+          "subordinacao": {
+            "type": "subordinacao",
+            "current_value": 32.18,
+            "previous_value": 32.18,
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "trend": "stable",
+            "status_current": "enquadrado",
+            "status_previous": "enquadrado",
+            "status_changed": false
+          },
+          "inadimplencia": {
+            "type": "inadimplencia",
+            "status": "insufficient_data"
+          },
+          "liquidez": {
+            "type": "liquidez",
+            "current_sufficient": false,
+            "previous_sufficient": false,
+            "status_changed": false,
+            "trend": "stable"
+          }
+        }
+      },
+      "E-ctare Pool #1": {
+        "status": "compared",
+        "indicators": {
+          "subordinacao": {
+            "type": "subordinacao",
+            "current_value": 18.92,
+            "previous_value": 18.92,
+            "delta": 0.0,
+            "delta_percent": 0.0,
+            "trend": "stable",
+            "status_current": "violado",
+            "status_previous": "violado",
+            "status_changed": false
+          },
+          "concentracao": {
+            "type": "concentracao",
+            "current_violations": 0,
+            "previous_violations": 0,
+            "delta_violations": 0,
+            "trend": "stable",
+            "status_changed": false
+          },
+          "inadimplencia": {
+            "type": "inadimplencia",
+            "status": "insufficient_data"
+          },
+          "liquidez": {
+            "type": "liquidez",
+            "current_sufficient": true,
+            "previous_sufficient": true,
+            "status_changed": false,
+            "trend": "stable"
+          }
+        }
+      }
+    }
   },
   "execution_stats": {
     "total": 4,
