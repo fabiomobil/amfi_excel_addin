@@ -25,6 +25,7 @@ try:
     from .alerts import log_alerta
     # from .file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
     from .data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
+    from .date_consistency_validator import DateConsistencyValidator
     import_success = True
 except (ImportError, ValueError):
     pass
@@ -42,6 +43,7 @@ if not import_success:
         from alerts import log_alerta
         # from file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
         from data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
+        from date_consistency_validator import DateConsistencyValidator
         import_success = True
     except ImportError:
         pass
@@ -123,6 +125,7 @@ def load_pool_data(data: str = None) -> Dict:
     """
     alertas = []
     monitores_debug = None  # Para armazenar monitores específicos do debug
+    metadados = {}  # Inicializar metadados
     
     try:
         # ETAPA 1: Carregar CSV (dashboard)
@@ -135,6 +138,55 @@ def load_pool_data(data: str = None) -> Dict:
         
         # ETAPA 3: Validações de consistência
         log_alerta({"tipo": "info", "mensagem": "Etapa 3/9: Validando consistência de dados"})
+        
+        # 3.1 Validação de consistência de datas dos arquivos
+        try:
+            date_validator = DateConsistencyValidator()
+            csv_path = csv_df.attrs.get('arquivo_original', '')
+            xlsx_path = xlsx_df.attrs.get('arquivo_original', '')
+            
+            if csv_path and xlsx_path:
+                date_validation_result = date_validator.validate_date_consistency(csv_path, xlsx_path)
+                
+                # Armazenar resultado da validação nos metadados
+                metadados["date_validation"] = date_validation_result
+                
+                if not date_validation_result["consistent"]:
+                    alertas.append({
+                        "tipo": "erro_critico",
+                        "titulo": "Inconsistência de Datas",
+                        "detalhes": date_validation_result
+                    })
+                    
+                # Usar data recomendada para o histórico
+                recommended_date = date_validation_result["recommended_execution_date"]
+                if recommended_date:
+                    metadados["execution_date"] = recommended_date
+                    log_alerta({
+                        "tipo": "info",
+                        "titulo": "Data de Execução",
+                        "mensagem": f"📅 Data para histórico: {recommended_date}",
+                        "detalhes": {
+                            "fonte": "validacao_arquivos",
+                            "consistente": date_validation_result["consistent"]
+                        }
+                    })
+            else:
+                log_alerta({
+                    "tipo": "warning",
+                    "mensagem": "⚠️ Não foi possível validar datas - caminhos de arquivo não disponíveis"
+                })
+                metadados["execution_date"] = datetime.now().strftime('%Y-%m-%d')
+                
+        except Exception as e:
+            log_alerta({
+                "tipo": "warning",
+                "titulo": "Erro na Validação de Datas",
+                "mensagem": f"Falha na validação de datas: {str(e)}"
+            })
+            metadados["execution_date"] = datetime.now().strftime('%Y-%m-%d')
+        
+        # 3.2 Validação de tipos de dados
         validacao_ok = data_validation(csv_df, xlsx_df)
         if not validacao_ok:
             alerta = date_check_alert(csv_df.attrs.get('data_arquivo'), xlsx_df.attrs.get('data_arquivo'))
@@ -196,12 +248,16 @@ def load_pool_data(data: str = None) -> Dict:
         log_alerta({"tipo": "info", "mensagem": "Validações finais por pool"})
         validacoes_finais = validar_dados_por_pool(xlsx_df, configs_pools)
         
-        # Gerar metadados completos
-        metadados = gerar_metadados_carregamento(
+        # Gerar metadados completos preservando date validation
+        metadados_carregamento = gerar_metadados_carregamento(
             get_file_metadata(csv_df),
             get_file_metadata(xlsx_df),
             alertas
         )
+        
+        # Mesclar com metadados de validação de data existentes
+        metadados_carregamento.update(metadados)  # Preserva execution_date e date_validation
+        metadados = metadados_carregamento
         
         resultado = {
             "csv_data": csv_df,

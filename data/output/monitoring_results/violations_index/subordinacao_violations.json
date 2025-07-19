@@ -1,0 +1,57 @@
+{
+  "tipo": "subordinacao",
+  "last_updated": "2025-07-18T23:13:30.260200",
+  "violations": [
+    {
+      "pool": "AFA Pool #1",
+      "tipo": "subordinacao",
+      "subtipo": "limite_critico",
+      "status": "violado",
+      "valor_atual": 8.58,
+      "limite_configurado": 20.0,
+      "criticidade": "critica",
+      "aporte_necessario": 4269402.01,
+      "dados_financeiros": {
+        "pl_atual": 27091081.59,
+        "sr_atual": 21328249.66,
+        "jr_atual": 2002694.71,
+        "denominador_calculo": 23330944.37
+      },
+      "timestamp": "2025-07-18T23:13:30.256175"
+    },
+    {
+      "pool": "AFA Pool #1",
+      "tipo": "subordinacao",
+      "subtipo": "limite_minimo",
+      "status": "violado",
+      "valor_atual": 8.58,
+      "limite_configurado": 25.0,
+      "criticidade": "alta",
+      "aporte_necessario": 6360100.92,
+      "dados_financeiros": {
+        "pl_atual": 27091081.59,
+        "sr_atual": 21328249.66,
+        "jr_atual": 2002694.71,
+        "denominador_calculo": 23330944.37
+      },
+      "timestamp": "2025-07-18T23:13:30.256169"
+    },
+    {
+      "pool": "E-ctare Pool #1",
+      "tipo": "subordinacao",
+      "subtipo": "limite_minimo",
+      "status": "violado",
+      "valor_atual": 18.92,
+      "limite_configurado": 20.0,
+      "criticidade": "alta",
+      "aporte_necessario": 139338.97,
+      "dados_financeiros": {
+        "pl_atual": 10316323.21,
+        "sr_atual": 8364529.74,
+        "jr_atual": 1951793.47,
+        "denominador_calculo": 10316323.21
+      },
+      "timestamp": "2025-07-18T23:13:30.256188"
+    }
+  ]
+}

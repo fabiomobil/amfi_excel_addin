@@ -38,16 +38,20 @@ try:
     from .base.monitor_inadimplencia_oop import run_delinquency_monitoring
     from .base.monitor_pdd_oop import run_pdd_monitoring
     from .base.monitor_concentracao_oop import run_concentration_monitoring
+    from .cash_flow.liquidity_analyzer import LiquidityAnalyzer
     from .utils.data_loader import load_pool_data
     from .utils.alerts import log_alerta
+    from .utils.daily_results_persistence import save_monitoring_results
 except ImportError:
     # Fallback para execução direta
     from base.monitor_subordinacao_oop import SubordinationMonitor
     from base.monitor_inadimplencia_oop import run_delinquency_monitoring
     from base.monitor_pdd_oop import run_pdd_monitoring
     from base.monitor_concentracao_oop import run_concentration_monitoring
+    from cash_flow.liquidity_analyzer import LiquidityAnalyzer
     from utils.data_loader import load_pool_data
     from utils.alerts import log_alerta
+    from utils.daily_results_persistence import save_monitoring_results
 
 
 def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
@@ -62,6 +66,7 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
     - ✅ **Inadimplência**: Análise por janelas customizáveis (30d, 90d, etc.)
     - ✅ **PDD**: Provisão para devedores duvidosos
     - ✅ **Concentração**: Sacados/cedentes individuais e top-N (**NOVO - Building Block 7**)
+    - ✅ **Análise de Liquidez**: Disponibilidade vs próximo pagamento (3 cenários)
     - 🔄 **Vencimento médio**: Prazo médio ponderado da carteira
     - 🔄 **Elegibilidade**: Critérios de ativos válidos
     
@@ -96,7 +101,7 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
             "resultados": {
                 "Pool Name": {
                     "sucesso": bool,
-                    "monitores_executados": ["subordinacao", "inadimplencia", "pdd"],
+                    "monitores_executados": ["subordinacao", "inadimplencia", "pdd", "liquidez"],
                     "resultados": {
                         "subordinacao": {
                             "subordination_ratio_percent": float,
@@ -120,6 +125,29 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
                                     "provisao_valor": float,
                                     "provisao_percentual": float
                                 }
+                            }
+                        },
+                        "liquidez": {
+                            "success": bool,
+                            "next_payment": {
+                                "date": "YYYY-MM-DD",
+                                "amount": float,
+                                "percentage": float
+                            },
+                            "scenarios": {
+                                "optimistic": {
+                                    "sufficient": bool,
+                                    "coverage_ratio": float,
+                                    "gap": float,
+                                    "surplus": float
+                                },
+                                "predicted": {...},
+                                "conservative": {...}
+                            },
+                            "summary": {
+                                "all_scenarios_sufficient": bool,
+                                "worst_case_gap": float,
+                                "best_case_surplus": float
                             }
                         }
                     }
@@ -152,6 +180,20 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
         >>> if 'pdd' in pool_result['resultados']:
         >>>     pdd_result = pool_result['resultados']['pdd']['pdd_analysis']
         >>>     print(f"PDD Total: R$ {pdd_result['totais']['provisao_valor']:,.2f}")
+        >>>
+        >>> # Verificar liquidez (se configurado)
+        >>> if 'liquidez' in pool_result['resultados']:
+        >>>     liquidez_result = pool_result['resultados']['liquidez']
+        >>>     if liquidez_result.get('success'):
+        >>>         scenarios = liquidez_result['scenarios']
+        >>>         print(f"Cenário otimista: {'✅' if scenarios['optimistic']['sufficient'] else '❌'}")
+        >>>         print(f"Cenário conservador: {'✅' if scenarios['conservative']['sufficient'] else '❌'}")
+        >>>
+        >>> # Usar apenas análise de liquidez
+        >>> resultado_liquidez = run_liquidity_analysis("LeCapital Pool #1")
+        >>> if resultado_liquidez['sucesso']:
+        >>>     pool_liquidez = resultado_liquidez['resultados_liquidez']['LeCapital Pool #1']
+        >>>     print(f"Próximo pagamento: R$ {pool_liquidez['next_payment']['amount']:,.2f}")
     """
     try:
         # Carregar dados
@@ -196,7 +238,7 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
                 }
         
         # Consolidar resultados
-        return {
+        resultado_final = {
             "sucesso": True,
             "timestamp": datetime.now().isoformat(),
             "pools_processados": pools_para_processar,
@@ -210,6 +252,27 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
             "xlsx_enriched": dados["xlsx_data"],
             "metadados": dados.get("metadados", {})
         }
+        
+        # Salvar resultados automaticamente
+        try:
+            data_sources = {
+                "csv_file": dados.get("metadados", {}).get("csv_file", ""),
+                "xlsx_file": dados.get("metadados", {}).get("xlsx_file", "")
+            }
+            save_monitoring_results(resultado_final, data_sources)
+            log_alerta({
+                "tipo": "info",
+                "titulo": "Persistência Automática",
+                "mensagem": f"Resultados salvos automaticamente para {len(pools_para_processar)} pools"
+            })
+        except Exception as e:
+            log_alerta({
+                "tipo": "warning",
+                "titulo": "Erro na Persistência",
+                "mensagem": f"Falha ao salvar resultados automaticamente: {str(e)}"
+            })
+        
+        return resultado_final
         
     except Exception as e:
         return {
@@ -287,6 +350,11 @@ def _process_single_pool(pool_name: str, dados: Dict[str, Any]) -> Dict[str, Any
             resultado_conc = run_concentration_monitoring(pool_csv, dados["xlsx_data"], config)
             resultados_monitores["concentracao"] = resultado_conc
         
+        # 5. Monitor de Liquidez (Análise de Fluxo de Caixa)
+        if _has_liquidity_monitoring(config):
+            resultado_liquidez = run_liquidity_monitoring(pool_csv, dados["xlsx_data"], config)
+            resultados_monitores["liquidez"] = resultado_liquidez
+        
         return {
             "sucesso": True,
             "pool": pool_name,
@@ -321,14 +389,178 @@ def _has_concentration_monitoring(config: Dict[str, Any]) -> bool:
     return any(monitor.get('tipo') == 'concentracao' and monitor.get('ativo', False) 
                for monitor in monitoramentos)
 
+def _has_liquidity_monitoring(config: Dict[str, Any]) -> bool:
+    """Verifica se o pool tem cronograma de pagamentos para análise de liquidez."""
+    cronograma_pagamentos = config.get('cronograma_pagamentos', {})
+    cronograma = cronograma_pagamentos.get('cronograma_amortizacao', [])
+    return bool(cronograma)
+
+def run_liquidity_monitoring(pool_csv, xlsx_data, config):
+    """Executa análise de liquidez usando o LiquidityAnalyzer."""
+    try:
+        analyzer = LiquidityAnalyzer(config, pool_csv, xlsx_data)
+        return analyzer.run_full_analysis()
+    except Exception as e:
+        return {
+            'sucesso': False,
+            'erro': str(e),
+            'pool': config.get('pool_name', 'Unknown'),
+            'timestamp': datetime.now().isoformat()
+        }
+
+
+def run_liquidity_analysis(pool_name: str = None) -> Dict[str, Any]:
+    """
+    Interface principal para análise de liquidez apenas.
+    
+    Args:
+        pool_name (str, optional): Nome do pool para análise
+        
+    Returns:
+        Dict[str, Any]: Resultados da análise de liquidez
+    """
+    try:
+        # Carregar dados
+        dados = load_pool_data()
+        
+        if not dados["sucesso"]:
+            return dados
+        
+        # Filtrar pools se específico
+        if pool_name:
+            if pool_name not in dados["pools_processados"]:
+                return {
+                    "sucesso": False,
+                    "erro": f"Pool '{pool_name}' não encontrado",
+                    "pools_disponiveis": dados["pools_processados"]
+                }
+            pools_para_processar = [pool_name]
+        else:
+            pools_para_processar = dados["pools_processados"]
+        
+        # Processar análise de liquidez
+        resultados_liquidez = {}
+        pools_com_sucesso = pools_com_erro = 0
+        
+        for pool in pools_para_processar:
+            try:
+                # Obter configuração do pool
+                config = dados["pools_configs"].get(pool)
+                if not config:
+                    pools_com_erro += 1
+                    continue
+                
+                # Verificar se tem cronograma de amortização
+                if not _has_liquidity_monitoring(config):
+                    pools_com_erro += 1
+                    resultados_liquidez[pool] = {
+                        "sucesso": False,
+                        "erro": "Pool não possui cronograma de pagamentos",
+                        "pool": pool
+                    }
+                    continue
+                
+                # Filtrar dados do pool
+                csv_data = dados["csv_data"]
+                nome_col = 'nome' if 'nome' in csv_data.columns else 'Nome'
+                pool_csv = csv_data[csv_data[nome_col] == pool]
+                
+                xlsx_data = dados["xlsx_data"]
+                pool_xlsx = xlsx_data[xlsx_data['pool'] == pool]
+                
+                if pool_csv.empty or pool_xlsx.empty:
+                    pools_com_erro += 1
+                    resultados_liquidez[pool] = {
+                        "sucesso": False,
+                        "erro": f"Pool '{pool}' não encontrado nos dados",
+                        "pool": pool
+                    }
+                    continue
+                
+                # Enriquecer dados se necessário (para conservative scenario)
+                if 'dias_atraso' not in xlsx_data.columns:
+                    # Trigger enrichment via delinquency monitoring
+                    _ = run_delinquency_monitoring(pool_csv, xlsx_data, config)
+                
+                # Executar análise de liquidez
+                resultado = run_liquidity_monitoring(pool_csv, xlsx_data, config)
+                
+                if resultado.get('success', False):
+                    pools_com_sucesso += 1
+                else:
+                    pools_com_erro += 1
+                
+                resultados_liquidez[pool] = resultado
+                
+            except Exception as e:
+                pools_com_erro += 1
+                resultados_liquidez[pool] = {
+                    "sucesso": False,
+                    "erro": str(e),
+                    "pool": pool,
+                    "timestamp": datetime.now().isoformat()
+                }
+        
+        # Consolidar resultados
+        return {
+            "sucesso": True,
+            "timestamp": datetime.now().isoformat(),
+            "pools_processados": pools_para_processar,
+            "estatisticas": {
+                "total": len(pools_para_processar),
+                "sucesso": pools_com_sucesso,
+                "erro": pools_com_erro,
+                "taxa_sucesso": round(pools_com_sucesso / len(pools_para_processar) * 100, 1) if pools_para_processar else 0
+            },
+            "resultados_liquidez": resultados_liquidez
+        }
+        
+    except Exception as e:
+        return {
+            "sucesso": False,
+            "erro": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+
 
 if __name__ == "__main__":
     # Exemplo de uso direto
     print("🎯 ORQUESTRADOR DE MONITORAMENTO - Todos os Monitores")
     print("=" * 60)
     
-    # Executar para pools de teste (NOVO: inclui inadimplência)
+    # Executar para pools de teste (NOVO: inclui inadimplência + liquidez)
     resultado = run_monitoring()
+    
+    # Exemplo de análise de liquidez apenas
+    print("\n💧 ANÁLISE DE LIQUIDEZ APENAS")
+    print("=" * 60)
+    resultado_liquidez = run_liquidity_analysis()
+    
+    if resultado_liquidez.get("sucesso"):
+        print(f"✅ Análise de liquidez concluída para {resultado_liquidez['estatisticas']['total']} pools")
+        print(f"   📊 Taxa de sucesso: {resultado_liquidez['estatisticas']['taxa_sucesso']}%")
+        
+        # Mostrar resumo de liquidez
+        for pool_name, pool_result in resultado_liquidez["resultados_liquidez"].items():
+            print(f"\n🏦 {pool_name}:")
+            if pool_result.get('success', False):
+                scenarios = pool_result.get('scenarios', {})
+                summary = pool_result.get('summary', {})
+                
+                all_sufficient = summary.get('all_scenarios_sufficient', False)
+                status = "✅ Todos os cenários suficientes" if all_sufficient else "⚠️ Alguns cenários insuficientes"
+                print(f"   {status}")
+                
+                if not all_sufficient:
+                    worst_gap = summary.get('worst_case_gap', 0)
+                    print(f"   📉 Pior gap: R$ {worst_gap:,.2f}")
+                else:
+                    best_surplus = summary.get('best_case_surplus', 0)
+                    print(f"   📈 Melhor sobra: R$ {best_surplus:,.2f}")
+            else:
+                print(f"   ❌ Erro: {pool_result.get('error', 'N/A')}")
+    else:
+        print(f"❌ Erro na análise de liquidez: {resultado_liquidez.get('erro', 'N/A')}")
     
     if resultado.get("sucesso"):
         stats = resultado["estatisticas"]
@@ -384,6 +616,43 @@ if __name__ == "__main__":
                         }
                         if grupos_com_exposicao:
                             print(f"     - Grupos com exposição: {', '.join(grupos_com_exposicao.keys())}")
+            
+            # Resultados de Liquidez
+            if 'liquidez' in pool_result.get('resultados', {}):
+                liquidez_result = pool_result['resultados']['liquidez']
+                print(f"   💧 Análise de Liquidez:")
+                if 'success' in liquidez_result and liquidez_result['success']:
+                    if 'next_payment' in liquidez_result:
+                        next_payment = liquidez_result['next_payment']
+                        print(f"     - Próximo pagamento: R$ {next_payment.get('amount', 0):,.2f} ({next_payment.get('date', 'N/A')})")
+                    
+                    if 'scenarios' in liquidez_result:
+                        scenarios = liquidez_result['scenarios']
+                        print(f"     - Cenários de liquidez:")
+                        for scenario_name, scenario_data in scenarios.items():
+                            sufficient = scenario_data.get('sufficient', False)
+                            status = '✅ Suficiente' if sufficient else '❌ Insuficiente'
+                            coverage = scenario_data.get('coverage_ratio', 0)
+                            print(f"       • {scenario_name.capitalize()}: {status} (cobertura: {coverage:.2f}x)")
+                            
+                            if not sufficient and scenario_data.get('gap', 0) > 0:
+                                gap = scenario_data.get('gap', 0)
+                                print(f"         Gap: R$ {gap:,.2f}")
+                            elif sufficient and scenario_data.get('surplus', 0) > 0:
+                                surplus = scenario_data.get('surplus', 0)
+                                print(f"         Sobra: R$ {surplus:,.2f}")
+                else:
+                    print(f"     - Erro na análise: {liquidez_result.get('error', 'N/A')}")
         
     else:
         print(f"❌ Falha na orquestração: {resultado.get('erro', 'Erro desconhecido')}")
+        
+        # Tentar pelo menos a análise de liquidez
+        print("\n🔧 Tentando análise de liquidez isolada...")
+        resultado_liquidez = run_liquidity_analysis()
+        
+        if resultado_liquidez.get("sucesso"):
+            print(f"✅ Análise de liquidez funcionou isoladamente")
+            print(f"   📊 {resultado_liquidez['estatisticas']['sucesso']} pools com sucesso")
+        else:
+            print(f"❌ Análise de liquidez também falhou: {resultado_liquidez.get('erro', 'N/A')}")

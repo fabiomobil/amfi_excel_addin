@@ -1,7 +1,12 @@
 # Diretrizes de Validação de Schema JSON para Monitoramento de Pools AmFi
 
 ## Visão Geral
-Este documento define regras de validação para arquivos JSON de pools para garantir compatibilidade com o código Python de monitoramento.
+Este documento consolida regras de validação para arquivos JSON de pools, processos de extração de features e checklists operacionais para garantir compatibilidade com o código Python de monitoramento e conformidade regulatória.
+
+> **Documentos Consolidados:**
+> - Processos de extração de features de documentos legais
+> - Checklists operacionais para conversão de escrituras
+> - Validação de schema JSON e compatibilidade Python
 
 ## Requisitos de Tipos de Dados
 
@@ -201,11 +206,88 @@ for evento in pool_data["eventos_de_monitoramento"]:
 6. **Estruturas inconsistentes**: Pools diferentes usando nomes de campos diferentes para o mesmo conceito
 7. **Erros de cálculo de porcentagem**: Usar decimais sem ajustar cálculos (ex: `valor * 0.05` não `valor * 0.05 / 100`)
 
+## Processo de Extração de Features de Documentos Legais
+
+### Metodologia Sistemática
+
+#### Termos de Busca Obrigatórios
+Buscar TODOS os termos no documento legal:
+
+**Termos de Recuperação:**
+- "direito de regresso", "recovery", "recuperação", "recompra", "substituição", "fraud", "fraude", "má formalização", "recovery rate", "cobrança"
+
+**Monitoramento Temporal:**
+- Números seguidos de "dias" ou "meses", "prazo", "vencimento", "antecipado", "cura"
+
+**Limites Financeiros:**
+- Símbolos %, "limite", "concentração", "subordinação", "inadimplência", valores monetários
+
+**Conformidade:**
+- "monitoramento", "evento", "violação", "critério", "elegibilidade", "provisão", "risco", "atraso"
+
+#### Checklist de Extração por Feature
+
+**A. Limites de Concentração**
+- [ ] Devedor individual: Percentual máximo por entidade
+- [ ] Cedente individual: Percentual máximo por originador
+- [ ] Análise Top N: Limites agregados para maiores entidades
+- [ ] Específico por instituição: Limites especiais para parceiros
+
+**B. Métricas de Performance**
+- [ ] Índice de subordinação: Limites mínimos e frequência
+- [ ] Taxas de inadimplência: Percentuais para faixas de atraso
+- [ ] Taxas de recuperação: Percentuais mínimos e métodos
+- [ ] Qualidade do portfólio: Métricas e limites
+
+**C. Mecanismos de Recuperação**
+- [ ] Direito de regresso: Condições, gatilhos, taxas esperadas
+- [ ] Recompra obrigatória: Eventos, prazos, critérios
+- [ ] Cobrança: Agentes, performance mínima, relatórios
+
+**D. Provisionamento de Risco**
+- [ ] Grupos de risco: Sistema de classificação (AA-H)
+- [ ] Faixas de atraso: Dias para cada categoria
+- [ ] Percentuais de provisão: Taxas por grupo
+- [ ] Regras de reclassificação: Critérios de mudança
+
+### Validação de Qualidade
+
+#### Pontuação de Completude (100 pontos)
+- **Informações Básicas**: 20 pontos
+- **Estrutura Financeira**: 15 pontos
+- **Eventos de Monitoramento**: 25 pontos
+- **Mecanismos de Recuperação**: 20 pontos
+- **Provisionamento de Risco**: 10 pontos
+- **Validação Técnica**: 10 pontos
+
+#### Limites de Qualidade
+- **95-100**: Excelente - Pronto para produção
+- **85-94**: Bom - Pequenos ajustes necessários
+- **75-84**: Aceitável - Algumas features podem estar faltando
+- **<75**: Incompleto - Requer revisão abrangente
+
+### Red Flags (Indicadores de Features Ausentes)
+- Pool com significativamente menos eventos que outros
+- Nenhum mecanismo de recuperação identificado
+- Falta de prazos baseados em tempo
+- Estrutura incomumente simples
+- Cálculos de taxa de recuperação enterrados em descrições
+- Limites de concentração implícitos não declarados
+
 ## Evolução Futura do Schema
 
 Ao adicionar novos pools ou atualizar existentes:
-1. Sempre siga estas regras de validação
-2. Adicione novos campos como estruturas padronizadas
-3. Use flags `ativo` para regras opcionais
-4. Mantenha compatibilidade retroativa
-5. Teste com código genérico de monitoramento antes da implantação
+1. **Siga o processo de extração sistemática** usando os termos de busca obrigatórios
+2. **Valide completude** usando o checklist de features por categoria
+3. **Pontue qualidade** usando os critérios de 100 pontos
+4. **Sempre siga as regras de validação técnica** deste documento
+5. **Adicione novos campos** como estruturas padronizadas
+6. **Use flags `ativo`** para regras opcionais
+7. **Mantenha compatibilidade retroativa**
+8. **Teste com código genérico** de monitoramento antes da implantação
+
+### Melhoria Contínua
+- Documentar features perdidas durante extração inicial
+- Atualizar termos de busca baseados em novas descobertas
+- Aprimorar checklist com padrões específicos do pool
+- Desenvolver scripts de validação automatizados

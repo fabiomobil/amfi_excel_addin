@@ -1,0 +1,750 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmFi - Dashboard Operacional Completo</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .last-updated {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .temporal-status {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .temporal-status.with-data {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .temporal-status.no-data {
+            background: rgba(255,193,7,0.3);
+        }
+        
+        .executive-summary {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .executive-summary h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-card {
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-card.pools {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .summary-card.violations {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+        
+        .summary-card.compliance {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+        
+        .summary-card.trend {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .summary-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .summary-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .summary-card .detail {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .trend-indicator {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .pools-overview {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .pools-overview h2 {
+            color: #667eea;
+            padding: 25px 30px 0;
+            font-size: 1.8em;
+        }
+        
+        .pool-section {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .pool-section:last-child {
+            border-bottom: none;
+        }
+        
+        .pool-header {
+            padding: 20px 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .pool-header:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .pool-header h3 {
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .pool-status {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .badge.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge.violation {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .expand-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+        
+        .pool-details {
+            padding: 0 30px 30px;
+            background: #f8f9fa;
+        }
+        
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .indicator-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+        
+        .indicator-card.ok {
+            border-left-color: #28a745;
+        }
+        
+        .indicator-card.violation {
+            border-left-color: #dc3545;
+        }
+        
+        .indicator-card h4 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .indicator-value {
+            margin-bottom: 15px;
+        }
+        
+        .main-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+            display: block;
+        }
+        
+        .limit-info, .violations-info, .next-payment {
+            font-size: 0.9em;
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .breakdown {
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .breakdown span {
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .delta-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .delta-symbol {
+            font-size: 1.2em;
+        }
+        
+        .delta-value {
+            font-weight: 600;
+        }
+        
+        .delta-label {
+            font-size: 0.8em;
+            color: #666;
+        }
+        
+        .status-info {
+            text-align: center;
+        }
+        
+        .status-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .status-badge.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.violation {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .empty-state {
+            background: white;
+            padding: 60px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state h2 {
+            color: #ffc107;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .pool-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 AmFi - Dashboard Operacional Completo</h1>
+            <p class="last-updated">Data: 18/07/2025 | Atualizado: 18/07/2025 23:13:30</p>
+            <div class="temporal-status with-data">📅 Comparação com: 17/07/2025</div>
+        </header>
+        
+        <div class="executive-summary">
+            <h2>📈 Resumo Executivo</h2>
+            <div class="summary-grid">
+                <div class="summary-card pools">
+                    <h3>Pools Monitorados</h3>
+                    <span class="number">4</span>
+                </div>
+                <div class="summary-card violations">
+                    <h3>Violações Ativas</h3>
+                    <span class="number">4</span>
+                    <span class="detail">(2 críticas)</span>
+                </div>
+                <div class="summary-card compliance">
+                    <h3>Taxa de Compliance</h3>
+                    <span class="number">25%</span>
+                </div>
+                <div class="summary-card trend">
+                    <h3>Tendência Geral</h3>
+                    <span class="trend-indicator">➡️ Estável</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pools-overview"><h2>🏦 Visão Geral dos Pools</h2>
+            <div class="pool-section">
+                <div class="pool-header" onclick="togglePoolDetails('AFA_Pool__1')">
+                    <h3>AFA Pool #1</h3>
+                    <div class="pool-status">
+                        <span class="badge violation">SUB: 8.58%</span><span class="badge ok">INAD: OK</span><span class="badge ok">CONC: OK</span><span class="badge ok">LIQ: OK</span>
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                
+                <div class="pool-details" id="pool_AFA_Pool__1" style="display: none;">
+                    <div class="indicators-grid">
+        <div class="indicator-card subordinacao violation">
+            <h4>📈 Subordinação</h4>
+            <div class="indicator-value">
+                <span class="main-value">8.58%</span>
+                <span class="limit-info">Limite: 25.0%</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0.00%</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge violation">VIOLADO</span>
+            </div>
+        </div>
+        <div class="indicator-card inadimplencia ok">
+            <h4>⏰ Inadimplência</h4>
+            <div class="indicator-value">
+                <span class="main-value">0.00%</span>
+                <span class="violations-info">0 violação(ões)</span>
+            </div>
+            
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card concentracao ok">
+            <h4>🎯 Concentração</h4>
+            <div class="indicator-value">
+                <span class="main-value">0</span>
+                <span class="violations-info">violações ativas</span>
+            </div>
+            <div class="breakdown">
+                <span>Sacados: 0</span>
+                <span>Cedentes: 0</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0</span>
+                <span class="delta-label">violações vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card liquidez ok">
+            <h4>💧 Liquidez</h4>
+            <div class="indicator-value">
+                <span class="main-value">Suficiente</span>
+                <span class="next-payment">Próximo: 2026-10-07</span>
+            </div>
+            <div class="breakdown">
+                <span>Valor: R$ 1,505,061</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">Status mantido</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">
+                    OK
+                </span>
+            </div>
+        </div></div>
+                </div>
+            </div>
+            <div class="pool-section">
+                <div class="pool-header" onclick="togglePoolDetails('LeCapital_Pool__1')">
+                    <h3>LeCapital Pool #1</h3>
+                    <div class="pool-status">
+                        <span class="badge ok">SUB: 25.12%</span><span class="badge ok">INAD: OK</span><span class="badge ok">CONC: OK</span><span class="badge ok">LIQ: OK</span>
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                
+                <div class="pool-details" id="pool_LeCapital_Pool__1" style="display: none;">
+                    <div class="indicators-grid">
+        <div class="indicator-card subordinacao ok">
+            <h4>📈 Subordinação</h4>
+            <div class="indicator-value">
+                <span class="main-value">25.12%</span>
+                <span class="limit-info">Limite: 25.0%</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0.00%</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">ENQUADRADO</span>
+            </div>
+        </div>
+        <div class="indicator-card inadimplencia ok">
+            <h4>⏰ Inadimplência</h4>
+            <div class="indicator-value">
+                <span class="main-value">0.00%</span>
+                <span class="violations-info">0 violação(ões)</span>
+            </div>
+            
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card concentracao ok">
+            <h4>🎯 Concentração</h4>
+            <div class="indicator-value">
+                <span class="main-value">0</span>
+                <span class="violations-info">violações ativas</span>
+            </div>
+            <div class="breakdown">
+                <span>Sacados: 0</span>
+                <span>Cedentes: 0</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0</span>
+                <span class="delta-label">violações vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card liquidez ok">
+            <h4>💧 Liquidez</h4>
+            <div class="indicator-value">
+                <span class="main-value">Suficiente</span>
+                <span class="next-payment">Próximo: 2026-10-18</span>
+            </div>
+            <div class="breakdown">
+                <span>Valor: R$ 488,136</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">Status mantido</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">
+                    OK
+                </span>
+            </div>
+        </div></div>
+                </div>
+            </div>
+            <div class="pool-section">
+                <div class="pool-header" onclick="togglePoolDetails('Up_Vendas_Pool__2')">
+                    <h3>Up Vendas Pool #2</h3>
+                    <div class="pool-status">
+                        <span class="badge ok">SUB: 32.18%</span><span class="badge ok">INAD: OK</span><span class="badge violation">LIQ: Insuficiente</span>
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                
+                <div class="pool-details" id="pool_Up_Vendas_Pool__2" style="display: none;">
+                    <div class="indicators-grid">
+        <div class="indicator-card subordinacao ok">
+            <h4>📈 Subordinação</h4>
+            <div class="indicator-value">
+                <span class="main-value">32.18%</span>
+                <span class="limit-info">Limite: 20.0%</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0.00%</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">ENQUADRADO</span>
+            </div>
+        </div>
+        <div class="indicator-card inadimplencia ok">
+            <h4>⏰ Inadimplência</h4>
+            <div class="indicator-value">
+                <span class="main-value">0.00%</span>
+                <span class="violations-info">0 violação(ões)</span>
+            </div>
+            
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card liquidez violation">
+            <h4>💧 Liquidez</h4>
+            <div class="indicator-value">
+                <span class="main-value">Insuficiente</span>
+                <span class="next-payment">Próximo: 2028-04-28</span>
+            </div>
+            <div class="breakdown">
+                <span>Valor: R$ 5,138,882</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">Status mantido</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge violation">
+                    CRÍTICO
+                </span>
+            </div>
+        </div></div>
+                </div>
+            </div>
+            <div class="pool-section">
+                <div class="pool-header" onclick="togglePoolDetails('E_ctare_Pool__1')">
+                    <h3>E-ctare Pool #1</h3>
+                    <div class="pool-status">
+                        <span class="badge violation">SUB: 18.92%</span><span class="badge ok">INAD: OK</span><span class="badge ok">CONC: OK</span><span class="badge ok">LIQ: OK</span>
+                    </div>
+                    <span class="expand-icon">▼</span>
+                </div>
+                
+                <div class="pool-details" id="pool_E_ctare_Pool__1" style="display: none;">
+                    <div class="indicators-grid">
+        <div class="indicator-card subordinacao violation">
+            <h4>📈 Subordinação</h4>
+            <div class="indicator-value">
+                <span class="main-value">18.92%</span>
+                <span class="limit-info">Limite: 20.0%</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0.00%</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge violation">VIOLADO</span>
+            </div>
+        </div>
+        <div class="indicator-card inadimplencia ok">
+            <h4>⏰ Inadimplência</h4>
+            <div class="indicator-value">
+                <span class="main-value">0.00%</span>
+                <span class="violations-info">0 violação(ões)</span>
+            </div>
+            
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card concentracao ok">
+            <h4>🎯 Concentração</h4>
+            <div class="indicator-value">
+                <span class="main-value">0</span>
+                <span class="violations-info">violações ativas</span>
+            </div>
+            <div class="breakdown">
+                <span>Sacados: 0</span>
+                <span>Cedentes: 0</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">+0</span>
+                <span class="delta-label">violações vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">
+                    CONFORME
+                </span>
+            </div>
+        </div>
+        <div class="indicator-card liquidez ok">
+            <h4>💧 Liquidez</h4>
+            <div class="indicator-value">
+                <span class="main-value">Suficiente</span>
+                <span class="next-payment">Próximo: 2025-07-28</span>
+            </div>
+            <div class="breakdown">
+                <span>Valor: R$ 515,816</span>
+            </div>
+            
+            <div class="delta-info">
+                <span class="delta-symbol" style="color: gray">➡️</span>
+                <span class="delta-value">Status mantido</span>
+                <span class="delta-label">vs D-1</span>
+            </div>
+            <div class="status-info">
+                <span class="status-badge ok">
+                    OK
+                </span>
+            </div>
+        </div></div>
+                </div>
+            </div></div>
+        
+        <footer>
+            <p>AmFi Monitoring System - 2025 | Gerado automaticamente</p>
+        </footer>
+    </div>
+    
+    <script>
+        
+        function togglePoolDetails(poolId) {
+            const element = document.getElementById('pool_' + poolId);
+            const icon = element.parentElement.querySelector('.expand-icon');
+            
+            if (element.style.display === 'none' || element.style.display === '') {
+                element.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                element.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // Auto-refresh a cada 5 minutos
+        setTimeout(function() {
+            location.reload();
+        }, 300000);
+        
+        // Expandir/contrair todos os pools
+        function toggleAllPools() {
+            const pools = document.querySelectorAll('.pool-details');
+            const allExpanded = Array.from(pools).every(pool => pool.style.display === 'block');
+            
+            pools.forEach(pool => {
+                const poolId = pool.id.replace('pool_', '');
+                togglePoolDetails(poolId);
+            });
+        }
+        
+        // Adicionar botão para expandir todos
+        window.addEventListener('load', function() {
+            const header = document.querySelector('.pools-overview h2');
+            if (header) {
+                header.innerHTML += ' <button onclick="toggleAllPools()" style="margin-left: 15px; padding: 5px 10px; border: none; background: #667eea; color: white; border-radius: 5px; cursor: pointer;">Toggle All</button>';
+            }
+        });
+        
+    </script>
+</body>
+</html>

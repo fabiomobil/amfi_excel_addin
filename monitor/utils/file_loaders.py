@@ -133,6 +133,7 @@ def load_dashboard(data: str = None, pool: str = None) -> pd.DataFrame:
         
         # Adicionar metadados ao DataFrame
         df.attrs['arquivo'] = arquivo_escolhido
+        df.attrs['arquivo_original'] = arquivo_escolhido  # Para validação de datas
         df.attrs['data_arquivo'] = datetime.fromtimestamp(os.path.getmtime(arquivo_escolhido))
         
         # Aplicar conversões automaticamente
@@ -206,6 +207,7 @@ def load_portfolio(data: str = None, pool: str = None) -> pd.DataFrame:
         
         # Adicionar metadados ao DataFrame
         df.attrs['arquivo'] = arquivo_escolhido
+        df.attrs['arquivo_original'] = arquivo_escolhido  # Para validação de datas
         df.attrs['data_arquivo'] = datetime.fromtimestamp(os.path.getmtime(arquivo_escolhido))
         
         # Aplicar conversões automaticamente
