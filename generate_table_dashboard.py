@@ -114,8 +114,8 @@ def get_historical_analysis(pool_name, historical_data):
     if not historical_data:
         return analysis
     
-    # Percorrer histórico do mais recente para o mais antigo (últimos 7 dias)
-    for entry in reversed(historical_data[-7:]):
+    # Percorrer histórico do mais recente para o mais antigo (máximo 10 dias disponíveis)
+    for entry in reversed(historical_data[-10:]):
         data = entry['data']
         pools = data.get('pools', {})
         
@@ -183,19 +183,25 @@ def get_historical_analysis(pool_name, historical_data):
     
     return analysis
 
-def extract_subordinacao_data(data, historical_data):
-    """Extrai dados de subordinação de todos os pools."""
-    subordinacao_pools = []
+def get_most_recent_pool_status(pool_name, historical_data):
+    """
+    Busca o status mais recente de um pool no histórico.
+    Retorna (status_detalhado, is_violation, valor_atual) da data mais recente disponível.
+    """
+    if not historical_data:
+        return None, None, None
     
-    pools = data.get('pools', {})
-    
-    for pool_name, pool_data in pools.items():
-        if pool_data.get('sucesso', False):
-            resultados = pool_data.get('resultados', {})
+    # Percorrer histórico do mais recente para o mais antigo
+    for entry in reversed(historical_data):
+        data = entry['data']
+        pools = data.get('pools', {})
+        
+        if pool_name in pools and pools[pool_name].get('sucesso', False):
+            resultados = pools[pool_name].get('resultados', {})
             subordinacao = resultados.get('subordinacao', {})
             
             if subordinacao:
-                # Extrair dados básicos
+                # Extrair dados básicos da data mais recente
                 valor_atual = subordinacao.get('subordination_ratio_percent', 0)
                 status_minimo = subordinacao.get('status_limite_minimo', 'unknown')
                 status_critico = subordinacao.get('status_limite_critico', 'unknown')
@@ -213,6 +219,89 @@ def extract_subordinacao_data(data, historical_data):
                 else:
                     status_detalhado = "ENQUADRADO"
                     is_violation = False
+                
+                return status_detalhado, is_violation, valor_atual
+    
+    return None, None, None
+
+def get_most_recent_pool_data(pool_name, historical_data):
+    """
+    Busca todos os dados mais recentes de um pool no histórico.
+    Retorna todos os dados de subordinação da data mais recente disponível.
+    """
+    if not historical_data:
+        return None
+    
+    # Percorrer histórico do mais recente para o mais antigo
+    for entry in reversed(historical_data):
+        data = entry['data']
+        pools = data.get('pools', {})
+        
+        if pool_name in pools and pools[pool_name].get('sucesso', False):
+            resultados = pools[pool_name].get('resultados', {})
+            subordinacao = resultados.get('subordinacao', {})
+            
+            if subordinacao:
+                return subordinacao
+    
+    return None
+
+def extract_subordinacao_data(data, historical_data):
+    """Extrai dados de subordinação de todos os pools."""
+    subordinacao_pools = []
+    
+    pools = data.get('pools', {})
+    
+    for pool_name, pool_data in pools.items():
+        if pool_data.get('sucesso', False):
+            resultados = pool_data.get('resultados', {})
+            subordinacao_base = resultados.get('subordinacao', {})
+            
+            if subordinacao_base:
+                # NOVA LÓGICA: Usar dados mais recentes para header
+                subordinacao_recente = get_most_recent_pool_data(pool_name, historical_data)
+                status_recente, is_violation_atual, valor_atual_recente = get_most_recent_pool_status(pool_name, historical_data)
+                
+                # Se encontrarmos dados mais recentes, usar eles; senão usar dados da data base
+                if subordinacao_recente and valor_atual_recente is not None:
+                    # Usar dados mais recentes
+                    subordinacao = subordinacao_recente
+                    valor_atual = valor_atual_recente
+                    status_detalhado = status_recente
+                    is_violation = is_violation_atual
+                    
+                    # Comparar com dados da data base para detectar mudanças
+                    valor_atual_base = subordinacao_base.get('subordination_ratio_percent', 0)
+                    status_minimo_base = subordinacao_base.get('status_limite_minimo', 'unknown')
+                    status_critico_base = subordinacao_base.get('status_limite_critico', 'unknown')
+                    
+                    violado_minimo_base = 'violado' in status_minimo_base.lower()
+                    violado_critico_base = 'violado' in status_critico_base.lower()
+                    is_violation_data_base = violado_critico_base or violado_minimo_base
+                    
+                    # Não mostrar indicadores de mudança na visualização atual
+                    # O indicador deveria ter aparecido apenas no dia que reenquadrou
+                    pass
+                else:
+                    # Fallback: usar dados da data base
+                    subordinacao = subordinacao_base
+                    valor_atual = subordinacao.get('subordination_ratio_percent', 0)
+                    status_minimo = subordinacao.get('status_limite_minimo', 'unknown')
+                    status_critico = subordinacao.get('status_limite_critico', 'unknown')
+                    
+                    # Determinar status detalhado baseado na data base
+                    violado_minimo = 'violado' in status_minimo.lower()
+                    violado_critico = 'violado' in status_critico.lower()
+                    
+                    if violado_critico:
+                        status_detalhado = "VIOLADO CRÍTICO"
+                        is_violation = True
+                    elif violado_minimo:
+                        status_detalhado = "VIOLADO MÍNIMO"
+                        is_violation = True
+                    else:
+                        status_detalhado = "ENQUADRADO"
+                        is_violation = False
                 
                 # Extrair dados financeiros se disponíveis
                 dados_financeiros = subordinacao.get('dados_financeiros', {})
@@ -867,7 +956,7 @@ def generate_table_dashboard_html(data, date):
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>
-            <p class="date-info">Data de Referência: {date} | Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+            <p class="date-info">Data Base: {date} | Executado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
             
             <div class="summary-stats">
                 <div class="stat-item">
@@ -905,8 +994,8 @@ def generate_table_dashboard_html(data, date):
     <!-- Modal de Confirmação -->
     <div id="confirmModal" class="modal">
         <div class="modal-content">
-            <h3>⚠️ Monitoramento já executado hoje</h3>
-            <p>O monitoramento já foi executado hoje. Deseja executar novamente e sobrescrever os resultados existentes?</p>
+            <h3>⚠️ Monitoramento já executado</h3>
+            <p>O monitoramento já foi executado para esta data base. Deseja executar novamente e sobrescrever os resultados existentes?</p>
             <div class="modal-buttons">
                 <button class="btn-confirm" onclick="confirmOverwrite()">Sim, Sobrescrever</button>
                 <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
@@ -966,13 +1055,7 @@ def generate_table_dashboard_html(data, date):
             showStatus('🔄 Iniciando monitoramento...', 'warning');
             
             try {{
-                // Executar o script Python via fetch
-                const scriptPath = 'run_monitoring_api.py';
-                const args = force ? '--force' : '';
-                
-                // Como não podemos executar diretamente via fetch, vamos simular
-                // Em produção, isso seria um endpoint real
-                const response = await fetch('#', {{
+                const response = await fetch('/api/run_monitoring', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -981,16 +1064,41 @@ def generate_table_dashboard_html(data, date):
                         action: 'run_monitoring',
                         force: force
                     }})
-                }}).catch(() => {{
-                    // Fallback: tentar executar via Python (limitado no browser)
-                    throw new Error('Endpoint não disponível. Execute manualmente: python3 run_monitoring_api.py');
                 }});
                 
-                // Para demonstração, vamos mostrar uma mensagem
-                throw new Error('Funcionalidade requer servidor web. Execute: python3 run_monitoring_api.py');
+                if (!response.ok) {{
+                    throw new Error(`HTTP error! status: ${{response.status}}`);
+                }}
+                
+                const result = await response.json();
+                
+                if (result.action_required === 'confirm_overwrite') {{
+                    showModal();
+                    showStatus('⚠️ Monitoramento já executado hoje. Deseja sobrescrever?', 'warning');
+                }} else if (result.success) {{
+                    let message = `✅ ${{result.message}}`;
+                    if (result.pools_processados && result.pools_processados.length > 0) {{
+                        message += `<br>📊 Pools processados: ${{result.pools_processados.length}}`;
+                    }}
+                    if (result.stats) {{
+                        message += `<br>📈 Taxa de sucesso: ${{result.stats.taxa_sucesso || 0}}%`;
+                    }}
+                    
+                    showStatus(message, 'success');
+                    
+                    // Recarregar página após 5 segundos se dashboard foi atualizado
+                    if (result.dashboard_updated) {{
+                        showStatus(message + '<br>🔄 Recarregando dashboard em 5 segundos...', 'success');
+                        setTimeout(() => {{
+                            location.reload();
+                        }}, 5000);
+                    }}
+                }} else {{
+                    showStatus(`❌ Erro: ${{result.error || 'Erro desconhecido'}}`, 'error');
+                }}
                 
             }} catch (error) {{
-                showStatus(`❌ Erro: ${{error.message}}<br><br>💡 <strong>Como executar manualmente:</strong><br>1. Abra um terminal<br>2. Execute: <code>python3 run_monitoring_api.py</code><br>3. Atualize esta página`, 'error');
+                showStatus(`❌ Erro de conexão: ${{error.message}}<br><br>💡 <strong>Certifique-se de que está acessando via:</strong><br><code>python3 dashboard_server.py</code><br>e acesse <code>http://localhost:8080</code>`, 'error');
             }} finally {{
                 disableButton(false);
             }}

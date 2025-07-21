@@ -110,7 +110,7 @@
       "prioridade": "critica",
       "limites": {
         "minimo": 0.20,
-        "critico": 0.025,
+        "critico": 0.175,
         "calculo": "subordinada / (senior + subordinada)",
         "acao_violacao": "amortizacao_extraordinaria",
         "prazo_cura_dias": 7,

@@ -45,6 +45,7 @@ class DateConsistencyValidator:
         """Inicializa o validador de datas."""
         self.patterns = {
             'csv': [
+                r'(\d{2}-\d{2}-\d{4})',  # 10-07-2025 (DD-MM-YYYY)
                 r'(\d{4}-\d{2}-\d{2})',  # 2025-07-18
                 r'(\d{4}-\d{2}-\d{2}\s+\d{2}_\d{2}_\d{2})',  # 2025-07-15 09_33_29
                 r'(\d{2}/\d{2}/\d{4})',  # 18/07/2025
@@ -181,6 +182,7 @@ class DateConsistencyValidator:
                 try:
                     # Tentar diferentes formatos de data
                     date_formats = [
+                        '%d-%m-%Y',  # 10-07-2025
                         '%Y-%m-%d',
                         '%Y-%m-%d %H_%M_%S',
                         '%Y-%m-%d %H%M%S',
@@ -195,7 +197,7 @@ class DateConsistencyValidator:
                             else:
                                 date_part = date_str
                             
-                            if fmt == '%d/%m/%Y':
+                            if fmt in ['%d/%m/%Y', '%d-%m-%Y']:
                                 parsed_date = datetime.strptime(date_part, fmt).date()
                             else:
                                 parsed_date = datetime.strptime(date_part, '%Y-%m-%d').date()
