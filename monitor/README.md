@@ -51,9 +51,10 @@ monitor/
 
 ## ⚙️ Configuração
 
-- **Modo Debug**: `test_pools.json` (pools específicos)
+- **Modo Debug**: `test_pools.json` (pools específicos) - remover para processar todos
 - **Configuração por Pool**: `{Pool Name}.json`
 - **Pools Ignorados**: `ignore_pools.json`
+- **Processamento Histórico**: Scripts especializados para dados temporais
 
 ## 📈 Performance
 
@@ -88,10 +89,37 @@ monitor/
 **Performance**: Modo automático para datasets >1000 registros  
 **Dados não encontrados**: Verificar arquivos CSV/XLSX e configurações JSON
 
-## ✅ Sistema Pronto
+## 📊 Dashboard e Histórico
+
+### Dashboard Interativo
+```bash
+python3 generate_table_dashboard.py
+```
+- **Interface Web**: Tabelas com drilldown
+- **Dados Financeiros**: PL, SR, JR detalhados
+- **Análise Histórica**: Últimos 7 dias por pool
+- **Status Visual**: VIOLADO CRÍTICO, VIOLADO MÍNIMO, ENQUADRADO
+
+### Processamento Histórico
+```bash
+# Processamento paralelo completo
+python3 run_full_historical_monitoring.py --max-workers 12
+
+# Pular datas já processadas
+python3 run_full_historical_monitoring.py --skip-existing
+
+# Processamento sequencial (últimos 5 dias)
+python3 run_sequential_historical_monitoring.py
+```
+
+## ✅ Sistema Completo
 
 - ✅ **Orchestrator**: Funcionando 100%
 - ✅ **4 Monitores**: Subordinação, Inadimplência, PDD, Concentração
+- ✅ **Dashboard Web**: Interface interativa com histórico
+- ✅ **Processamento Paralelo**: Até 12 workers simultâneos
+- ✅ **Dados Históricos**: Técnica de movimentação de arquivos
+- ✅ **77 Pools**: Modo debug removível
 - ✅ **Compatibilidade**: Spyder, IPython, Terminal
 - ✅ **Performance**: Otimizada para datasets grandes
 

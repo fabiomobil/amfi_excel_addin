@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f8faff 0%, #e6efff 100%);
             color: #333;
             line-height: 1.6;
             min-height: 100vh;
@@ -26,19 +26,40 @@
         }
         
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2E3A87 0%, #4A90E2 50%, #7B68EE 100%);
             color: white;
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            position: relative;
         }
         
         header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo-container {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .date-info {
@@ -78,7 +99,7 @@
         }
         
         .indicator-section h2 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4A90E2 0%, #7B68EE 100%);
             color: white;
             padding: 20px 30px;
             margin: 0;
@@ -112,19 +133,19 @@
         }
         
         .violation-row {
-            background: #fff5f5;
+            background: #fff2f2;
         }
         
         .violation-row:hover {
-            background: #fed7d7;
+            background: #ffe6e6;
         }
         
         .ok-row {
-            background: #f0fff4;
+            background: #f0f8ff;
         }
         
         .ok-row:hover {
-            background: #c6f6d5;
+            background: #e6f3ff;
         }
         
         .pool-name {
@@ -265,6 +286,100 @@
             font-size: 1.1em;
         }
         
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .btn-monitoring {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-monitoring:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-monitoring:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .monitoring-status {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-success { color: #4CAF50; }
+        .status-warning { color: #FF9800; }
+        .status-error { color: #F44336; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn-confirm {
+            background: #F44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
         .financial-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -334,12 +449,17 @@
 <body>
     <div class="container">
         <header>
-            <h1>📊 AmFi - Dashboard de Indicadores</h1>
-            <p class="date-info">Data de Referência: 2025-07-16 | Atualizado: 18/07/2025 23:50</p>
+            <h1>
+                <div class="logo-container">
+                    <img src="logo.svg" alt="AmFi Logo">
+                </div>
+                AmFi - Dashboard de Indicadores
+            </h1>
+            <p class="date-info">Data de Referência: 2025-07-21 | Atualizado: 21/07/2025 14:31</p>
             
             <div class="summary-stats">
                 <div class="stat-item">
-                    <span class="stat-number">4</span>
+                    <span class="stat-number">7</span>
                     <span class="stat-label">Pools Monitorados</span>
                 </div>
                 <div class="stat-item">
@@ -347,9 +467,19 @@
                     <span class="stat-label">Pools Violados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">50.0%</span>
+                    <span class="stat-number">71.4%</span>
                     <span class="stat-label">Taxa Compliance</span>
                 </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-monitoring" onclick="runMonitoring()">
+                    🚀 Executar Monitoramento
+                </button>
+            </div>
+            
+            <div id="monitoring-status" class="monitoring-status" style="display: none;">
+                <span id="status-message"></span>
             </div>
         </header>
         
@@ -374,11 +504,11 @@
                     <tr class="violation-row" onclick="toggleDrilldown('sub_AFA_Pool__1')" style="cursor: pointer;">
                         <td class="pool-name">AFA Pool #1</td>
                         <td><span class="status-badge status-violation">VIOLADO CRÍTICO</span></td>
-                        <td class="days-count">3 dias</td>
-                        <td class="value">8.50%</td>
+                        <td class="days-count">5 dias</td>
+                        <td class="value">8.57%</td>
                         <td class="limit">25.0%</td>
                         <td class="limit">20.0%</td>
-                        <td class="financial">R$ 6,332,939.68</td>
+                        <td class="financial">R$ 6,367,507.84</td>
                     </tr>
                     <tr id="sub_AFA_Pool__1" class="drilldown-row" style="display: none;">
                         <td colspan="7">
@@ -387,15 +517,15 @@
                                 <div class="financial-grid">
                                     <div class="financial-item">
                                         <label>PL Atual:</label>
-                                        <span>R$ 27,091,081.59</span>
+                                        <span>R$ 27,109,509.57</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>SR Atual:</label>
-                                        <span>R$ 21,328,249.66</span>
+                                        <span>R$ 21,344,542.59</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>JR Atual:</label>
-                                        <span>R$ 2,002,694.71</span>
+                                        <span>R$ 2,001,746.51</span>
                                     </div>
                                 </div>
                                 
@@ -411,6 +541,18 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <tr class="hist-violation">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
+                                                <td>8.57%</td>
+                                                <td>R$ 6,367,507.84</td>
+                                            </tr>
+                                            <tr class="hist-violation">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
+                                                <td>9.83%</td>
+                                                <td>R$ 5,973,648.94</td>
+                                            </tr>
                                             <tr class="hist-violation">
                                                 <td>2025-07-18</td>
                                                 <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
@@ -439,11 +581,11 @@
                     <tr class="violation-row" onclick="toggleDrilldown('sub_E-ctare_Pool__1')" style="cursor: pointer;">
                         <td class="pool-name">E-ctare Pool #1</td>
                         <td><span class="status-badge status-violation">VIOLADO MÍNIMO</span></td>
-                        <td class="days-count">3 dias</td>
-                        <td class="value">18.85%</td>
+                        <td class="days-count">5 dias</td>
+                        <td class="value">18.93%</td>
                         <td class="limit">20.0%</td>
                         <td class="limit">15.0%</td>
-                        <td class="financial">R$ 133,158.21</td>
+                        <td class="financial">R$ 137,679.36</td>
                     </tr>
                     <tr id="sub_E-ctare_Pool__1" class="drilldown-row" style="display: none;">
                         <td colspan="7">
@@ -452,15 +594,15 @@
                                 <div class="financial-grid">
                                     <div class="financial-item">
                                         <label>PL Atual:</label>
-                                        <span>R$ 10,316,323.21</span>
+                                        <span>R$ 10,325,970.03</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>SR Atual:</label>
-                                        <span>R$ 8,364,529.74</span>
+                                        <span>R$ 8,370,919.51</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>JR Atual:</label>
-                                        <span>R$ 1,951,793.47</span>
+                                        <span>R$ 1,955,050.52</span>
                                     </div>
                                 </div>
                                 
@@ -476,6 +618,18 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <tr class="hist-violation">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini violation">VIOLADO MÍNIMO</span></td>
+                                                <td>18.93%</td>
+                                                <td>R$ 137,679.36</td>
+                                            </tr>
+                                            <tr class="hist-violation">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini violation">VIOLADO MÍNIMO</span></td>
+                                                <td>19.79%</td>
+                                                <td>R$ 28,226.50</td>
+                                            </tr>
                                             <tr class="hist-violation">
                                                 <td>2025-07-18</td>
                                                 <td><span class="status-mini violation">VIOLADO MÍNIMO</span></td>
@@ -501,31 +655,31 @@
                         </td>
                     </tr>
         
-                    <tr class="ok-row" onclick="toggleDrilldown('sub_Up_Vendas_Pool__2')" style="cursor: pointer;">
-                        <td class="pool-name">Up Vendas Pool #2</td>
+                    <tr class="ok-row" onclick="toggleDrilldown('sub_a55_Pool__2')" style="cursor: pointer;">
+                        <td class="pool-name">a55 Pool #2</td>
                         <td><span class="status-badge status-ok">ENQUADRADO</span></td>
                         <td class="days-count">-</td>
-                        <td class="value">32.15%</td>
-                        <td class="limit">20.0%</td>
-                        <td class="limit">15.0%</td>
-                        <td class="financial">R$ 624,374.17</td>
+                        <td class="value">100.00%</td>
+                        <td class="limit">10.0%</td>
+                        <td class="limit">5.0%</td>
+                        <td class="financial">R$ 137.56</td>
                     </tr>
-                    <tr id="sub_Up_Vendas_Pool__2" class="drilldown-row" style="display: none;">
+                    <tr id="sub_a55_Pool__2" class="drilldown-row" style="display: none;">
                         <td colspan="7">
                             <div class="drilldown-content">
                                 <h4>💰 Dados Financeiros Detalhados</h4>
                                 <div class="financial-grid">
                                     <div class="financial-item">
                                         <label>PL Atual:</label>
-                                        <span>R$ 5,138,882.07</span>
+                                        <span>R$ 152.84</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>SR Atual:</label>
-                                        <span>R$ 3,485,279.53</span>
+                                        <span>R$ 0.00</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>JR Atual:</label>
-                                        <span>R$ 1,653,602.54</span>
+                                        <span>R$ 152.84</span>
                                     </div>
                                 </div>
                                 
@@ -541,6 +695,77 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>100.00%</td>
+                                                <td>R$ 137.56</td>
+                                            </tr>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>94.99%</td>
+                                                <td>R$ 92,412.59</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr class="ok-row" onclick="toggleDrilldown('sub_Up_Vendas_Pool__2')" style="cursor: pointer;">
+                        <td class="pool-name">Up Vendas Pool #2</td>
+                        <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                        <td class="days-count">-</td>
+                        <td class="value">32.25%</td>
+                        <td class="limit">20.0%</td>
+                        <td class="limit">15.0%</td>
+                        <td class="financial">R$ 630,614.53</td>
+                    </tr>
+                    <tr id="sub_Up_Vendas_Pool__2" class="drilldown-row" style="display: none;">
+                        <td colspan="7">
+                            <div class="drilldown-content">
+                                <h4>💰 Dados Financeiros Detalhados</h4>
+                                <div class="financial-grid">
+                                    <div class="financial-item">
+                                        <label>PL Atual:</label>
+                                        <span>R$ 5,147,873.73</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>SR Atual:</label>
+                                        <span>R$ 3,487,743.78</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>JR Atual:</label>
+                                        <span>R$ 1,660,129.95</span>
+                                    </div>
+                                </div>
+                                
+                                <h4>📊 Histórico de Subordinação (Últimos 7 dias)</h4>
+                                <div class="historical-analysis">
+                                    <table class="historical-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                                <th>Valor IS (%)</th>
+                                                <th>Aporte p/ Enquadrar / Saque Disponível</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>32.25%</td>
+                                                <td>R$ 630,614.53</td>
+                                            </tr>
+                                            <tr class="hist-violation">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini violation">VIOLADO MÍNIMO</span></td>
+                                                <td>19.06%</td>
+                                                <td>R$ 36,860.34</td>
+                                            </tr>
                                             <tr class="hist-ok">
                                                 <td>2025-07-18</td>
                                                 <td><span class="status-mini ok">ENQUADRADO</span></td>
@@ -573,7 +798,7 @@
                         <td class="value">25.15%</td>
                         <td class="limit">25.0%</td>
                         <td class="limit">20.0%</td>
-                        <td class="financial">R$ 13,179.67</td>
+                        <td class="financial">R$ 13,195.36</td>
                     </tr>
                     <tr id="sub_LeCapital_Pool__1" class="drilldown-row" style="display: none;">
                         <td colspan="7">
@@ -582,15 +807,15 @@
                                 <div class="financial-grid">
                                     <div class="financial-item">
                                         <label>PL Atual:</label>
-                                        <span>R$ 8,786,447.29</span>
+                                        <span>R$ 8,796,905.00</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>SR Atual:</label>
-                                        <span>R$ 6,579,730.29</span>
+                                        <span>R$ 6,584,632.50</span>
                                     </div>
                                     <div class="financial-item">
                                         <label>JR Atual:</label>
-                                        <span>R$ 2,206,717.00</span>
+                                        <span>R$ 2,212,272.50</span>
                                     </div>
                                 </div>
                                 
@@ -606,6 +831,18 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>25.15%</td>
+                                                <td>R$ 13,195.36</td>
+                                            </tr>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>25.11%</td>
+                                                <td>R$ 9,563.63</td>
+                                            </tr>
                                             <tr class="hist-ok">
                                                 <td>2025-07-18</td>
                                                 <td><span class="status-mini ok">ENQUADRADO</span></td>
@@ -631,6 +868,124 @@
                         </td>
                     </tr>
         
+                    <tr class="ok-row" onclick="toggleDrilldown('sub_Formento_Pool__3')" style="cursor: pointer;">
+                        <td class="pool-name">Formento Pool #3</td>
+                        <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                        <td class="days-count">-</td>
+                        <td class="value">20.49%</td>
+                        <td class="limit">20.0%</td>
+                        <td class="limit">2.5%</td>
+                        <td class="financial">R$ 12,857.80</td>
+                    </tr>
+                    <tr id="sub_Formento_Pool__3" class="drilldown-row" style="display: none;">
+                        <td colspan="7">
+                            <div class="drilldown-content">
+                                <h4>💰 Dados Financeiros Detalhados</h4>
+                                <div class="financial-grid">
+                                    <div class="financial-item">
+                                        <label>PL Atual:</label>
+                                        <span>R$ 2,624,039.97</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>SR Atual:</label>
+                                        <span>R$ 2,086,267.26</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>JR Atual:</label>
+                                        <span>R$ 537,772.71</span>
+                                    </div>
+                                </div>
+                                
+                                <h4>📊 Histórico de Subordinação (Últimos 7 dias)</h4>
+                                <div class="historical-analysis">
+                                    <table class="historical-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                                <th>Valor IS (%)</th>
+                                                <th>Aporte p/ Enquadrar / Saque Disponível</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>20.49%</td>
+                                                <td>R$ 12,857.80</td>
+                                            </tr>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>20.39%</td>
+                                                <td>R$ 10,136.19</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr class="ok-row" onclick="toggleDrilldown('sub_Credmei_Pool__1')" style="cursor: pointer;">
+                        <td class="pool-name">Credmei Pool #1</td>
+                        <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                        <td class="days-count">-</td>
+                        <td class="value">0.00%</td>
+                        <td class="limit">N/A</td>
+                        <td class="limit">N/A</td>
+                        <td class="financial">-</td>
+                    </tr>
+                    <tr id="sub_Credmei_Pool__1" class="drilldown-row" style="display: none;">
+                        <td colspan="7">
+                            <div class="drilldown-content">
+                                <h4>💰 Dados Financeiros Detalhados</h4>
+                                <div class="financial-grid">
+                                    <div class="financial-item">
+                                        <label>PL Atual:</label>
+                                        <span>R$ 0.00</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>SR Atual:</label>
+                                        <span>R$ 0.00</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>JR Atual:</label>
+                                        <span>R$ 0.00</span>
+                                    </div>
+                                </div>
+                                
+                                <h4>📊 Histórico de Subordinação (Últimos 7 dias)</h4>
+                                <div class="historical-analysis">
+                                    <table class="historical-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                                <th>Valor IS (%)</th>
+                                                <th>Aporte p/ Enquadrar / Saque Disponível</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-21</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>0.00%</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr class="hist-ok">
+                                                <td>2025-07-19</td>
+                                                <td><span class="status-mini ok">ENQUADRADO</span></td>
+                                                <td>0.00%</td>
+                                                <td>-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+        
                 </tbody>
             </table>
         </div>
@@ -640,6 +995,18 @@
         <footer>
             <p>AmFi Monitoring System - 2025 | Dashboard de Tabelas por Indicador</p>
         </footer>
+    </div>
+    
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Monitoramento já executado hoje</h3>
+            <p>O monitoramento já foi executado hoje. Deseja executar novamente e sobrescrever os resultados existentes?</p>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmOverwrite()">Sim, Sobrescrever</button>
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -657,6 +1024,89 @@
         setInterval(() => {
             location.reload();
         }, 300000);
+        
+        // Funções de Monitoramento
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('monitoring-status');
+            const statusMessage = document.getElementById('status-message');
+            
+            statusMessage.innerHTML = message;
+            statusMessage.className = 'status-' + type;
+            statusDiv.style.display = 'block';
+            
+            // Auto-hide após 10 segundos se for sucesso
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 10000);
+            }
+        }
+        
+        function showModal() {
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+        
+        function disableButton(disabled) {
+            const btn = document.querySelector('.btn-monitoring');
+            btn.disabled = disabled;
+            btn.textContent = disabled ? '🔄 Executando...' : '🚀 Executar Monitoramento';
+        }
+        
+        async function executeMonitoring(force = false) {
+            disableButton(true);
+            showStatus('🔄 Iniciando monitoramento...', 'warning');
+            
+            try {
+                // Executar o script Python via fetch
+                const scriptPath = 'run_monitoring_api.py';
+                const args = force ? '--force' : '';
+                
+                // Como não podemos executar diretamente via fetch, vamos simular
+                // Em produção, isso seria um endpoint real
+                const response = await fetch('#', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'run_monitoring',
+                        force: force
+                    })
+                }).catch(() => {
+                    // Fallback: tentar executar via Python (limitado no browser)
+                    throw new Error('Endpoint não disponível. Execute manualmente: python3 run_monitoring_api.py');
+                });
+                
+                // Para demonstração, vamos mostrar uma mensagem
+                throw new Error('Funcionalidade requer servidor web. Execute: python3 run_monitoring_api.py');
+                
+            } catch (error) {
+                showStatus(`❌ Erro: ${error.message}<br><br>💡 <strong>Como executar manualmente:</strong><br>1. Abra um terminal<br>2. Execute: <code>python3 run_monitoring_api.py</code><br>3. Atualize esta página`, 'error');
+            } finally {
+                disableButton(false);
+            }
+        }
+        
+        function runMonitoring() {
+            executeMonitoring(false);
+        }
+        
+        function confirmOverwrite() {
+            closeModal();
+            executeMonitoring(true);
+        }
+        
+        // Fechar modal clicando fora dele
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,57 +1,57 @@
 {
   "tipo": "subordinacao",
-  "last_updated": "2025-07-18T23:28:54.844568",
+  "last_updated": "2025-07-21T11:03:35.108644",
   "violations": [
     {
       "pool": "AFA Pool #1",
       "tipo": "subordinacao",
       "subtipo": "limite_critico",
       "status": "violado",
-      "valor_atual": 8.58,
+      "valor_atual": 8.57,
       "limite_configurado": 20.0,
       "criticidade": "critica",
-      "aporte_necessario": 4269402.01,
+      "aporte_necessario": 4275194.26,
       "dados_financeiros": {
-        "pl_atual": 27091081.59,
-        "sr_atual": 21328249.66,
-        "jr_atual": 2002694.71,
-        "denominador_calculo": 23330944.37
+        "pl_atual": 27109509.57,
+        "sr_atual": 21344542.59,
+        "jr_atual": 2001746.51,
+        "denominador_calculo": 23346289.1
       },
-      "timestamp": "2025-07-18T23:28:54.840291"
-    },
-    {
-      "pool": "AFA Pool #1",
-      "tipo": "subordinacao",
-      "subtipo": "limite_minimo",
-      "status": "violado",
-      "valor_atual": 8.58,
-      "limite_configurado": 25.0,
-      "criticidade": "alta",
-      "aporte_necessario": 6360100.92,
-      "dados_financeiros": {
-        "pl_atual": 27091081.59,
-        "sr_atual": 21328249.66,
-        "jr_atual": 2002694.71,
-        "denominador_calculo": 23330944.37
-      },
-      "timestamp": "2025-07-18T23:28:54.840286"
+      "timestamp": "2025-07-21T11:03:35.102362"
     },
     {
       "pool": "E-ctare Pool #1",
       "tipo": "subordinacao",
       "subtipo": "limite_minimo",
       "status": "violado",
-      "valor_atual": 18.92,
+      "valor_atual": 18.93,
       "limite_configurado": 20.0,
       "criticidade": "alta",
-      "aporte_necessario": 139338.97,
+      "aporte_necessario": 137679.36,
       "dados_financeiros": {
-        "pl_atual": 10316323.21,
-        "sr_atual": 8364529.74,
-        "jr_atual": 1951793.47,
-        "denominador_calculo": 10316323.21
+        "pl_atual": 10325970.03,
+        "sr_atual": 8370919.51,
+        "jr_atual": 1955050.52,
+        "denominador_calculo": 10325970.03
       },
-      "timestamp": "2025-07-18T23:28:54.840303"
+      "timestamp": "2025-07-21T11:03:35.102332"
+    },
+    {
+      "pool": "AFA Pool #1",
+      "tipo": "subordinacao",
+      "subtipo": "limite_minimo",
+      "status": "violado",
+      "valor_atual": 8.57,
+      "limite_configurado": 25.0,
+      "criticidade": "alta",
+      "aporte_necessario": 6367507.84,
+      "dados_financeiros": {
+        "pl_atual": 27109509.57,
+        "sr_atual": 21344542.59,
+        "jr_atual": 2001746.51,
+        "denominador_calculo": 23346289.1
+      },
+      "timestamp": "2025-07-21T11:03:35.102360"
     }
   ]
 }

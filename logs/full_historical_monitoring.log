@@ -1,0 +1,377 @@
+2025-07-19 00:19:26,587 - INFO - MainThread - NumExpr defaulting to 8 threads.
+2025-07-19 00:19:26,801 - INFO - MainThread - 🔍 Descobrindo datas históricas disponíveis...
+2025-07-19 00:19:26,811 - INFO - MainThread - 📅 Encontradas 18 datas históricas:
+2025-07-19 00:19:26,811 - INFO - MainThread -    📄 2025-06-23
+2025-07-19 00:19:26,811 - INFO - MainThread -    📄 2025-06-24
+2025-07-19 00:19:26,812 - INFO - MainThread -    📄 2025-06-25
+2025-07-19 00:19:26,812 - INFO - MainThread -    📄 2025-06-26
+2025-07-19 00:19:26,812 - INFO - MainThread -    📄 2025-06-27
+2025-07-19 00:19:26,812 - INFO - MainThread -    📄 2025-06-28
+2025-07-19 00:19:26,812 - INFO - MainThread -    📄 2025-06-29
+2025-07-19 00:19:26,813 - INFO - MainThread -    📄 2025-06-30
+2025-07-19 00:19:26,813 - INFO - MainThread -    📄 2025-07-01
+2025-07-19 00:19:26,813 - INFO - MainThread -    📄 2025-07-02
+2025-07-19 00:19:26,813 - INFO - MainThread -    📄 2025-07-03
+2025-07-19 00:19:26,813 - INFO - MainThread -    📄 2025-07-04
+2025-07-19 00:19:26,813 - INFO - MainThread -    📄 2025-07-05
+2025-07-19 00:19:26,814 - INFO - MainThread -    📄 2025-07-06
+2025-07-19 00:19:26,814 - INFO - MainThread -    📄 2025-07-07
+2025-07-19 00:19:26,814 - INFO - MainThread -    📄 2025-07-08
+2025-07-19 00:19:26,814 - INFO - MainThread -    📄 2025-07-09
+2025-07-19 00:19:26,814 - INFO - MainThread -    📄 2025-07-10
+2025-07-19 00:19:26,815 - INFO - DateWorker_0 - [Worker-2025-06-23] 🔄 Iniciando processamento de 2025-06-23
+2025-07-19 00:19:26,815 - INFO - DateWorker_1 - [Worker-2025-06-24] 🔄 Iniciando processamento de 2025-06-24
+2025-07-19 00:19:26,820 - INFO - DateWorker_1 - [Worker-2025-06-24] 🧪 DRY RUN - 2025-06-24 seria processado
+2025-07-19 00:19:26,820 - INFO - DateWorker_1 - [Worker-2025-06-25] 🔄 Iniciando processamento de 2025-06-25
+2025-07-19 00:19:26,820 - INFO - DateWorker_0 - [Worker-2025-06-23] 🧪 DRY RUN - 2025-06-23 seria processado
+2025-07-19 00:19:26,821 - INFO - DateWorker_0 - [Worker-2025-06-26] 🔄 Iniciando processamento de 2025-06-26
+2025-07-19 00:19:26,826 - INFO - DateWorker_0 - [Worker-2025-06-26] 🧪 DRY RUN - 2025-06-26 seria processado
+2025-07-19 00:19:26,826 - INFO - DateWorker_0 - [Worker-2025-06-27] 🔄 Iniciando processamento de 2025-06-27
+2025-07-19 00:19:26,826 - INFO - DateWorker_1 - [Worker-2025-06-25] 🧪 DRY RUN - 2025-06-25 seria processado
+2025-07-19 00:19:26,827 - INFO - DateWorker_1 - [Worker-2025-06-28] 🔄 Iniciando processamento de 2025-06-28
+2025-07-19 00:19:26,831 - INFO - DateWorker_0 - [Worker-2025-06-27] 🧪 DRY RUN - 2025-06-27 seria processado
+2025-07-19 00:19:26,831 - INFO - DateWorker_0 - [Worker-2025-06-29] 🔄 Iniciando processamento de 2025-06-29
+2025-07-19 00:19:26,832 - WARNING - DateWorker_1 - [Worker-2025-06-28] ❌ XLSX não encontrado para 2025-06-28
+2025-07-19 00:19:26,832 - INFO - DateWorker_1 - [Worker-2025-06-30] 🔄 Iniciando processamento de 2025-06-30
+2025-07-19 00:19:26,836 - INFO - DateWorker_1 - [Worker-2025-06-30] 🧪 DRY RUN - 2025-06-30 seria processado
+2025-07-19 00:19:26,837 - INFO - DateWorker_1 - [Worker-2025-07-01] 🔄 Iniciando processamento de 2025-07-01
+2025-07-19 00:19:26,837 - WARNING - DateWorker_0 - [Worker-2025-06-29] ❌ XLSX não encontrado para 2025-06-29
+2025-07-19 00:19:26,837 - INFO - DateWorker_0 - [Worker-2025-07-02] 🔄 Iniciando processamento de 2025-07-02
+2025-07-19 00:19:26,841 - INFO - DateWorker_0 - [Worker-2025-07-02] 🧪 DRY RUN - 2025-07-02 seria processado
+2025-07-19 00:19:26,842 - INFO - DateWorker_0 - [Worker-2025-07-03] 🔄 Iniciando processamento de 2025-07-03
+2025-07-19 00:19:26,842 - INFO - DateWorker_1 - [Worker-2025-07-01] 🧪 DRY RUN - 2025-07-01 seria processado
+2025-07-19 00:19:26,842 - INFO - DateWorker_1 - [Worker-2025-07-04] 🔄 Iniciando processamento de 2025-07-04
+2025-07-19 00:19:26,847 - INFO - DateWorker_1 - [Worker-2025-07-04] 🧪 DRY RUN - 2025-07-04 seria processado
+2025-07-19 00:19:26,847 - INFO - DateWorker_1 - [Worker-2025-07-05] 🔄 Iniciando processamento de 2025-07-05
+2025-07-19 00:19:26,847 - INFO - DateWorker_0 - [Worker-2025-07-03] 🧪 DRY RUN - 2025-07-03 seria processado
+2025-07-19 00:19:26,847 - INFO - DateWorker_0 - [Worker-2025-07-06] 🔄 Iniciando processamento de 2025-07-06
+2025-07-19 00:19:26,853 - WARNING - DateWorker_1 - [Worker-2025-07-05] ❌ XLSX não encontrado para 2025-07-05
+2025-07-19 00:19:26,853 - INFO - DateWorker_1 - [Worker-2025-07-07] 🔄 Iniciando processamento de 2025-07-07
+2025-07-19 00:19:26,853 - WARNING - DateWorker_0 - [Worker-2025-07-06] ❌ XLSX não encontrado para 2025-07-06
+2025-07-19 00:19:26,854 - INFO - DateWorker_0 - [Worker-2025-07-08] 🔄 Iniciando processamento de 2025-07-08
+2025-07-19 00:19:26,858 - INFO - DateWorker_1 - [Worker-2025-07-07] 🧪 DRY RUN - 2025-07-07 seria processado
+2025-07-19 00:19:26,859 - INFO - DateWorker_1 - [Worker-2025-07-09] 🔄 Iniciando processamento de 2025-07-09
+2025-07-19 00:19:26,859 - INFO - DateWorker_0 - [Worker-2025-07-08] 🧪 DRY RUN - 2025-07-08 seria processado
+2025-07-19 00:19:26,859 - INFO - DateWorker_0 - [Worker-2025-07-10] 🔄 Iniciando processamento de 2025-07-10
+2025-07-19 00:19:26,864 - INFO - DateWorker_0 - [Worker-2025-07-10] 🧪 DRY RUN - 2025-07-10 seria processado
+2025-07-19 00:19:26,864 - INFO - DateWorker_1 - [Worker-2025-07-09] 🧪 DRY RUN - 2025-07-09 seria processado
+2025-07-19 00:19:34,889 - INFO - MainThread - NumExpr defaulting to 8 threads.
+2025-07-19 00:19:35,075 - INFO - MainThread - 🔍 Descobrindo datas históricas disponíveis...
+2025-07-19 00:19:35,085 - INFO - MainThread - 📅 Encontradas 18 datas históricas:
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-23
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-24
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-25
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-26
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-27
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-28
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-29
+2025-07-19 00:19:35,086 - INFO - MainThread -    📄 2025-06-30
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-01
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-02
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-03
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-04
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-05
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-06
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-07
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-08
+2025-07-19 00:19:35,087 - INFO - MainThread -    📄 2025-07-09
+2025-07-19 00:19:35,088 - INFO - MainThread -    📄 2025-07-10
+2025-07-19 00:19:35,134 - INFO - MainThread - 🔧 Modo debug temporariamente desabilitado (backup: /mnt/c/amfi/config/monitoring/_test_pools.json.backup_20250719_001935)
+2025-07-19 00:19:35,135 - INFO - DateWorker_0 - [Worker-2025-06-23] 🔄 Iniciando processamento de 2025-06-23
+2025-07-19 00:19:35,146 - INFO - DateWorker_0 - [Worker-2025-06-23] 📁 CSV: AcompanhamentoDeOportunidades-23-06-2025.csv
+2025-07-19 00:19:35,146 - INFO - DateWorker_0 - [Worker-2025-06-23] 📊 XLSX: Carteira Global 2025-06-23 070044.xlsx
+2025-07-19 00:19:35,150 - INFO - DateWorker_0 - [Worker-2025-06-23] 🚀 Executando monitoramento...
+2025-07-19 00:19:46,185 - INFO - DateWorker_0 - [Worker-2025-06-23] ✅ Monitoramento concluído para 2025-06-23
+2025-07-19 00:19:46,185 - INFO - DateWorker_0 - [Worker-2025-06-23] 📊 Pools processados: 74
+2025-07-19 00:19:46,185 - INFO - DateWorker_0 - [Worker-2025-06-23] 📈 Taxa de sucesso: 9.5%
+2025-07-19 00:19:46,202 - INFO - DateWorker_0 - [Worker-2025-06-24] 🔄 Iniciando processamento de 2025-06-24
+2025-07-19 00:19:46,211 - INFO - DateWorker_0 - [Worker-2025-06-24] 📁 CSV: AcompanhamentoDeOportunidades-24-06-2025.csv
+2025-07-19 00:19:46,212 - INFO - DateWorker_0 - [Worker-2025-06-24] 📊 XLSX: Carteira Global 2025-06-24 070039.xlsx
+2025-07-19 00:19:46,215 - INFO - DateWorker_0 - [Worker-2025-06-24] 🚀 Executando monitoramento...
+2025-07-19 00:19:56,801 - INFO - DateWorker_0 - [Worker-2025-06-24] ✅ Monitoramento concluído para 2025-06-24
+2025-07-19 00:19:56,802 - INFO - DateWorker_0 - [Worker-2025-06-24] 📊 Pools processados: 74
+2025-07-19 00:19:56,802 - INFO - DateWorker_0 - [Worker-2025-06-24] 📈 Taxa de sucesso: 9.5%
+2025-07-19 00:19:56,820 - INFO - DateWorker_0 - [Worker-2025-06-25] 🔄 Iniciando processamento de 2025-06-25
+2025-07-19 00:19:56,830 - INFO - DateWorker_0 - [Worker-2025-06-25] 📁 CSV: AcompanhamentoDeOportunidades-25-06-2025.csv
+2025-07-19 00:19:56,830 - INFO - DateWorker_0 - [Worker-2025-06-25] 📊 XLSX: Carteira Global 2025-06-25 070036.xlsx
+2025-07-19 00:19:56,834 - INFO - DateWorker_0 - [Worker-2025-06-25] 🚀 Executando monitoramento...
+2025-07-19 00:20:10,406 - INFO - DateWorker_0 - [Worker-2025-06-25] ✅ Monitoramento concluído para 2025-06-25
+2025-07-19 00:20:10,406 - INFO - DateWorker_0 - [Worker-2025-06-25] 📊 Pools processados: 74
+2025-07-19 00:20:10,407 - INFO - DateWorker_0 - [Worker-2025-06-25] 📈 Taxa de sucesso: 9.5%
+2025-07-19 00:20:10,421 - INFO - DateWorker_0 - [Worker-2025-06-26] 🔄 Iniciando processamento de 2025-06-26
+2025-07-19 00:20:10,429 - INFO - DateWorker_0 - [Worker-2025-06-26] 📁 CSV: AcompanhamentoDeOportunidades-26-06-2025.csv
+2025-07-19 00:20:10,429 - INFO - DateWorker_0 - [Worker-2025-06-26] 📊 XLSX: Carteira Global 2025-06-26 070049.xlsx
+2025-07-19 00:20:10,433 - INFO - DateWorker_0 - [Worker-2025-06-26] 🚀 Executando monitoramento...
+2025-07-19 00:20:21,028 - INFO - DateWorker_0 - [Worker-2025-06-26] ✅ Monitoramento concluído para 2025-06-26
+2025-07-19 00:20:21,028 - INFO - DateWorker_0 - [Worker-2025-06-26] 📊 Pools processados: 74
+2025-07-19 00:20:21,028 - INFO - DateWorker_0 - [Worker-2025-06-26] 📈 Taxa de sucesso: 9.5%
+2025-07-19 00:20:21,044 - INFO - DateWorker_0 - [Worker-2025-06-27] 🔄 Iniciando processamento de 2025-06-27
+2025-07-19 00:20:21,053 - INFO - DateWorker_0 - [Worker-2025-06-27] 📁 CSV: AcompanhamentoDeOportunidades-27-06-2025.csv
+2025-07-19 00:20:21,053 - INFO - DateWorker_0 - [Worker-2025-06-27] 📊 XLSX: Carteira Global 2025-06-27 070037.xlsx
+2025-07-19 00:20:21,058 - INFO - DateWorker_0 - [Worker-2025-06-27] 🚀 Executando monitoramento...
+2025-07-19 00:20:31,758 - INFO - DateWorker_0 - [Worker-2025-06-27] ✅ Monitoramento concluído para 2025-06-27
+2025-07-19 00:20:31,758 - INFO - DateWorker_0 - [Worker-2025-06-27] 📊 Pools processados: 74
+2025-07-19 00:20:31,758 - INFO - DateWorker_0 - [Worker-2025-06-27] 📈 Taxa de sucesso: 9.5%
+2025-07-19 00:20:31,775 - INFO - DateWorker_0 - [Worker-2025-06-28] 🔄 Iniciando processamento de 2025-06-28
+2025-07-19 00:20:31,785 - WARNING - DateWorker_0 - [Worker-2025-06-28] ❌ XLSX não encontrado para 2025-06-28
+2025-07-19 00:20:31,785 - INFO - DateWorker_0 - [Worker-2025-06-29] 🔄 Iniciando processamento de 2025-06-29
+2025-07-19 00:20:31,793 - WARNING - DateWorker_0 - [Worker-2025-06-29] ❌ XLSX não encontrado para 2025-06-29
+2025-07-19 00:20:31,794 - INFO - DateWorker_0 - [Worker-2025-06-30] 🔄 Iniciando processamento de 2025-06-30
+2025-07-19 00:20:31,801 - INFO - DateWorker_0 - [Worker-2025-06-30] 📁 CSV: AcompanhamentoDeOportunidades-30-06-2025.csv
+2025-07-19 00:20:31,801 - INFO - DateWorker_0 - [Worker-2025-06-30] 📊 XLSX: Carteira Global 2025-06-30 070040.xlsx
+2025-07-19 00:20:31,805 - INFO - DateWorker_0 - [Worker-2025-06-30] 🚀 Executando monitoramento...
+2025-07-19 00:20:45,243 - INFO - DateWorker_0 - [Worker-2025-06-30] ✅ Monitoramento concluído para 2025-06-30
+2025-07-19 00:20:45,243 - INFO - DateWorker_0 - [Worker-2025-06-30] 📊 Pools processados: 74
+2025-07-19 00:20:45,243 - INFO - DateWorker_0 - [Worker-2025-06-30] 📈 Taxa de sucesso: 9.5%
+2025-07-19 00:20:45,260 - INFO - DateWorker_0 - [Worker-2025-07-01] 🔄 Iniciando processamento de 2025-07-01
+2025-07-19 00:20:45,270 - INFO - DateWorker_0 - [Worker-2025-07-01] 📁 CSV: AcompanhamentoDeOportunidades-01-07-2025.csv
+2025-07-19 00:20:45,270 - INFO - DateWorker_0 - [Worker-2025-07-01] 📊 XLSX: Carteira Global 2025-07-01 070053.xlsx
+2025-07-19 00:20:45,274 - INFO - DateWorker_0 - [Worker-2025-07-01] 🚀 Executando monitoramento...
+2025-07-19 00:20:55,835 - INFO - DateWorker_0 - [Worker-2025-07-01] ✅ Monitoramento concluído para 2025-07-01
+2025-07-19 00:20:55,835 - INFO - DateWorker_0 - [Worker-2025-07-01] 📊 Pools processados: 73
+2025-07-19 00:20:55,836 - INFO - DateWorker_0 - [Worker-2025-07-01] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:20:55,854 - INFO - DateWorker_0 - [Worker-2025-07-02] 🔄 Iniciando processamento de 2025-07-02
+2025-07-19 00:20:55,863 - INFO - DateWorker_0 - [Worker-2025-07-02] 📁 CSV: AcompanhamentoDeOportunidades-02-07-2025.csv
+2025-07-19 00:20:55,863 - INFO - DateWorker_0 - [Worker-2025-07-02] 📊 XLSX: Carteira Global 2025-07-02 070049.xlsx
+2025-07-19 00:20:55,868 - INFO - DateWorker_0 - [Worker-2025-07-02] 🚀 Executando monitoramento...
+2025-07-19 00:21:06,502 - INFO - DateWorker_0 - [Worker-2025-07-02] ✅ Monitoramento concluído para 2025-07-02
+2025-07-19 00:21:06,502 - INFO - DateWorker_0 - [Worker-2025-07-02] 📊 Pools processados: 73
+2025-07-19 00:21:06,502 - INFO - DateWorker_0 - [Worker-2025-07-02] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:21:06,520 - INFO - DateWorker_0 - [Worker-2025-07-03] 🔄 Iniciando processamento de 2025-07-03
+2025-07-19 00:21:06,529 - INFO - DateWorker_0 - [Worker-2025-07-03] 📁 CSV: AcompanhamentoDeOportunidades-03-07-2025.csv
+2025-07-19 00:21:06,529 - INFO - DateWorker_0 - [Worker-2025-07-03] 📊 XLSX: Carteira Global 2025-07-03 070043.xlsx
+2025-07-19 00:21:06,533 - INFO - DateWorker_0 - [Worker-2025-07-03] 🚀 Executando monitoramento...
+2025-07-19 00:21:19,954 - INFO - DateWorker_0 - [Worker-2025-07-03] ✅ Monitoramento concluído para 2025-07-03
+2025-07-19 00:21:19,954 - INFO - DateWorker_0 - [Worker-2025-07-03] 📊 Pools processados: 73
+2025-07-19 00:21:19,954 - INFO - DateWorker_0 - [Worker-2025-07-03] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:21:19,971 - INFO - DateWorker_0 - [Worker-2025-07-04] 🔄 Iniciando processamento de 2025-07-04
+2025-07-19 00:21:19,978 - INFO - DateWorker_0 - [Worker-2025-07-04] 📁 CSV: AcompanhamentoDeOportunidades-04-07-2025.csv
+2025-07-19 00:21:19,978 - INFO - DateWorker_0 - [Worker-2025-07-04] 📊 XLSX: Carteira Global 2025-07-04 070051.xlsx
+2025-07-19 00:21:19,983 - INFO - DateWorker_0 - [Worker-2025-07-04] 🚀 Executando monitoramento...
+2025-07-19 00:21:30,643 - INFO - DateWorker_0 - [Worker-2025-07-04] ✅ Monitoramento concluído para 2025-07-04
+2025-07-19 00:21:30,643 - INFO - DateWorker_0 - [Worker-2025-07-04] 📊 Pools processados: 73
+2025-07-19 00:21:30,644 - INFO - DateWorker_0 - [Worker-2025-07-04] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:21:30,659 - INFO - DateWorker_0 - [Worker-2025-07-05] 🔄 Iniciando processamento de 2025-07-05
+2025-07-19 00:21:30,668 - WARNING - DateWorker_0 - [Worker-2025-07-05] ❌ XLSX não encontrado para 2025-07-05
+2025-07-19 00:21:30,669 - INFO - DateWorker_0 - [Worker-2025-07-06] 🔄 Iniciando processamento de 2025-07-06
+2025-07-19 00:21:30,677 - WARNING - DateWorker_0 - [Worker-2025-07-06] ❌ XLSX não encontrado para 2025-07-06
+2025-07-19 00:21:30,677 - INFO - DateWorker_0 - [Worker-2025-07-07] 🔄 Iniciando processamento de 2025-07-07
+2025-07-19 00:21:30,684 - INFO - DateWorker_0 - [Worker-2025-07-07] 📁 CSV: AcompanhamentoDeOportunidades-07-07-2025.csv
+2025-07-19 00:21:30,685 - INFO - DateWorker_0 - [Worker-2025-07-07] 📊 XLSX: Carteira Global 2025-07-07 070041.xlsx
+2025-07-19 00:21:30,689 - INFO - DateWorker_0 - [Worker-2025-07-07] 🚀 Executando monitoramento...
+2025-07-19 00:21:41,143 - INFO - DateWorker_0 - [Worker-2025-07-07] ✅ Monitoramento concluído para 2025-07-07
+2025-07-19 00:21:41,144 - INFO - DateWorker_0 - [Worker-2025-07-07] 📊 Pools processados: 73
+2025-07-19 00:21:41,144 - INFO - DateWorker_0 - [Worker-2025-07-07] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:21:41,165 - INFO - DateWorker_0 - [Worker-2025-07-08] 🔄 Iniciando processamento de 2025-07-08
+2025-07-19 00:21:41,174 - INFO - DateWorker_0 - [Worker-2025-07-08] 📁 CSV: AcompanhamentoDeOportunidades-08-07-2025.csv
+2025-07-19 00:21:41,175 - INFO - DateWorker_0 - [Worker-2025-07-08] 📊 XLSX: Carteira Global 2025-07-08 070058.xlsx
+2025-07-19 00:21:41,179 - INFO - DateWorker_0 - [Worker-2025-07-08] 🚀 Executando monitoramento...
+2025-07-19 00:21:54,798 - INFO - DateWorker_0 - [Worker-2025-07-08] ✅ Monitoramento concluído para 2025-07-08
+2025-07-19 00:21:54,798 - INFO - DateWorker_0 - [Worker-2025-07-08] 📊 Pools processados: 73
+2025-07-19 00:21:54,798 - INFO - DateWorker_0 - [Worker-2025-07-08] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:21:54,815 - INFO - DateWorker_0 - [Worker-2025-07-09] 🔄 Iniciando processamento de 2025-07-09
+2025-07-19 00:21:54,824 - INFO - DateWorker_0 - [Worker-2025-07-09] 📁 CSV: AcompanhamentoDeOportunidades-09-07-2025.csv
+2025-07-19 00:21:54,824 - INFO - DateWorker_0 - [Worker-2025-07-09] 📊 XLSX: Carteira Global 2025-07-09 070043.xlsx
+2025-07-19 00:21:54,829 - INFO - DateWorker_0 - [Worker-2025-07-09] 🚀 Executando monitoramento...
+2025-07-19 00:22:05,314 - INFO - DateWorker_0 - [Worker-2025-07-09] ✅ Monitoramento concluído para 2025-07-09
+2025-07-19 00:22:05,314 - INFO - DateWorker_0 - [Worker-2025-07-09] 📊 Pools processados: 73
+2025-07-19 00:22:05,314 - INFO - DateWorker_0 - [Worker-2025-07-09] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:22:05,329 - INFO - DateWorker_0 - [Worker-2025-07-10] 🔄 Iniciando processamento de 2025-07-10
+2025-07-19 00:22:05,338 - INFO - DateWorker_0 - [Worker-2025-07-10] 📁 CSV: AcompanhamentoDeOportunidades-10-07-2025.csv
+2025-07-19 00:22:05,339 - INFO - DateWorker_0 - [Worker-2025-07-10] 📊 XLSX: Carteira Global 2025-07-10 070040.xlsx
+2025-07-19 00:22:05,343 - INFO - DateWorker_0 - [Worker-2025-07-10] 🚀 Executando monitoramento...
+2025-07-19 00:22:15,729 - INFO - DateWorker_0 - [Worker-2025-07-10] ✅ Monitoramento concluído para 2025-07-10
+2025-07-19 00:22:15,729 - INFO - DateWorker_0 - [Worker-2025-07-10] 📊 Pools processados: 73
+2025-07-19 00:22:15,729 - INFO - DateWorker_0 - [Worker-2025-07-10] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:22:15,762 - INFO - MainThread - 🔧 Modo debug restaurado
+2025-07-19 00:23:49,642 - INFO - MainThread - NumExpr defaulting to 8 threads.
+2025-07-19 00:23:49,831 - INFO - MainThread - 🔍 Descobrindo datas históricas disponíveis...
+2025-07-19 00:23:49,840 - INFO - MainThread - 📅 Encontradas 18 datas históricas:
+2025-07-19 00:23:49,840 - INFO - MainThread -    📄 2025-06-23
+2025-07-19 00:23:49,840 - INFO - MainThread -    📄 2025-06-24
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-06-25
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-06-26
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-06-27
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-06-28
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-06-29
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-06-30
+2025-07-19 00:23:49,841 - INFO - MainThread -    📄 2025-07-01
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-02
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-03
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-04
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-05
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-06
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-07
+2025-07-19 00:23:49,842 - INFO - MainThread -    📄 2025-07-08
+2025-07-19 00:23:49,843 - INFO - MainThread -    📄 2025-07-09
+2025-07-19 00:23:49,843 - INFO - MainThread -    📄 2025-07-10
+2025-07-19 00:23:49,857 - INFO - MainThread - 🔧 Modo debug temporariamente desabilitado (backup: /mnt/c/amfi/config/monitoring/_test_pools.json.backup_20250719_002349)
+2025-07-19 00:23:49,857 - INFO - DateWorker_0 - [Worker-2025-06-23] 🔄 Iniciando processamento de 2025-06-23
+2025-07-19 00:23:49,857 - INFO - DateWorker_1 - [Worker-2025-06-24] 🔄 Iniciando processamento de 2025-06-24
+2025-07-19 00:23:49,858 - INFO - DateWorker_2 - [Worker-2025-06-25] 🔄 Iniciando processamento de 2025-06-25
+2025-07-19 00:23:49,858 - INFO - DateWorker_3 - [Worker-2025-06-26] 🔄 Iniciando processamento de 2025-06-26
+2025-07-19 00:23:49,858 - INFO - DateWorker_4 - [Worker-2025-06-27] 🔄 Iniciando processamento de 2025-06-27
+2025-07-19 00:23:49,858 - INFO - DateWorker_5 - [Worker-2025-06-28] 🔄 Iniciando processamento de 2025-06-28
+2025-07-19 00:23:49,864 - INFO - DateWorker_0 - [Worker-2025-06-23] 📁 CSV: AcompanhamentoDeOportunidades-23-06-2025.csv
+2025-07-19 00:23:49,864 - INFO - DateWorker_2 - [Worker-2025-06-25] 📁 CSV: AcompanhamentoDeOportunidades-25-06-2025.csv
+2025-07-19 00:23:49,864 - INFO - DateWorker_1 - [Worker-2025-06-24] 📁 CSV: AcompanhamentoDeOportunidades-24-06-2025.csv
+2025-07-19 00:23:49,865 - INFO - DateWorker_3 - [Worker-2025-06-26] 📁 CSV: AcompanhamentoDeOportunidades-26-06-2025.csv
+2025-07-19 00:23:49,865 - INFO - DateWorker_0 - [Worker-2025-06-23] 📊 XLSX: Carteira Global 2025-06-23 070044.xlsx
+2025-07-19 00:23:49,865 - INFO - DateWorker_4 - [Worker-2025-06-27] 📁 CSV: AcompanhamentoDeOportunidades-27-06-2025.csv
+2025-07-19 00:23:49,865 - INFO - DateWorker_2 - [Worker-2025-06-25] 📊 XLSX: Carteira Global 2025-06-25 070036.xlsx
+2025-07-19 00:23:49,865 - INFO - DateWorker_1 - [Worker-2025-06-24] 📊 XLSX: Carteira Global 2025-06-24 070039.xlsx
+2025-07-19 00:23:49,865 - INFO - DateWorker_3 - [Worker-2025-06-26] 📊 XLSX: Carteira Global 2025-06-26 070049.xlsx
+2025-07-19 00:23:49,865 - WARNING - DateWorker_5 - [Worker-2025-06-28] ❌ XLSX não encontrado para 2025-06-28
+2025-07-19 00:23:49,866 - INFO - DateWorker_4 - [Worker-2025-06-27] 📊 XLSX: Carteira Global 2025-06-27 070037.xlsx
+2025-07-19 00:23:49,867 - INFO - DateWorker_5 - [Worker-2025-06-29] 🔄 Iniciando processamento de 2025-06-29
+2025-07-19 00:23:49,875 - WARNING - DateWorker_5 - [Worker-2025-06-29] ❌ XLSX não encontrado para 2025-06-29
+2025-07-19 00:23:49,875 - INFO - DateWorker_5 - [Worker-2025-06-30] 🔄 Iniciando processamento de 2025-06-30
+2025-07-19 00:23:49,884 - INFO - DateWorker_5 - [Worker-2025-06-30] 📁 CSV: AcompanhamentoDeOportunidades-30-06-2025.csv
+2025-07-19 00:23:49,884 - INFO - DateWorker_5 - [Worker-2025-06-30] 📊 XLSX: Carteira Global 2025-06-30 070040.xlsx
+2025-07-19 00:23:50,059 - INFO - DateWorker_3 - [Worker-2025-06-26] 🚀 Executando monitoramento...
+2025-07-19 00:23:50,059 - INFO - DateWorker_2 - [Worker-2025-06-25] 🚀 Executando monitoramento...
+2025-07-19 00:23:50,071 - INFO - DateWorker_0 - [Worker-2025-06-23] 🚀 Executando monitoramento...
+2025-07-19 00:23:50,072 - INFO - DateWorker_1 - [Worker-2025-06-24] 🚀 Executando monitoramento...
+2025-07-19 00:23:50,076 - INFO - DateWorker_4 - [Worker-2025-06-27] 🚀 Executando monitoramento...
+2025-07-19 00:23:50,098 - INFO - DateWorker_5 - [Worker-2025-06-30] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,056 - INFO - DateWorker_3 - [Worker-2025-06-26] ✅ Monitoramento concluído para 2025-06-26
+2025-07-19 00:25:01,057 - INFO - DateWorker_1 - [Worker-2025-06-24] ✅ Monitoramento concluído para 2025-06-24
+2025-07-19 00:25:01,058 - INFO - DateWorker_3 - [Worker-2025-06-26] 📊 Pools processados: 73
+2025-07-19 00:25:01,059 - INFO - DateWorker_1 - [Worker-2025-06-24] 📊 Pools processados: 73
+2025-07-19 00:25:01,060 - INFO - DateWorker_3 - [Worker-2025-06-26] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:25:01,061 - INFO - DateWorker_1 - [Worker-2025-06-24] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:25:01,079 - INFO - DateWorker_1 - [Worker-2025-07-01] 🔄 Iniciando processamento de 2025-07-01
+2025-07-19 00:25:01,085 - INFO - DateWorker_3 - [Worker-2025-07-02] 🔄 Iniciando processamento de 2025-07-02
+2025-07-19 00:25:01,093 - INFO - DateWorker_1 - [Worker-2025-07-01] 📁 CSV: AcompanhamentoDeOportunidades-01-07-2025.csv
+2025-07-19 00:25:01,094 - INFO - DateWorker_1 - [Worker-2025-07-01] 📊 XLSX: Carteira Global 2025-07-01 070053.xlsx
+2025-07-19 00:25:01,097 - INFO - DateWorker_3 - [Worker-2025-07-02] 📁 CSV: AcompanhamentoDeOportunidades-02-07-2025.csv
+2025-07-19 00:25:01,098 - INFO - DateWorker_3 - [Worker-2025-07-02] 📊 XLSX: Carteira Global 2025-07-02 070049.xlsx
+2025-07-19 00:25:01,195 - INFO - DateWorker_4 - [Worker-2025-06-27] ✅ Monitoramento concluído para 2025-06-27
+2025-07-19 00:25:01,196 - INFO - DateWorker_4 - [Worker-2025-06-27] 📊 Pools processados: 73
+2025-07-19 00:25:01,197 - INFO - DateWorker_0 - [Worker-2025-06-23] ✅ Monitoramento concluído para 2025-06-23
+2025-07-19 00:25:01,198 - INFO - DateWorker_4 - [Worker-2025-06-27] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:25:01,198 - INFO - DateWorker_0 - [Worker-2025-06-23] 📊 Pools processados: 73
+2025-07-19 00:25:01,199 - INFO - DateWorker_5 - [Worker-2025-06-30] ✅ Monitoramento concluído para 2025-06-30
+2025-07-19 00:25:01,200 - INFO - DateWorker_2 - [Worker-2025-06-25] ✅ Monitoramento concluído para 2025-06-25
+2025-07-19 00:25:01,200 - INFO - DateWorker_0 - [Worker-2025-06-23] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:25:01,201 - INFO - DateWorker_5 - [Worker-2025-06-30] 📊 Pools processados: 73
+2025-07-19 00:25:01,201 - INFO - DateWorker_2 - [Worker-2025-06-25] 📊 Pools processados: 73
+2025-07-19 00:25:01,201 - INFO - DateWorker_5 - [Worker-2025-06-30] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:25:01,202 - INFO - DateWorker_2 - [Worker-2025-06-25] 📈 Taxa de sucesso: 9.6%
+2025-07-19 00:25:01,211 - INFO - DateWorker_4 - [Worker-2025-07-03] 🔄 Iniciando processamento de 2025-07-03
+2025-07-19 00:25:01,214 - INFO - DateWorker_2 - [Worker-2025-07-04] 🔄 Iniciando processamento de 2025-07-04
+2025-07-19 00:25:01,216 - INFO - DateWorker_0 - [Worker-2025-07-05] 🔄 Iniciando processamento de 2025-07-05
+2025-07-19 00:25:01,223 - INFO - DateWorker_5 - [Worker-2025-07-06] 🔄 Iniciando processamento de 2025-07-06
+2025-07-19 00:25:01,226 - INFO - DateWorker_4 - [Worker-2025-07-03] 📁 CSV: AcompanhamentoDeOportunidades-03-07-2025.csv
+2025-07-19 00:25:01,226 - INFO - DateWorker_4 - [Worker-2025-07-03] 📊 XLSX: Carteira Global 2025-07-03 070043.xlsx
+2025-07-19 00:25:01,227 - INFO - DateWorker_2 - [Worker-2025-07-04] 📁 CSV: AcompanhamentoDeOportunidades-04-07-2025.csv
+2025-07-19 00:25:01,227 - INFO - DateWorker_2 - [Worker-2025-07-04] 📊 XLSX: Carteira Global 2025-07-04 070051.xlsx
+2025-07-19 00:25:01,229 - WARNING - DateWorker_0 - [Worker-2025-07-05] ❌ XLSX não encontrado para 2025-07-05
+2025-07-19 00:25:01,229 - INFO - DateWorker_1 - [Worker-2025-07-01] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,229 - INFO - DateWorker_0 - [Worker-2025-07-07] 🔄 Iniciando processamento de 2025-07-07
+2025-07-19 00:25:01,231 - WARNING - DateWorker_5 - [Worker-2025-07-06] ❌ XLSX não encontrado para 2025-07-06
+2025-07-19 00:25:01,232 - INFO - DateWorker_5 - [Worker-2025-07-08] 🔄 Iniciando processamento de 2025-07-08
+2025-07-19 00:25:01,234 - INFO - DateWorker_0 - [Worker-2025-07-07] 📁 CSV: AcompanhamentoDeOportunidades-07-07-2025.csv
+2025-07-19 00:25:01,235 - INFO - DateWorker_0 - [Worker-2025-07-07] 📊 XLSX: Carteira Global 2025-07-07 070041.xlsx
+2025-07-19 00:25:01,236 - INFO - DateWorker_5 - [Worker-2025-07-08] 📁 CSV: AcompanhamentoDeOportunidades-08-07-2025.csv
+2025-07-19 00:25:01,236 - INFO - DateWorker_5 - [Worker-2025-07-08] 📊 XLSX: Carteira Global 2025-07-08 070058.xlsx
+2025-07-19 00:25:01,251 - INFO - DateWorker_3 - [Worker-2025-07-02] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,300 - ERROR - DateWorker_1 - [Worker-2025-07-01] ❌ Falha no monitoramento para 2025-07-01: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': 'Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-03 070043.xlsx: File is not a zip file'}], 'sucesso': False, 'erro': 'Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-03 070043.xlsx: File is not a zip file'}
+2025-07-19 00:25:01,317 - INFO - DateWorker_1 - [Worker-2025-07-09] 🔄 Iniciando processamento de 2025-07-09
+2025-07-19 00:25:01,321 - ERROR - DateWorker_3 - [Worker-2025-07-02] ❌ Falha no monitoramento para 2025-07-02: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': 'Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-04 070051.xlsx: File is not a zip file'}], 'sucesso': False, 'erro': 'Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-04 070051.xlsx: File is not a zip file'}
+2025-07-19 00:25:01,325 - INFO - DateWorker_1 - [Worker-2025-07-09] 📁 CSV: AcompanhamentoDeOportunidades-09-07-2025.csv
+2025-07-19 00:25:01,325 - INFO - DateWorker_1 - [Worker-2025-07-09] 📊 XLSX: Carteira Global 2025-07-09 070043.xlsx
+2025-07-19 00:25:01,332 - INFO - DateWorker_3 - [Worker-2025-07-10] 🔄 Iniciando processamento de 2025-07-10
+2025-07-19 00:25:01,337 - INFO - DateWorker_3 - [Worker-2025-07-10] 📁 CSV: AcompanhamentoDeOportunidades-10-07-2025.csv
+2025-07-19 00:25:01,338 - INFO - DateWorker_3 - [Worker-2025-07-10] 📊 XLSX: Carteira Global 2025-07-10 070040.xlsx
+2025-07-19 00:25:01,422 - INFO - DateWorker_5 - [Worker-2025-07-08] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,432 - INFO - DateWorker_0 - [Worker-2025-07-07] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,434 - INFO - DateWorker_4 - [Worker-2025-07-03] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,436 - INFO - DateWorker_2 - [Worker-2025-07-04] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,496 - ERROR - DateWorker_5 - [Worker-2025-07-08] ❌ Falha no monitoramento para 2025-07-08: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': 'Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-10 070040.xlsx: File is not a zip file'}], 'sucesso': False, 'erro': 'Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-10 070040.xlsx: File is not a zip file'}
+2025-07-19 00:25:01,501 - INFO - DateWorker_1 - [Worker-2025-07-09] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,525 - ERROR - DateWorker_1 - [Worker-2025-07-09] ❌ Falha no monitoramento para 2025-07-09: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': "Erro ao carregar CSV desconhecido: [Errno 2] No such file or directory: 'data/input/csv/AcompanhamentoDeOportunidades-08-07-2025.csv'"}], 'sucesso': False, 'erro': "Erro ao carregar CSV desconhecido: [Errno 2] No such file or directory: 'data/input/csv/AcompanhamentoDeOportunidades-08-07-2025.csv'"}
+2025-07-19 00:25:01,535 - INFO - DateWorker_3 - [Worker-2025-07-10] 🚀 Executando monitoramento...
+2025-07-19 00:25:01,569 - ERROR - DateWorker_3 - [Worker-2025-07-10] ❌ Falha no monitoramento para 2025-07-10: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': "Erro ao carregar CSV desconhecido: [Errno 2] No such file or directory: 'data/input/csv/AcompanhamentoDeOportunidades-09-07-2025.csv'"}], 'sucesso': False, 'erro': "Erro ao carregar CSV desconhecido: [Errno 2] No such file or directory: 'data/input/csv/AcompanhamentoDeOportunidades-09-07-2025.csv'"}
+2025-07-19 00:25:33,137 - ERROR - DateWorker_0 - [Worker-2025-07-07] ❌ Falha no monitoramento para 2025-07-07: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': "Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx: [Errno 2] No such file or directory: 'data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx'"}], 'sucesso': False, 'erro': "Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx: [Errno 2] No such file or directory: 'data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx'"}
+2025-07-19 00:25:33,179 - ERROR - DateWorker_2 - [Worker-2025-07-04] ❌ Falha no monitoramento para 2025-07-04: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': "Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx: [Errno 2] No such file or directory: 'data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx'"}], 'sucesso': False, 'erro': "Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx: [Errno 2] No such file or directory: 'data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx'"}
+2025-07-19 00:25:33,279 - ERROR - DateWorker_4 - [Worker-2025-07-03] ❌ Falha no monitoramento para 2025-07-03: {'csv_data': None, 'xlsx_data': None, 'pools_configs': {}, 'pools_processados': [], 'monitores_debug': None, 'validacoes': {}, 'metadados': {}, 'alertas': [{'tipo': 'error', 'mensagem': "Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx: [Errno 2] No such file or directory: 'data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx'"}], 'sucesso': False, 'erro': "Erro ao carregar XLSX data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx: [Errno 2] No such file or directory: 'data/input/xlsx/Carteira Global 2025-07-09 070043.xlsx'"}
+2025-07-19 00:25:33,305 - INFO - MainThread - 🔧 Modo debug restaurado
+2025-07-19 00:25:47,304 - INFO - MainThread - NumExpr defaulting to 8 threads.
+2025-07-19 00:25:47,508 - INFO - MainThread - 🔍 Descobrindo datas históricas disponíveis...
+2025-07-19 00:25:47,517 - INFO - MainThread - 📅 Encontradas 18 datas históricas:
+2025-07-19 00:25:47,518 - INFO - MainThread -    📄 2025-06-23
+2025-07-19 00:25:47,518 - INFO - MainThread -    📄 2025-06-24
+2025-07-19 00:25:47,518 - INFO - MainThread -    📄 2025-06-25
+2025-07-19 00:25:47,518 - INFO - MainThread -    📄 2025-06-26
+2025-07-19 00:25:47,518 - INFO - MainThread -    📄 2025-06-27
+2025-07-19 00:25:47,518 - INFO - MainThread -    📄 2025-06-28
+2025-07-19 00:25:47,519 - INFO - MainThread -    📄 2025-06-29
+2025-07-19 00:25:47,519 - INFO - MainThread -    📄 2025-06-30
+2025-07-19 00:25:47,519 - INFO - MainThread -    📄 2025-07-01
+2025-07-19 00:25:47,519 - INFO - MainThread -    📄 2025-07-02
+2025-07-19 00:25:47,519 - INFO - MainThread -    📄 2025-07-03
+2025-07-19 00:25:47,519 - INFO - MainThread -    📄 2025-07-04
+2025-07-19 00:25:47,520 - INFO - MainThread -    📄 2025-07-05
+2025-07-19 00:25:47,520 - INFO - MainThread -    📄 2025-07-06
+2025-07-19 00:25:47,520 - INFO - MainThread -    📄 2025-07-07
+2025-07-19 00:25:47,520 - INFO - MainThread -    📄 2025-07-08
+2025-07-19 00:25:47,520 - INFO - MainThread -    📄 2025-07-09
+2025-07-19 00:25:47,520 - INFO - MainThread -    📄 2025-07-10
+2025-07-19 00:25:47,567 - INFO - MainThread - 🔧 Modo debug temporariamente desabilitado (backup: /mnt/c/amfi/config/monitoring/_test_pools.json.backup_20250719_002547)
+2025-07-19 00:25:47,568 - INFO - DateWorker_0 - [Worker-2025-06-23] 🔄 Iniciando processamento de 2025-06-23
+2025-07-19 00:25:47,568 - INFO - DateWorker_1 - [Worker-2025-06-24] 🔄 Iniciando processamento de 2025-06-24
+2025-07-19 00:25:47,568 - INFO - DateWorker_2 - [Worker-2025-06-25] 🔄 Iniciando processamento de 2025-06-25
+2025-07-19 00:25:47,568 - INFO - DateWorker_3 - [Worker-2025-06-26] 🔄 Iniciando processamento de 2025-06-26
+2025-07-19 00:25:47,569 - INFO - DateWorker_4 - [Worker-2025-06-27] 🔄 Iniciando processamento de 2025-06-27
+2025-07-19 00:25:47,569 - INFO - DateWorker_5 - [Worker-2025-06-28] 🔄 Iniciando processamento de 2025-06-28
+2025-07-19 00:25:47,569 - INFO - DateWorker_6 - [Worker-2025-06-29] 🔄 Iniciando processamento de 2025-06-29
+2025-07-19 00:25:47,570 - INFO - DateWorker_7 - [Worker-2025-06-30] 🔄 Iniciando processamento de 2025-06-30
+2025-07-19 00:25:47,570 - INFO - DateWorker_8 - [Worker-2025-07-01] 🔄 Iniciando processamento de 2025-07-01
+2025-07-19 00:25:47,570 - INFO - DateWorker_9 - [Worker-2025-07-02] 🔄 Iniciando processamento de 2025-07-02
+2025-07-19 00:25:47,571 - INFO - DateWorker_10 - [Worker-2025-07-03] 🔄 Iniciando processamento de 2025-07-03
+2025-07-19 00:25:47,571 - INFO - DateWorker_11 - [Worker-2025-07-04] 🔄 Iniciando processamento de 2025-07-04
+2025-07-19 00:25:47,578 - INFO - DateWorker_3 - [Worker-2025-06-26] 📁 CSV: AcompanhamentoDeOportunidades-26-06-2025.csv
+2025-07-19 00:25:47,578 - INFO - DateWorker_2 - [Worker-2025-06-25] 📁 CSV: AcompanhamentoDeOportunidades-25-06-2025.csv
+2025-07-19 00:25:47,578 - INFO - DateWorker_0 - [Worker-2025-06-23] 📁 CSV: AcompanhamentoDeOportunidades-23-06-2025.csv
+2025-07-19 00:25:47,578 - INFO - DateWorker_1 - [Worker-2025-06-24] 📁 CSV: AcompanhamentoDeOportunidades-24-06-2025.csv
+2025-07-19 00:25:47,578 - INFO - DateWorker_3 - [Worker-2025-06-26] 📊 XLSX: Carteira Global 2025-06-26 070049.xlsx
+2025-07-19 00:25:47,578 - WARNING - DateWorker_5 - [Worker-2025-06-28] ❌ XLSX não encontrado para 2025-06-28
+2025-07-19 00:25:47,578 - INFO - DateWorker_4 - [Worker-2025-06-27] 📁 CSV: AcompanhamentoDeOportunidades-27-06-2025.csv
+2025-07-19 00:25:47,578 - WARNING - DateWorker_6 - [Worker-2025-06-29] ❌ XLSX não encontrado para 2025-06-29
+2025-07-19 00:25:47,578 - INFO - DateWorker_7 - [Worker-2025-06-30] 📁 CSV: AcompanhamentoDeOportunidades-30-06-2025.csv
+2025-07-19 00:25:47,579 - INFO - DateWorker_2 - [Worker-2025-06-25] 📊 XLSX: Carteira Global 2025-06-25 070036.xlsx
+2025-07-19 00:25:47,579 - INFO - DateWorker_0 - [Worker-2025-06-23] 📊 XLSX: Carteira Global 2025-06-23 070044.xlsx
+2025-07-19 00:25:47,579 - INFO - DateWorker_1 - [Worker-2025-06-24] 📊 XLSX: Carteira Global 2025-06-24 070039.xlsx
+2025-07-19 00:25:47,580 - INFO - DateWorker_5 - [Worker-2025-07-05] 🔄 Iniciando processamento de 2025-07-05
+2025-07-19 00:25:47,580 - INFO - DateWorker_4 - [Worker-2025-06-27] 📊 XLSX: Carteira Global 2025-06-27 070037.xlsx
+2025-07-19 00:25:47,580 - INFO - DateWorker_6 - [Worker-2025-07-06] 🔄 Iniciando processamento de 2025-07-06
+2025-07-19 00:25:47,580 - INFO - DateWorker_7 - [Worker-2025-06-30] 📊 XLSX: Carteira Global 2025-06-30 070040.xlsx
+2025-07-19 00:25:47,581 - INFO - DateWorker_11 - [Worker-2025-07-04] 📁 CSV: AcompanhamentoDeOportunidades-04-07-2025.csv
+2025-07-19 00:25:47,581 - INFO - DateWorker_10 - [Worker-2025-07-03] 📁 CSV: AcompanhamentoDeOportunidades-03-07-2025.csv
+2025-07-19 00:25:47,581 - INFO - DateWorker_8 - [Worker-2025-07-01] 📁 CSV: AcompanhamentoDeOportunidades-01-07-2025.csv
+2025-07-19 00:25:47,582 - INFO - DateWorker_9 - [Worker-2025-07-02] 📁 CSV: AcompanhamentoDeOportunidades-02-07-2025.csv
+2025-07-19 00:25:47,583 - INFO - DateWorker_11 - [Worker-2025-07-04] 📊 XLSX: Carteira Global 2025-07-04 070051.xlsx
+2025-07-19 00:25:47,583 - INFO - DateWorker_10 - [Worker-2025-07-03] 📊 XLSX: Carteira Global 2025-07-03 070043.xlsx
+2025-07-19 00:25:47,584 - INFO - DateWorker_8 - [Worker-2025-07-01] 📊 XLSX: Carteira Global 2025-07-01 070053.xlsx
+2025-07-19 00:25:47,584 - INFO - DateWorker_9 - [Worker-2025-07-02] 📊 XLSX: Carteira Global 2025-07-02 070049.xlsx
+2025-07-19 00:25:47,589 - WARNING - DateWorker_6 - [Worker-2025-07-06] ❌ XLSX não encontrado para 2025-07-06
+2025-07-19 00:25:47,589 - INFO - DateWorker_6 - [Worker-2025-07-07] 🔄 Iniciando processamento de 2025-07-07
+2025-07-19 00:25:47,589 - WARNING - DateWorker_5 - [Worker-2025-07-05] ❌ XLSX não encontrado para 2025-07-05
+2025-07-19 00:25:47,590 - INFO - DateWorker_5 - [Worker-2025-07-08] 🔄 Iniciando processamento de 2025-07-08
+2025-07-19 00:25:47,606 - INFO - DateWorker_5 - [Worker-2025-07-08] 📁 CSV: AcompanhamentoDeOportunidades-08-07-2025.csv
+2025-07-19 00:25:47,606 - INFO - DateWorker_6 - [Worker-2025-07-07] 📁 CSV: AcompanhamentoDeOportunidades-07-07-2025.csv
+2025-07-19 00:25:47,606 - INFO - DateWorker_5 - [Worker-2025-07-08] 📊 XLSX: Carteira Global 2025-07-08 070058.xlsx
+2025-07-19 00:25:47,607 - INFO - DateWorker_6 - [Worker-2025-07-07] 📊 XLSX: Carteira Global 2025-07-07 070041.xlsx
+2025-07-19 00:25:47,876 - INFO - DateWorker_3 - [Worker-2025-06-26] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,892 - INFO - DateWorker_2 - [Worker-2025-06-25] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,896 - INFO - DateWorker_0 - [Worker-2025-06-23] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,913 - INFO - DateWorker_7 - [Worker-2025-06-30] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,917 - INFO - DateWorker_1 - [Worker-2025-06-24] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,920 - INFO - DateWorker_4 - [Worker-2025-06-27] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,935 - INFO - DateWorker_8 - [Worker-2025-07-01] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,955 - INFO - DateWorker_5 - [Worker-2025-07-08] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,958 - INFO - DateWorker_9 - [Worker-2025-07-02] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,958 - INFO - DateWorker_11 - [Worker-2025-07-04] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,959 - INFO - DateWorker_6 - [Worker-2025-07-07] 🚀 Executando monitoramento...
+2025-07-19 00:25:47,963 - INFO - DateWorker_10 - [Worker-2025-07-03] 🚀 Executando monitoramento...

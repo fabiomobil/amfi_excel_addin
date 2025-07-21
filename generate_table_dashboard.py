@@ -425,7 +425,7 @@ def generate_table_dashboard_html(data, date):
         
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f8faff 0%, #e6efff 100%);
             color: #333;
             line-height: 1.6;
             min-height: 100vh;
@@ -438,19 +438,40 @@ def generate_table_dashboard_html(data, date):
         }}
         
         header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2E3A87 0%, #4A90E2 50%, #7B68EE 100%);
             color: white;
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            position: relative;
         }}
         
         header h1 {{
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }}
+        
+        .logo-container {{
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 8px;
+            backdrop-filter: blur(10px);
+        }}
+        
+        .logo-container img {{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }}
         
         .date-info {{
@@ -490,7 +511,7 @@ def generate_table_dashboard_html(data, date):
         }}
         
         .indicator-section h2 {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4A90E2 0%, #7B68EE 100%);
             color: white;
             padding: 20px 30px;
             margin: 0;
@@ -524,19 +545,19 @@ def generate_table_dashboard_html(data, date):
         }}
         
         .violation-row {{
-            background: #fff5f5;
+            background: #fff2f2;
         }}
         
         .violation-row:hover {{
-            background: #fed7d7;
+            background: #ffe6e6;
         }}
         
         .ok-row {{
-            background: #f0fff4;
+            background: #f0f8ff;
         }}
         
         .ok-row:hover {{
-            background: #c6f6d5;
+            background: #e6f3ff;
         }}
         
         .pool-name {{
@@ -677,6 +698,100 @@ def generate_table_dashboard_html(data, date):
             font-size: 1.1em;
         }}
         
+        .action-buttons {{
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }}
+        
+        .btn-monitoring {{
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }}
+        
+        .btn-monitoring:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }}
+        
+        .btn-monitoring:disabled {{
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }}
+        
+        .monitoring-status {{
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }}
+        
+        .status-success {{ color: #4CAF50; }}
+        .status-warning {{ color: #FF9800; }}
+        .status-error {{ color: #F44336; }}
+        
+        /* Modal */
+        .modal {{
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }}
+        
+        .modal-content {{
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }}
+        
+        .modal-buttons {{
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }}
+        
+        .btn-confirm {{
+            background: #F44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }}
+        
+        .btn-cancel {{
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }}
+        
         .financial-grid {{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -746,7 +861,12 @@ def generate_table_dashboard_html(data, date):
 <body>
     <div class="container">
         <header>
-            <h1>📊 AmFi - Dashboard de Indicadores</h1>
+            <h1>
+                <div class="logo-container">
+                    <img src="logo.svg" alt="AmFi Logo">
+                </div>
+                AmFi - Dashboard de Indicadores
+            </h1>
             <p class="date-info">Data de Referência: {date} | Atualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
             
             <div class="summary-stats">
@@ -763,6 +883,16 @@ def generate_table_dashboard_html(data, date):
                     <span class="stat-label">Taxa Compliance</span>
                 </div>
             </div>
+            
+            <div class="action-buttons">
+                <button class="btn-monitoring" onclick="runMonitoring()">
+                    🚀 Executar Monitoramento
+                </button>
+            </div>
+            
+            <div id="monitoring-status" class="monitoring-status" style="display: none;">
+                <span id="status-message"></span>
+            </div>
         </header>
         
         {generate_subordinacao_table(subordinacao_data)}
@@ -770,6 +900,18 @@ def generate_table_dashboard_html(data, date):
         <footer>
             <p>AmFi Monitoring System - 2025 | Dashboard de Tabelas por Indicador</p>
         </footer>
+    </div>
+    
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Monitoramento já executado hoje</h3>
+            <p>O monitoramento já foi executado hoje. Deseja executar novamente e sobrescrever os resultados existentes?</p>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="confirmOverwrite()">Sim, Sobrescrever</button>
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -787,6 +929,89 @@ def generate_table_dashboard_html(data, date):
         setInterval(() => {{
             location.reload();
         }}, 300000);
+        
+        // Funções de Monitoramento
+        function showStatus(message, type) {{
+            const statusDiv = document.getElementById('monitoring-status');
+            const statusMessage = document.getElementById('status-message');
+            
+            statusMessage.innerHTML = message;
+            statusMessage.className = 'status-' + type;
+            statusDiv.style.display = 'block';
+            
+            // Auto-hide após 10 segundos se for sucesso
+            if (type === 'success') {{
+                setTimeout(() => {{
+                    statusDiv.style.display = 'none';
+                }}, 10000);
+            }}
+        }}
+        
+        function showModal() {{
+            document.getElementById('confirmModal').style.display = 'block';
+        }}
+        
+        function closeModal() {{
+            document.getElementById('confirmModal').style.display = 'none';
+        }}
+        
+        function disableButton(disabled) {{
+            const btn = document.querySelector('.btn-monitoring');
+            btn.disabled = disabled;
+            btn.textContent = disabled ? '🔄 Executando...' : '🚀 Executar Monitoramento';
+        }}
+        
+        async function executeMonitoring(force = false) {{
+            disableButton(true);
+            showStatus('🔄 Iniciando monitoramento...', 'warning');
+            
+            try {{
+                // Executar o script Python via fetch
+                const scriptPath = 'run_monitoring_api.py';
+                const args = force ? '--force' : '';
+                
+                // Como não podemos executar diretamente via fetch, vamos simular
+                // Em produção, isso seria um endpoint real
+                const response = await fetch('#', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify({{
+                        action: 'run_monitoring',
+                        force: force
+                    }})
+                }}).catch(() => {{
+                    // Fallback: tentar executar via Python (limitado no browser)
+                    throw new Error('Endpoint não disponível. Execute manualmente: python3 run_monitoring_api.py');
+                }});
+                
+                // Para demonstração, vamos mostrar uma mensagem
+                throw new Error('Funcionalidade requer servidor web. Execute: python3 run_monitoring_api.py');
+                
+            }} catch (error) {{
+                showStatus(`❌ Erro: ${{error.message}}<br><br>💡 <strong>Como executar manualmente:</strong><br>1. Abra um terminal<br>2. Execute: <code>python3 run_monitoring_api.py</code><br>3. Atualize esta página`, 'error');
+            }} finally {{
+                disableButton(false);
+            }}
+        }}
+        
+        function runMonitoring() {{
+            executeMonitoring(false);
+        }}
+        
+        function confirmOverwrite() {{
+            closeModal();
+            executeMonitoring(true);
+        }}
+        
+        // Fechar modal clicando fora dele
+        window.onclick = function(event) {{
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {{
+                closeModal();
+            }}
+        }}
     </script>
 </body>
 </html>"""
