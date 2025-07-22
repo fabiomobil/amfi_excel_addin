@@ -41,6 +41,20 @@ except ImportError as e:
     print(f"⚠️ Funcionalidade de PDD não disponível: {e}")
     PDD_AVAILABLE = False
 
+# Importações para funcionalidade de PDD Hierárquico
+try:
+    from monitor.utils.pdd_api_endpoints import (
+        get_pdd_hierarchy,
+        get_pdd_group_cedentes,
+        get_pdd_cedente_worst_assets,
+        get_pdd_trends,
+        get_pdd_risk_summary
+    )
+    PDD_HIERARCHICAL_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Funcionalidade de PDD Hierárquico não disponível: {e}")
+    PDD_HIERARCHICAL_AVAILABLE = False
+
 class AmFiHandler(http.server.SimpleHTTPRequestHandler):
     """Handler customizado para o dashboard AmFi."""
     
@@ -85,6 +99,17 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
             # Servir o logo
             logo_path = dashboard_dir / "logo.svg"
             self.serve_file(str(logo_path), 'image/svg+xml')
+        # Endpoints PDD Hierárquicos
+        elif self.path.startswith('/api/pdd/') and '/hierarchy' in self.path:
+            self.handle_pdd_hierarchy_get()
+        elif self.path.startswith('/api/pdd/') and '/group/' in self.path and '/cedentes' in self.path:
+            self.handle_pdd_group_cedentes_get()
+        elif self.path.startswith('/api/pdd/cedente/') and '/worst_assets' in self.path:
+            self.handle_pdd_worst_assets_get()
+        elif self.path.startswith('/api/pdd/') and '/trends' in self.path:
+            self.handle_pdd_trends_get()
+        elif self.path.startswith('/api/pdd/') and '/risk_summary' in self.path:
+            self.handle_pdd_risk_summary_get()
         else:
             # Servir outros arquivos estáticos
             super().do_GET()
@@ -576,6 +601,142 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Content-length', len(error_response.encode('utf-8')))
         self.end_headers()
         self.wfile.write(error_response.encode('utf-8'))
+
+    # Novos endpoints PDD Hierárquicos
+    
+    def handle_pdd_hierarchy_get(self):
+        """Processa GET /api/pdd/{pool_id}/hierarchy"""
+        if not PDD_HIERARCHICAL_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de PDD Hierárquico não disponível")
+            return
+        
+        try:
+            # Extrair pool_id do path: /api/pdd/{pool_id}/hierarchy
+            path_parts = self.path.strip('/').split('/')
+            if len(path_parts) < 4 or path_parts[0] != 'api' or path_parts[1] != 'pdd':
+                self.send_json_error(400, "Path inválido. Use: /api/pdd/{pool_id}/hierarchy")
+                return
+                
+            pool_id = path_parts[2]
+            
+            print(f"🌳 Buscando hierarquia PDD para pool: {pool_id}")
+            
+            result = get_pdd_hierarchy(pool_id)
+            self.send_json_response(result)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter hierarquia PDD: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+    
+    def handle_pdd_group_cedentes_get(self):
+        """Processa GET /api/pdd/{pool_id}/group/{group_id}/cedentes"""
+        if not PDD_HIERARCHICAL_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de PDD Hierárquico não disponível")
+            return
+        
+        try:
+            # Extrair pool_id e group_id do path: /api/pdd/{pool_id}/group/{group_id}/cedentes
+            path_parts = self.path.strip('/').split('/')
+            if len(path_parts) < 6 or path_parts[0] != 'api' or path_parts[1] != 'pdd':
+                self.send_json_error(400, "Path inválido. Use: /api/pdd/{pool_id}/group/{group_id}/cedentes")
+                return
+                
+            pool_id = path_parts[2]
+            group_id = path_parts[4]
+            
+            print(f"🏢 Buscando cedentes do grupo {group_id} para pool: {pool_id}")
+            
+            result = get_pdd_group_cedentes(pool_id, group_id)
+            self.send_json_response(result)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter cedentes do grupo: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+    
+    def handle_pdd_worst_assets_get(self):
+        """Processa GET /api/pdd/cedente/{cedente_id}/worst_assets"""
+        if not PDD_HIERARCHICAL_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de PDD Hierárquico não disponível")
+            return
+        
+        try:
+            # Extrair cedente_id do path: /api/pdd/cedente/{cedente_id}/worst_assets
+            path_parts = self.path.strip('/').split('/')
+            if len(path_parts) < 5 or path_parts[0] != 'api' or path_parts[1] != 'pdd' or path_parts[2] != 'cedente':
+                self.send_json_error(400, "Path inválido. Use: /api/pdd/cedente/{cedente_id}/worst_assets")
+                return
+                
+            cedente_id = path_parts[3]
+            
+            # Parse query parameters se houver
+            parsed_url = urlparse(self.path)
+            query_params = parse_qs(parsed_url.query)
+            
+            pool_id = query_params.get('pool_id', [None])[0]
+            limit = int(query_params.get('limit', ['10'])[0])
+            
+            print(f"📉 Buscando piores ativos do cedente: {cedente_id} (pool: {pool_id}, limit: {limit})")
+            
+            result = get_pdd_cedente_worst_assets(cedente_id, pool_id, limit)
+            self.send_json_response(result)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter piores ativos: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+    
+    def handle_pdd_trends_get(self):
+        """Processa GET /api/pdd/{pool_id}/trends"""
+        if not PDD_HIERARCHICAL_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de PDD Hierárquico não disponível")
+            return
+        
+        try:
+            # Extrair pool_id do path: /api/pdd/{pool_id}/trends
+            path_parts = self.path.strip('/').split('/')
+            if len(path_parts) < 4 or path_parts[0] != 'api' or path_parts[1] != 'pdd':
+                self.send_json_error(400, "Path inválido. Use: /api/pdd/{pool_id}/trends")
+                return
+                
+            pool_id = path_parts[2]
+            
+            # Parse query parameters
+            parsed_url = urlparse(self.path)
+            query_params = parse_qs(parsed_url.query)
+            
+            days = int(query_params.get('days', ['30'])[0])
+            
+            print(f"📈 Buscando tendências PDD para pool: {pool_id} ({days} dias)")
+            
+            result = get_pdd_trends(pool_id, days)
+            self.send_json_response(result)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter tendências PDD: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+    
+    def handle_pdd_risk_summary_get(self):
+        """Processa GET /api/pdd/{pool_id}/risk_summary"""
+        if not PDD_HIERARCHICAL_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de PDD Hierárquico não disponível")
+            return
+        
+        try:
+            # Extrair pool_id do path: /api/pdd/{pool_id}/risk_summary
+            path_parts = self.path.strip('/').split('/')
+            if len(path_parts) < 4 or path_parts[0] != 'api' or path_parts[1] != 'pdd':
+                self.send_json_error(400, "Path inválido. Use: /api/pdd/{pool_id}/risk_summary")
+                return
+                
+            pool_id = path_parts[2]
+            
+            print(f"🗺️ Buscando resumo de risco PDD para pool: {pool_id}")
+            
+            result = get_pdd_risk_summary(pool_id)
+            self.send_json_response(result)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter resumo de risco: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
 
 def main():
     """Inicia o servidor web."""

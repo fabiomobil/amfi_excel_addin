@@ -1,6 +1,6 @@
 {
   "tipo": "subordinacao",
-  "last_updated": "2025-07-21T21:13:36.820686",
+  "last_updated": "2025-07-22T18:06:16.084582",
   "violations": [
     {
       "pool": "Dinie Pool #2",
@@ -17,7 +17,7 @@
         "jr_atual": 95914.92,
         "denominador_calculo": 821760.2100000001
       },
-      "timestamp": "2025-07-21T21:13:36.808252"
+      "timestamp": "2025-07-22T18:06:16.074648"
     },
     {
       "pool": "AFA Pool #1",
@@ -34,7 +34,7 @@
         "jr_atual": 1939276.36,
         "denominador_calculo": 23218721.82
       },
-      "timestamp": "2025-07-21T21:13:36.808280"
+      "timestamp": "2025-07-22T18:06:16.074675"
     },
     {
       "pool": "Dinie Pool #2",
@@ -51,7 +51,7 @@
         "jr_atual": 95914.92,
         "denominador_calculo": 821760.2100000001
       },
-      "timestamp": "2025-07-21T21:13:36.808243"
+      "timestamp": "2025-07-22T18:06:16.074639"
     },
     {
       "pool": "E-ctare Pool #1",
@@ -68,7 +68,7 @@
         "jr_atual": 1961303.1,
         "denominador_calculo": 10306692.77
       },
-      "timestamp": "2025-07-21T21:13:36.808263"
+      "timestamp": "2025-07-22T18:06:16.074660"
     },
     {
       "pool": "Formento Pool #3",
@@ -85,7 +85,7 @@
         "jr_atual": 502282.1,
         "denominador_calculo": 2581720.56
       },
-      "timestamp": "2025-07-21T21:13:36.808274"
+      "timestamp": "2025-07-22T18:06:16.074670"
     },
     {
       "pool": "AFA Pool #1",
@@ -102,7 +102,7 @@
         "jr_atual": 1939276.36,
         "denominador_calculo": 23218721.82
       },
-      "timestamp": "2025-07-21T21:13:36.808279"
+      "timestamp": "2025-07-22T18:06:16.074674"
     }
   ]
 }

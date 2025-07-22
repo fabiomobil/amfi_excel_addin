@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmFi PDD Dashboard - Exemplo de Integração</title>
+    
+    <!-- CSS existente do dashboard -->
+    <style>
+        /* Estilos básicos do dashboard (simulado) */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #f8faff; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        
+        .dashboard-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        
+        .pdd-section { 
+            background: white; 
+            border-radius: 10px; 
+            margin: 20px 0; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        }
+        
+        .section-header { 
+            padding: 15px 20px; 
+            background: #667eea; 
+            color: white; 
+            border-radius: 10px 10px 0 0; 
+            cursor: pointer; 
+        }
+        
+        .section-content { 
+            padding: 20px; 
+        }
+        
+        .pdd-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        
+        .pdd-table th, .pdd-table td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+        }
+        
+        .pdd-table th { 
+            background: #f8f9fa; 
+            font-weight: 600; 
+        }
+        
+        .pool-row { 
+            cursor: pointer; 
+            transition: background-color 0.2s; 
+        }
+        
+        .pool-row:hover { 
+            background: #f8f9fa; 
+        }
+        
+        .violation-row { 
+            background: #fff5f5; 
+        }
+        
+        .ok-row { 
+            background: #f0fff4; 
+        }
+        
+        .pdd-value { 
+            font-weight: bold; 
+        }
+        
+        .pdd-value.high { 
+            color: #e53e3e; 
+        }
+        
+        .pdd-value.medium { 
+            color: #d69e2e; 
+        }
+        
+        .pdd-value.low { 
+            color: #38a169; 
+        }
+        
+        .action-btn { 
+            background: #667eea; 
+            color: white; 
+            border: none; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.8em; 
+            cursor: pointer; 
+            margin: 0 2px; 
+        }
+        
+        .action-btn:hover { 
+            background: #5a67d8; 
+        }
+        
+        .toggle-icon { 
+            display: inline-block; 
+            transition: transform 0.3s; 
+            margin-right: 8px; 
+        }
+    </style>
+    
+    <!-- CSS do sistema interativo -->
+    <link rel="stylesheet" href="pdd-dashboard-interactive.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>AmFi Dashboard PDD - Exemplo de Integração</h1>
+        
+        <!-- Seção Principal de PDD -->
+        <div class="pdd-section">
+            <div class="section-header" onclick="togglePDDSection()">
+                <span id="pdd-toggle">▼</span> 🔍 Análise de PDD/Inadimplência
+            </div>
+            
+            <div id="pdd-content" class="section-content">
+                <table class="pdd-table">
+                    <thead>
+                        <tr>
+                            <th>Pool</th>
+                            <th>Status</th>
+                            <th>PDD Total</th>
+                            <th>Grupos de Risco</th>
+                            <th>Cedentes c/ PDD</th>
+                            <th>Tendência</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Pool 1: E-ctare (Alto Risco) -->
+                        <tr class="violation-row pool-row" 
+                            data-pool-id="E-ctare_Pool_1"
+                            onclick="toggleGroup('E-ctare_Pool_1', 'high_risk', this)">
+                            <td>
+                                <span class="toggle-icon">▼</span>
+                                <strong>E-ctare Pool #1</strong>
+                            </td>
+                            <td><span class="badge violation">CRÍTICO</span></td>
+                            <td>
+                                <span class="pdd-value high" 
+                                      data-tooltip="pdd_detail" 
+                                      data-entity-id="E-ctare_Pool_1" 
+                                      data-pool-id="E-ctare_Pool_1">
+                                    15.8%
+                                </span>
+                            </td>
+                            <td>
+                                <div data-tooltip="grupos_info" 
+                                     data-entity-id="E-ctare_Pool_1" 
+                                     data-pool-id="E-ctare_Pool_1">
+                                    3 grupos (2 críticos)
+                                </div>
+                            </td>
+                            <td>12 cedentes</td>
+                            <td>
+                                <div class="trend-indicator trend-up" 
+                                     data-pool-id="E-ctare_Pool_1"
+                                     data-entity-id="E-ctare_Pool_1"
+                                     data-entity-type="pool">
+                                    <span class="trend-arrow">↗</span>
+                                    <span class="trend-value">+2.3%</span>
+                                    <span class="trend-period">7d</span>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="action-btn" 
+                                        onclick="showQuickActions('pool', 'E-ctare_Pool_1', this); event.stopPropagation();">
+                                    ⚡ Actions
+                                </button>
+                                <button class="action-btn" 
+                                        onclick="showAtivoDetails('E-ctare_Pool_1', 'overview'); event.stopPropagation();">
+                                    👁 Detalhes
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Drilldown Row para E-ctare (será populado dinamicamente) -->
+                        <tr id="group_E-ctare_Pool_1_high_risk_content" 
+                            class="drilldown-row" 
+                            style="display: none;">
+                            <td colspan="7">
+                                <div class="drilldown-content">
+                                    <div class="drilldown-header">
+                                        <h4>📊 Detalhamento - E-ctare Pool #1</h4>
+                                        <div class="drilldown-actions">
+                                            <button class="drilldown-action-btn" 
+                                                    onclick="generateReport('pool', 'E-ctare_Pool_1', 'E-ctare_Pool_1', 'detailed')">
+                                                📄 Relatório
+                                            </button>
+                                            <button class="drilldown-action-btn secondary" 
+                                                    onclick="configureAlert('pool', 'E-ctare_Pool_1', 'E-ctare_Pool_1')">
+                                                🔔 Configurar Alerta
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tabs de PDD -->
+                                    <div class="pdd-tabs">
+                                        <button class="pdd-tab-button active" 
+                                                onclick="showPDDTab('grupos', 'group_E-ctare_Pool_1_high_risk_content')">
+                                            Grupos de Risco
+                                        </button>
+                                        <button class="pdd-tab-button" 
+                                                onclick="showPDDTab('cedentes', 'group_E-ctare_Pool_1_high_risk_content')">
+                                            Por Cedente
+                                        </button>
+                                        <button class="pdd-tab-button" 
+                                                onclick="showPDDTab('metodologia', 'group_E-ctare_Pool_1_high_risk_content')">
+                                            Metodologia
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Conteúdo das Tabs (será carregado dinamicamente) -->
+                                    <div id="group_E-ctare_Pool_1_high_risk_content_grupos" class="pdd-tab-content active">
+                                        <div class="loading-indicator">
+                                            <div class="loading-spinner"></div>
+                                            <span class="loading-text">Carregando grupos de risco...</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="group_E-ctare_Pool_1_high_risk_content_cedentes" class="pdd-tab-content">
+                                        <!-- Conteúdo será carregado via JavaScript -->
+                                    </div>
+                                    
+                                    <div id="group_E-ctare_Pool_1_high_risk_content_metodologia" class="pdd-tab-content">
+                                        <!-- Conteúdo será carregado via JavaScript -->
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Pool 2: LeCapital (Médio Risco) -->
+                        <tr class="ok-row pool-row" 
+                            data-pool-id="LeCapital_Pool_1"
+                            onclick="toggleGroup('LeCapital_Pool_1', 'medium_risk', this)">
+                            <td>
+                                <span class="toggle-icon">▼</span>
+                                <strong>LeCapital Pool #1</strong>
+                            </td>
+                            <td><span class="badge warning">ATENÇÃO</span></td>
+                            <td>
+                                <span class="pdd-value medium" 
+                                      data-tooltip="pdd_detail" 
+                                      data-entity-id="LeCapital_Pool_1" 
+                                      data-pool-id="LeCapital_Pool_1">
+                                    6.2%
+                                </span>
+                            </td>
+                            <td>2 grupos</td>
+                            <td>8 cedentes</td>
+                            <td>
+                                <div class="trend-indicator trend-stable" 
+                                     data-pool-id="LeCapital_Pool_1"
+                                     data-entity-id="LeCapital_Pool_1"
+                                     data-entity-type="pool">
+                                    <span class="trend-arrow">→</span>
+                                    <span class="trend-value">0.1%</span>
+                                    <span class="trend-period">7d</span>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="action-btn" 
+                                        onclick="showQuickActions('pool', 'LeCapital_Pool_1', this); event.stopPropagation();">
+                                    ⚡ Actions
+                                </button>
+                                <button class="action-btn" 
+                                        onclick="showAtivoDetails('LeCapital_Pool_1', 'overview'); event.stopPropagation();">
+                                    👁 Detalhes
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Pool 3: AFA (Baixo Risco) -->
+                        <tr class="ok-row pool-row" 
+                            data-pool-id="AFA_Pool_1"
+                            onclick="toggleGroup('AFA_Pool_1', 'low_risk', this)">
+                            <td>
+                                <span class="toggle-icon">▼</span>
+                                <strong>AFA Pool #1</strong>
+                            </td>
+                            <td><span class="badge ok">OK</span></td>
+                            <td>
+                                <span class="pdd-value low" 
+                                      data-tooltip="pdd_detail" 
+                                      data-entity-id="AFA_Pool_1" 
+                                      data-pool-id="AFA_Pool_1">
+                                    2.1%
+                                </span>
+                            </td>
+                            <td>1 grupo</td>
+                            <td>5 cedentes</td>
+                            <td>
+                                <div class="trend-indicator trend-down" 
+                                     data-pool-id="AFA_Pool_1"
+                                     data-entity-id="AFA_Pool_1"
+                                     data-entity-type="pool">
+                                    <span class="trend-arrow">↘</span>
+                                    <span class="trend-value">-0.5%</span>
+                                    <span class="trend-period">7d</span>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="action-btn" 
+                                        onclick="showQuickActions('pool', 'AFA_Pool_1', this); event.stopPropagation();">
+                                    ⚡ Actions
+                                </button>
+                                <button class="action-btn" 
+                                        onclick="showAtivoDetails('AFA_Pool_1', 'overview'); event.stopPropagation();">
+                                    👁 Detalhes
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Seção de Controles -->
+        <div class="pdd-section">
+            <div class="section-header">
+                🎛️ Controles do Sistema
+            </div>
+            <div class="section-content">
+                <h3>Funcionalidades Disponíveis:</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+                    
+                    <div class="control-card">
+                        <h4>🎯 Smart Auto-Expand</h4>
+                        <p>Expandir automaticamente pools com PDD alto</p>
+                        <button class="action-btn" onclick="smartDefaults('E-ctare_Pool_1')">
+                            Aplicar Smart Defaults
+                        </button>
+                    </div>
+                    
+                    <div class="control-card">
+                        <h4>📈 Atualizar Trends</h4>
+                        <p>Refresh nos indicadores de tendência</p>
+                        <button class="action-btn" onclick="updateTrends()">
+                            Atualizar Trends
+                        </button>
+                    </div>
+                    
+                    <div class="control-card">
+                        <h4>🔄 Recarregar Dados</h4>
+                        <p>Forçar refresh completo dos dados</p>
+                        <button class="action-btn" onclick="loadHierarchicalData('E-ctare_Pool_1', {forceRefresh: true})">
+                            Refresh Forçado
+                        </button>
+                    </div>
+                    
+                    <div class="control-card">
+                        <h4>ℹ️ Debug Info</h4>
+                        <p>Informações de debug no console</p>
+                        <button class="action-btn" onclick="console.log('Estado:', PDDDashboard.state)">
+                            Mostrar Estado
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção de Status -->
+        <div class="pdd-section">
+            <div class="section-header">
+                📊 Status do Sistema
+            </div>
+            <div class="section-content">
+                <div id="system-status">
+                    <p><strong>Última Atualização:</strong> <span id="last-update">Carregando...</span></p>
+                    <p><strong>Grupos Expandidos:</strong> <span id="expanded-count">0</span></p>
+                    <p><strong>Cache Hits:</strong> <span id="cache-hits">0</span></p>
+                    <p><strong>APIs Disponíveis:</strong> <span id="api-status">Verificando...</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSS Adicional para o exemplo -->
+    <style>
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge.violation {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        
+        .badge.warning {
+            background: #fef5e7;
+            color: #d69e2e;
+        }
+        
+        .badge.ok {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+        
+        .control-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .control-card h4 {
+            margin: 0 0 8px 0;
+            color: #667eea;
+        }
+        
+        .control-card p {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        #system-status p {
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+    </style>
+
+    <!-- JavaScript do sistema interativo -->
+    <script src="pdd-dashboard-interactive.js"></script>
+    
+    <!-- JavaScript adicional para o exemplo -->
+    <script>
+        // Função para toggle da seção PDD principal
+        function togglePDDSection() {
+            const content = document.getElementById('pdd-content');
+            const toggle = document.getElementById('pdd-toggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+        
+        // Simular dados de API para demonstração
+        window.mockApiData = {
+            'E-ctare_Pool_1': {
+                pool_id: 'E-ctare_Pool_1',
+                grupos_risco: [
+                    {
+                        id: 'high_risk',
+                        nome: 'Alto Risco',
+                        pdd_percentual: 15.8,
+                        status: 'violado',
+                        cedentes: [
+                            {
+                                id: 'cedente_001',
+                                nome: 'Cedente Alto Risco LTDA',
+                                pdd_percentual: 8.2,
+                                ativos_vencidos: 5,
+                                status: 'critical'
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+        
+        // Override da função loadHierarchicalData para demonstração
+        const originalLoadHierarchicalData = window.loadHierarchicalData;
+        window.loadHierarchicalData = async function(poolId, options = {}) {
+            console.log('Simulando carregamento de dados para:', poolId);
+            
+            // Simular delay de API
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Retornar dados mockados
+            if (window.mockApiData[poolId]) {
+                return window.mockApiData[poolId];
+            }
+            
+            throw new Error('Pool não encontrado nos dados mockados');
+        };
+        
+        // Atualizar status do sistema periodicamente
+        setInterval(() => {
+            document.getElementById('last-update').textContent = new Date().toLocaleString();
+            document.getElementById('expanded-count').textContent = PDDDashboard.state.expandedGroups.size;
+            document.getElementById('cache-hits').textContent = PDDDashboard.state.loadedData.size;
+            document.getElementById('api-status').textContent = 'Mock Mode (Demonstração)';
+        }, 1000);
+        
+        // Log de exemplo ao carregar
+        console.log('🚀 AmFi PDD Dashboard Interactive System - Exemplo de Integração');
+        console.log('Estado inicial:', PDDDashboard.state);
+        console.log('Configuração:', PDDDashboard.config);
+        
+        // Demonstração de tooltip personalizado
+        setTimeout(() => {
+            console.log('💡 Dica: Passe o mouse sobre os valores de PDD para ver tooltips detalhados!');
+        }, 2000);
+    </script>
+</body>
+</html>
