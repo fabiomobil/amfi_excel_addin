@@ -27,8 +27,8 @@ def load_latest_json_data():
         print(f"❌ Nenhum arquivo JSON encontrado em: {daily_dir}")
         return None, None
     
-    # Pegar o arquivo mais recente
-    latest_file = max(json_files, key=os.path.getctime)
+    # Pegar o arquivo mais recente baseado no nome (formato YYYY-MM-DD)
+    latest_file = max(json_files)  # Ordenação alfabética funciona para formato YYYY-MM-DD
     latest_date = os.path.basename(latest_file).replace('.json', '')
     
     try:
@@ -102,6 +102,45 @@ def calculate_consecutive_violation_days(pool_name, historical_data):
         violado_critico = 'violado' in status_critico.lower()
         
         if violado_minimo or violado_critico:
+            consecutive_days += 1
+        else:
+            break  # Sequência de violação quebrada
+    
+    return consecutive_days
+
+def calculate_concentration_consecutive_violation_days(pool_name, historical_data):
+    """Calcula dias consecutivos de violação de concentração para um pool específico."""
+    if not historical_data:
+        return 0
+    
+    consecutive_days = 0
+    
+    # Percorrer histórico do mais recente para o mais antigo
+    # Ordenar entries por data (mais recente primeiro)
+    sorted_entries = sorted(historical_data, key=lambda x: x['date'], reverse=True)
+    
+    for entry in sorted_entries:
+        data = entry['data']
+        pools = data.get('pools', {})
+        
+        if pool_name not in pools:
+            continue  # Continuar procurando em outras datas
+            
+        pool_data = pools[pool_name]
+        
+        if not pool_data.get('sucesso', False):
+            continue  # Continuar procurando em outras datas
+            
+        resultados = pool_data.get('resultados', {})
+        concentracao = resultados.get('concentracao', {})
+        
+        if not concentracao:
+            continue  # Continuar procurando em outras datas
+        
+        # Verificar se está violado na concentração
+        status_geral = concentracao.get('status_geral', '').lower()
+        
+        if 'violado' in status_geral:
             consecutive_days += 1
         else:
             break  # Sequência de violação quebrada
@@ -431,11 +470,10 @@ def extract_concentracao_data(data, historical_data):
                         'tipo_limite': limite.get('entidade', '')
                     }
         
-        # Calcular dias consecutivos (placeholder - implementar lógica histórica)
+        # Calcular dias consecutivos baseado em dados históricos
         dias_consecutivos = 0
         if is_violation:
-            # TODO: Implementar cálculo baseado em dados históricos
-            dias_consecutivos = 1
+            dias_consecutivos = calculate_concentration_consecutive_violation_days(pool_name, historical_data)
         
         concentracao_pools.append({
             'pool_name': pool_name,

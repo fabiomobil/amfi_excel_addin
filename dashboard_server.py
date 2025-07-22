@@ -341,7 +341,7 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
             
             # Se date é 'latest', usar a data mais recente disponível
             if date == 'latest' and historical_data:
-                date = historical_data[-1]['date']  # Última data (mais recente)
+                date = historical_data[0]['date']  # Primeira data (mais recente - ordem decrescente)
                 print(f"📅 Usando data mais recente: {date}")
             
             # Obter breakdown Top N
@@ -384,7 +384,7 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
             
             # Se date é 'latest', usar a data mais recente disponível
             if date == 'latest' and historical_data:
-                date = historical_data[-1]['date']  # Última data (mais recente)
+                date = historical_data[0]['date']  # Primeira data (mais recente - ordem decrescente)
                 print(f"📅 Usando data mais recente: {date}")
             
             # Obter margens de alocação
@@ -413,6 +413,9 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
         self.send_header('Content-length', len(response_json.encode('utf-8')))
         self.end_headers()
         self.wfile.write(response_json.encode('utf-8'))

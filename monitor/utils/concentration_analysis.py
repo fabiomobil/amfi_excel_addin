@@ -226,8 +226,8 @@ def get_top_n_breakdown_for_date(pool_name: str, entity_type: str, date: str, hi
     target_data = None
     
     if date == 'latest' and historical_data:
-        # Usar os dados mais recentes (último item)
-        target_data = historical_data[-1]['data']
+        # Usar os dados mais recentes (primeiro item - dados estão em ordem decrescente)
+        target_data = historical_data[0]['data']
     else:
         # Buscar data específica
         for entry in historical_data:
@@ -346,8 +346,8 @@ def get_entity_allocation_margins(pool_name: str, entity_type: str, entity_name:
     target_data = None
     
     if date == 'latest' and historical_data:
-        # Usar os dados mais recentes (último item)
-        target_data = historical_data[-1]['data']
+        # Usar os dados mais recentes (primeiro item - dados estão em ordem decrescente)
+        target_data = historical_data[0]['data']
     else:
         # Buscar data específica
         for entry in historical_data:
@@ -478,8 +478,7 @@ def _get_top_n_detail_from_monitoring_results(monitoring_results: Dict[str, Any]
 
 def _calculate_consecutive_days(pool_name: str, concentracao_result: Dict[str, Any]) -> int:
     """
-    Calcula dias consecutivos de violação para um pool.
-    TODO: Implementar lógica baseada em dados históricos.
+    Calcula dias consecutivos de violação para um pool baseado em dados históricos.
     
     Args:
         pool_name: Nome do pool
@@ -488,9 +487,57 @@ def _calculate_consecutive_days(pool_name: str, concentracao_result: Dict[str, A
     Returns:
         Número de dias consecutivos em violação
     """
-    # Por ora, retorna 1 dia se violado, 0 se enquadrado
     status_geral = concentracao_result.get('status_geral', '').lower()
-    return 1 if status_geral == 'violado' else 0
+    
+    if 'violado' not in status_geral:
+        return 0
+    
+    # Carregar dados históricos para calcular dias consecutivos
+    try:
+        historical_data = load_historical_monitoring_data()
+        return _calculate_concentration_consecutive_violation_days(pool_name, historical_data)
+    except Exception as e:
+        print(f"⚠️ Erro ao calcular dias consecutivos para {pool_name}: {e}")
+        return 1  # Fallback para 1 dia se não conseguir calcular
+
+def _calculate_concentration_consecutive_violation_days(pool_name: str, historical_data) -> int:
+    """Calcula dias consecutivos de violação de concentração para um pool específico."""
+    if not historical_data:
+        return 0
+    
+    consecutive_days = 0
+    
+    # Percorrer histórico do mais recente para o mais antigo
+    # Ordenar entries por data (mais recente primeiro)
+    sorted_entries = sorted(historical_data, key=lambda x: x['date'], reverse=True)
+    
+    for entry in sorted_entries:
+        data = entry['data']
+        pools = data.get('pools', {})
+        
+        if pool_name not in pools:
+            continue  # Continuar procurando em outras datas
+            
+        pool_data = pools[pool_name]
+        
+        if not pool_data.get('sucesso', False):
+            continue  # Continuar procurando em outras datas
+            
+        resultados = pool_data.get('resultados', {})
+        concentracao = resultados.get('concentracao', {})
+        
+        if not concentracao:
+            continue  # Continuar procurando em outras datas
+        
+        # Verificar se está violado na concentração
+        status_geral = concentracao.get('status_geral', '').lower()
+        
+        if 'violado' in status_geral:
+            consecutive_days += 1
+        else:
+            break  # Sequência de violação quebrada
+    
+    return consecutive_days
 
 def generate_concentration_summary_table(monitoring_results: Dict[str, Any]) -> str:
     """

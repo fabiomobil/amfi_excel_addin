@@ -507,19 +507,19 @@
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>
-            <p class="date-info">Data Base: 2025-07-14 | Executado em: 21/07/2025 21:43</p>
+            <p class="date-info">Data Base: 2025-07-21 | Executado em: 22/07/2025 08:56</p>
             
             <div class="summary-stats">
                 <div class="stat-item">
-                    <span class="stat-number">8</span>
+                    <span class="stat-number">7</span>
                     <span class="stat-label">Pools Monitorados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">3</span>
+                    <span class="stat-number">2</span>
                     <span class="stat-label">Pools Violados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">62.5%</span>
+                    <span class="stat-number">71.4%</span>
                     <span class="stat-label">Taxa Compliance</span>
                 </div>
             </div>
@@ -538,7 +538,7 @@
         
     <div class="indicator-section subordinacao">
         <h2 class="collapsible-header" onclick="toggleIndicatorSection('subordinacao')">
-            <span>📈 Subordinação (3/8)</span>
+            <span>📈 Subordinação (2/7)</span>
             <span class="expand-icon">▼</span>
         </h2>
         <div class="table-container" id="subordinacao-content">
@@ -631,59 +631,6 @@
                                                 <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
                                                 <td>8.35%</td>
                                                 <td>R$ 6,404,173.01</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-        
-                    <tr class="violation-row" onclick="toggleDrilldown('sub_Dinie_Pool__2')" style="cursor: pointer;">
-                        <td class="pool-name">Dinie Pool #2</td>
-                        <td><span class="status-badge status-violation">VIOLADO CRÍTICO</span></td>
-                        <td class="days-count">-</td>
-                        <td class="value">11.67%</td>
-                        <td class="limit">20.0%</td>
-                        <td class="limit">15.0%</td>
-                        <td class="financial">R$ 85,546.40</td>
-                    </tr>
-                    <tr id="sub_Dinie_Pool__2" class="drilldown-row" style="display: none;">
-                        <td colspan="7">
-                            <div class="drilldown-content">
-                                <h4>💰 Dados Financeiros Detalhados</h4>
-                                <div class="financial-grid">
-                                    <div class="financial-item">
-                                        <label>PL Atual:</label>
-                                        <span>R$ 821,760.21</span>
-                                    </div>
-                                    <div class="financial-item">
-                                        <label>SR Atual:</label>
-                                        <span>R$ 725,845.29</span>
-                                    </div>
-                                    <div class="financial-item">
-                                        <label>JR Atual:</label>
-                                        <span>R$ 95,914.92</span>
-                                    </div>
-                                </div>
-                                
-                                <h4>📊 Histórico de Subordinação (Últimos 7 dias)</h4>
-                                <div class="historical-analysis">
-                                    <table class="historical-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Data</th>
-                                                <th>Status</th>
-                                                <th>Valor IS (%)</th>
-                                                <th>Aporte p/ Enquadrar / Saque Disponível</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr class="hist-violation">
-                                                <td>2025-07-14</td>
-                                                <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
-                                                <td>11.67%</td>
-                                                <td>R$ 85,546.40</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1215,78 +1162,14 @@
             <tbody>
     
                 <tr class="violation-row">
-                    <td class="pool-name">Dinie Pool #2</td>
-                    <td><span class="status-badge status-violation">VIOLADO</span></td>
-                    <td class="days-count">1 dias</td>
-                    <td class="concentration-detail">N/A</td>
-                    <td class="concentration-detail"><span class="violation clickable-entity" 
-                onclick="showEntityHistory('Dinie Pool #2', 'sacado', 'DINIE CORRESPONDENTE BANCARIO E MEIOS DE PAGAMENTOS LTDA', 'sac_Dinie_Pool___2')"
-                style="cursor: pointer; text-decoration: underline;">
-                104.78%</span><br><small>DINIE CORRESPONDENTE...</small></td>
-                    <td class="concentration-detail">N/A</td>
-                    <td class="concentration-detail"><span class="violation clickable-topn" 
-                onclick="showTopNBreakdown('Dinie Pool #2', 'sacado', 'topnsac_Dinie_Pool___2')"
-                style="cursor: pointer; text-decoration: underline; font-weight: bold;">
-                104.78%</span><br><small class="clickable-topn" 
-                onclick="showTopNBreakdown('Dinie Pool #2', 'sacado', 'topnsac_Dinie_Pool___2')"
-                style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
-                    <td class="margin"><span class="violation">-99.8%</span></td>
-                </tr>
-                
-                <!-- Drilldown rows ocultas -->
-                <tr id="ced_Dinie_Pool___2_history" class="drilldown-row entity-history-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>📈 Histórico de Concentração - Cedente</h4>
-                            <div id="ced_Dinie_Pool___2_content" class="historical-content">
-                                Carregando histórico...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr id="sac_Dinie_Pool___2_history" class="drilldown-row entity-history-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>📈 Histórico de Concentração - Sacado</h4>
-                            <div id="sac_Dinie_Pool___2_content" class="historical-content">
-                                Carregando histórico...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr id="topnced_Dinie_Pool___2_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>🏆 Breakdown Top N Cedentes</h4>
-                            <div id="topnced_Dinie_Pool___2_content" class="topn-content">
-                                Carregando breakdown...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr id="topnsac_Dinie_Pool___2_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>🏆 Breakdown Top N Sacados</h4>
-                            <div id="topnsac_Dinie_Pool___2_content" class="topn-content">
-                                Carregando breakdown...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-        
-                <tr class="violation-row">
                     <td class="pool-name">E-ctare Pool #1</td>
                     <td><span class="status-badge status-violation">VIOLADO</span></td>
-                    <td class="days-count">1 dias</td>
+                    <td class="days-count">6 dias</td>
                     <td class="concentration-detail">N/A</td>
                     <td class="concentration-detail"><span class="violation clickable-entity" 
                 onclick="showEntityHistory('E-ctare Pool #1', 'sacado', 'Agritec Comercio de Produtos Agricolas Eireli', 'sac_E-ctare_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">
-                6.68%</span><br><small>Agritec Comercio de ...</small></td>
+                6.69%</span><br><small>Agritec Comercio de ...</small></td>
                     <td class="concentration-detail">N/A</td>
                     <td class="concentration-detail">N/A</td>
                     <td class="margin"><span class="violation">-0.0%</span></td>
@@ -1337,28 +1220,90 @@
                     </td>
                 </tr>
         
+                <tr class="violation-row">
+                    <td class="pool-name">Formento Pool #3</td>
+                    <td><span class="status-badge status-violation">VIOLADO</span></td>
+                    <td class="days-count">5 dias</td>
+                    <td class="concentration-detail"><span class="violation clickable-entity" 
+                onclick="showEntityHistory('Formento Pool #3', 'cedente', 'Formento Securitizadora S.A.', 'ced_Formento_Pool___3')"
+                style="cursor: pointer; text-decoration: underline;">
+                99.55%</span><br><small>Formento Securitizad...</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('Formento Pool #3', 'sacado', 'AHT SYSTEM', 'sac_Formento_Pool___3')"
+                style="cursor: pointer; text-decoration: underline;">
+                4.26%</span><br><small>AHT SYSTEM...</small></td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="margin"><span class="violation">-49.5%</span></td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_Formento_Pool___3_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_Formento_Pool___3_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_Formento_Pool___3_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_Formento_Pool___3_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_Formento_Pool___3_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_Formento_Pool___3_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_Formento_Pool___3_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_Formento_Pool___3_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
                 <tr class="ok-row">
                     <td class="pool-name">AFA Pool #1</td>
                     <td><span class="status-badge status-ok">ENQUADRADO</span></td>
                     <td class="days-count">0 dias</td>
                     <td class="concentration-detail"><span class="ok clickable-entity" 
-                onclick="showEntityHistory('AFA Pool #1', 'cedente', 'AGROLESTE CEREALISTA LTDA', 'ced_AFA_Pool___1')"
+                onclick="showEntityHistory('AFA Pool #1', 'cedente', 'MEGABRAYN DO BRASIL LTDA', 'ced_AFA_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">
-                7.96%</span><br><small>AGROLESTE CEREALISTA...</small></td>
+                6.23%</span><br><small>MEGABRAYN DO BRASIL ...</small></td>
                     <td class="concentration-detail"><span class="ok clickable-entity" 
-                onclick="showEntityHistory('AFA Pool #1', 'sacado', 'CARGILL AGRICOLA S A                    ', 'sac_AFA_Pool___1')"
+                onclick="showEntityHistory('AFA Pool #1', 'sacado', 'AMAZON SERVICOS DE VAREJO DO BRASIL LTD ', 'sac_AFA_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">
-                5.84%</span><br><small>CARGILL AGRICOLA S A...</small></td>
+                6.23%</span><br><small>AMAZON SERVICOS DE V...</small></td>
                     <td class="concentration-detail"><span class="ok clickable-topn" 
                 onclick="showTopNBreakdown('AFA Pool #1', 'cedente', 'topnced_AFA_Pool___1')"
                 style="cursor: pointer; text-decoration: underline; font-weight: bold;">
-                19.27%</span><br><small class="clickable-topn" 
+                27.67%</span><br><small class="clickable-topn" 
                 onclick="showTopNBreakdown('AFA Pool #1', 'cedente', 'topnced_AFA_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
                     <td class="concentration-detail"><span class="ok clickable-topn" 
                 onclick="showTopNBreakdown('AFA Pool #1', 'sacado', 'topnsac_AFA_Pool___1')"
                 style="cursor: pointer; text-decoration: underline; font-weight: bold;">
-                22.67%</span><br><small class="clickable-topn" 
+                26.73%</span><br><small class="clickable-topn" 
                 onclick="showTopNBreakdown('AFA Pool #1', 'sacado', 'topnsac_AFA_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
                     <td class="margin">0.0%</td>
@@ -1417,7 +1362,7 @@
                     <td class="concentration-detail"><span class="ok clickable-entity" 
                 onclick="showEntityHistory('Credmei Pool #1', 'sacado', 'SUINCO - COOPERATIVA DE SUINOCULTORES LTDA', 'sac_Credmei_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">
-                2.89%</span><br><small>SUINCO - COOPERATIVA...</small></td>
+                2.88%</span><br><small>SUINCO - COOPERATIVA...</small></td>
                     <td class="concentration-detail">N/A</td>
                     <td class="concentration-detail">N/A</td>
                     <td class="margin">0.0%</td>
@@ -1469,89 +1414,27 @@
                 </tr>
         
                 <tr class="ok-row">
-                    <td class="pool-name">Formento Pool #3</td>
-                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
-                    <td class="days-count">0 dias</td>
-                    <td class="concentration-detail"><span class="ok clickable-entity" 
-                onclick="showEntityHistory('Formento Pool #3', 'cedente', 'LFO LAMINADOS', 'ced_Formento_Pool___3')"
-                style="cursor: pointer; text-decoration: underline;">
-                5.37%</span><br><small>LFO LAMINADOS...</small></td>
-                    <td class="concentration-detail"><span class="ok clickable-entity" 
-                onclick="showEntityHistory('Formento Pool #3', 'sacado', 'AHT SYSTEM', 'sac_Formento_Pool___3')"
-                style="cursor: pointer; text-decoration: underline;">
-                4.31%</span><br><small>AHT SYSTEM...</small></td>
-                    <td class="concentration-detail">N/A</td>
-                    <td class="concentration-detail">N/A</td>
-                    <td class="margin">0.0%</td>
-                </tr>
-                
-                <!-- Drilldown rows ocultas -->
-                <tr id="ced_Formento_Pool___3_history" class="drilldown-row entity-history-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>📈 Histórico de Concentração - Cedente</h4>
-                            <div id="ced_Formento_Pool___3_content" class="historical-content">
-                                Carregando histórico...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr id="sac_Formento_Pool___3_history" class="drilldown-row entity-history-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>📈 Histórico de Concentração - Sacado</h4>
-                            <div id="sac_Formento_Pool___3_content" class="historical-content">
-                                Carregando histórico...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr id="topnced_Formento_Pool___3_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>🏆 Breakdown Top N Cedentes</h4>
-                            <div id="topnced_Formento_Pool___3_content" class="topn-content">
-                                Carregando breakdown...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr id="topnsac_Formento_Pool___3_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
-                    <td colspan="8">
-                        <div class="drilldown-content">
-                            <h4>🏆 Breakdown Top N Sacados</h4>
-                            <div id="topnsac_Formento_Pool___3_content" class="topn-content">
-                                Carregando breakdown...
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-        
-                <tr class="ok-row">
                     <td class="pool-name">LeCapital Pool #1</td>
                     <td><span class="status-badge status-ok">ENQUADRADO</span></td>
                     <td class="days-count">0 dias</td>
                     <td class="concentration-detail"><span class="ok clickable-entity" 
                 onclick="showEntityHistory('LeCapital Pool #1', 'cedente', 'TRANSTECWORLD LOGISTICA LTDA', 'ced_LeCapital_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">
-                12.96%</span><br><small>TRANSTECWORLD LOGIST...</small></td>
+                13.16%</span><br><small>TRANSTECWORLD LOGIST...</small></td>
                     <td class="concentration-detail"><span class="ok clickable-entity" 
                 onclick="showEntityHistory('LeCapital Pool #1', 'sacado', 'MAERSK A/S', 'sac_LeCapital_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">
-                12.96%</span><br><small>MAERSK A/S...</small></td>
+                13.16%</span><br><small>MAERSK A/S...</small></td>
                     <td class="concentration-detail"><span class="ok clickable-topn" 
                 onclick="showTopNBreakdown('LeCapital Pool #1', 'cedente', 'topnced_LeCapital_Pool___1')"
                 style="cursor: pointer; text-decoration: underline; font-weight: bold;">
-                25.23%</span><br><small class="clickable-topn" 
+                28.39%</span><br><small class="clickable-topn" 
                 onclick="showTopNBreakdown('LeCapital Pool #1', 'cedente', 'topnced_LeCapital_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
                     <td class="concentration-detail"><span class="ok clickable-topn" 
                 onclick="showTopNBreakdown('LeCapital Pool #1', 'sacado', 'topnsac_LeCapital_Pool___1')"
                 style="cursor: pointer; text-decoration: underline; font-weight: bold;">
-                25.23%</span><br><small class="clickable-topn" 
+                28.39%</span><br><small class="clickable-topn" 
                 onclick="showTopNBreakdown('LeCapital Pool #1', 'sacado', 'topnsac_LeCapital_Pool___1')"
                 style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
                     <td class="margin">0.0%</td>
