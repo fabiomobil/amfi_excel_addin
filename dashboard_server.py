@@ -16,6 +16,19 @@ from urllib.parse import urlparse, parse_qs
 from pathlib import Path
 import platform
 
+# Importações para funcionalidade de concentração
+try:
+    from monitor.utils.concentration_analysis import (
+        load_historical_monitoring_data,
+        get_entity_historical_concentration,
+        get_top_n_breakdown_for_date,
+        get_entity_allocation_margins
+    )
+    CONCENTRATION_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Funcionalidade de concentração não disponível: {e}")
+    CONCENTRATION_AVAILABLE = False
+
 class AmFiHandler(http.server.SimpleHTTPRequestHandler):
     """Handler customizado para o dashboard AmFi."""
     
@@ -31,6 +44,12 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
         """Processa requisições POST para API."""
         if self.path == '/api/run_monitoring':
             self.handle_monitoring_request()
+        elif self.path == '/api/concentration_history':
+            self.handle_concentration_history()
+        elif self.path == '/api/topn_breakdown':
+            self.handle_topn_breakdown()
+        elif self.path == '/api/allocation_margins':
+            self.handle_allocation_margins()
         else:
             self.send_error(404, "Endpoint não encontrado")
     
@@ -138,6 +157,9 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
             
             self.send_response(200)
             self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Pragma', 'no-cache')
+            self.send_header('Expires', '0')
             self.send_header('Content-length', len(content.encode('utf-8')))
             self.end_headers()
             self.wfile.write(content.encode('utf-8'))
@@ -255,6 +277,161 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-length', len(error_response.encode('utf-8')))
             self.end_headers()
             self.wfile.write(error_response.encode('utf-8'))
+
+    def handle_concentration_history(self):
+        """Processa requisição de histórico de concentração."""
+        if not CONCENTRATION_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de concentração não disponível")
+            return
+        
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            pool_name = data.get('pool_name')
+            entity_type = data.get('entity_type')
+            entity_name = data.get('entity_name')
+            
+            if not all([pool_name, entity_type, entity_name]):
+                self.send_json_error(400, "Parâmetros obrigatórios: pool_name, entity_type, entity_name")
+                return
+            
+            print(f"🔍 Buscando histórico: {entity_type} '{entity_name}' no {pool_name}")
+            
+            # Carregar dados históricos
+            historical_data = load_historical_monitoring_data()
+            
+            # Obter histórico da entidade
+            entity_history = get_entity_historical_concentration(
+                pool_name, entity_type, entity_name, historical_data
+            )
+            
+            print(f"📊 Encontrados {len(entity_history)} registros históricos")
+            
+            self.send_json_response(entity_history)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter histórico de concentração: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+
+    def handle_topn_breakdown(self):
+        """Processa requisição de breakdown Top N."""
+        if not CONCENTRATION_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de concentração não disponível")
+            return
+        
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            pool_name = data.get('pool_name')
+            entity_type = data.get('entity_type')
+            date = data.get('date', 'latest')
+            
+            if not all([pool_name, entity_type]):
+                self.send_json_error(400, "Parâmetros obrigatórios: pool_name, entity_type")
+                return
+            
+            print(f"🏆 Buscando Top N: {entity_type} no {pool_name} (data: {date})")
+            
+            # Carregar dados históricos
+            historical_data = load_historical_monitoring_data()
+            
+            # Se date é 'latest', usar a data mais recente disponível
+            if date == 'latest' and historical_data:
+                date = historical_data[-1]['date']  # Última data (mais recente)
+                print(f"📅 Usando data mais recente: {date}")
+            
+            # Obter breakdown Top N
+            breakdown_data = get_top_n_breakdown_for_date(
+                pool_name, entity_type, date, historical_data
+            )
+            
+            print(f"📊 Encontradas {len(breakdown_data)} entidades no Top N")
+            
+            self.send_json_response(breakdown_data)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter breakdown Top N: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+
+    def handle_allocation_margins(self):
+        """Processa requisição de margens de alocação."""
+        if not CONCENTRATION_AVAILABLE:
+            self.send_json_error(503, "Funcionalidade de concentração não disponível")
+            return
+        
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            pool_name = data.get('pool_name')
+            entity_type = data.get('entity_type')
+            entity_name = data.get('entity_name')
+            date = data.get('date', 'latest')
+            
+            if not all([pool_name, entity_type, entity_name]):
+                self.send_json_error(400, "Parâmetros obrigatórios: pool_name, entity_type, entity_name")
+                return
+            
+            print(f"💰 Buscando margens: {entity_type} '{entity_name}' no {pool_name} (data: {date})")
+            
+            # Carregar dados históricos
+            historical_data = load_historical_monitoring_data()
+            
+            # Se date é 'latest', usar a data mais recente disponível
+            if date == 'latest' and historical_data:
+                date = historical_data[-1]['date']  # Última data (mais recente)
+                print(f"📅 Usando data mais recente: {date}")
+            
+            # Obter margens de alocação
+            allocation_data = get_entity_allocation_margins(
+                pool_name, entity_type, entity_name, date, historical_data
+            )
+            
+            if not allocation_data:
+                self.send_json_error(404, "Nenhum dado de alocação encontrado")
+                return
+            
+            print(f"📊 Margens encontradas: {len(allocation_data.get('top_n_limits', []))} Top N limits")
+            
+            self.send_json_response(allocation_data)
+            
+        except Exception as e:
+            print(f"💥 Erro ao obter margens de alocação: {e}")
+            self.send_json_error(500, f"Erro interno: {str(e)}")
+
+    def send_json_response(self, data):
+        """Envia resposta JSON."""
+        response_json = json.dumps(data, ensure_ascii=False, indent=2)
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json; charset=utf-8')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Content-length', len(response_json.encode('utf-8')))
+        self.end_headers()
+        self.wfile.write(response_json.encode('utf-8'))
+
+    def send_json_error(self, status_code, message):
+        """Envia resposta de erro JSON."""
+        error_response = json.dumps({
+            "success": False,
+            "error": message
+        }, ensure_ascii=False)
+        
+        self.send_response(status_code)
+        self.send_header('Content-type', 'application/json; charset=utf-8')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Content-length', len(error_response.encode('utf-8')))
+        self.end_headers()
+        self.wfile.write(error_response.encode('utf-8'))
 
 def main():
     """Inicia o servidor web."""

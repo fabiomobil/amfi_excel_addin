@@ -106,6 +106,23 @@
             font-size: 1.5em;
         }
         
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .collapsible-header:hover {
+            background: linear-gradient(135deg, #3A80D2 0%, #6B58DE 100%);
+        }
+        
+        .expand-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+        
         .table-container {
             padding: 30px;
             overflow-x: auto;
@@ -286,6 +303,41 @@
             font-size: 1.1em;
         }
         
+        .concentration-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .limit-detail {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .limit-detail.violation {
+            background: #fff2f2;
+            border-color: #f8d7da;
+        }
+        
+        .limit-detail.ok {
+            background: #f0f8ff;
+            border-color: #bee5eb;
+        }
+        
+        .violations-detail, .entity-name {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .percentage {
+            font-weight: 600;
+        }
+        
+        .margin {
+            font-family: monospace;
+        }
+        
         .action-buttons {
             display: flex;
             gap: 15px;
@@ -455,19 +507,19 @@
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>
-            <p class="date-info">Data Base: 2025-07-14 | Executado em: 21/07/2025 17:11</p>
+            <p class="date-info">Data Base: 2025-07-14 | Executado em: 21/07/2025 21:43</p>
             
             <div class="summary-stats">
                 <div class="stat-item">
-                    <span class="stat-number">7</span>
+                    <span class="stat-number">8</span>
                     <span class="stat-label">Pools Monitorados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">2</span>
+                    <span class="stat-number">3</span>
                     <span class="stat-label">Pools Violados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">71.4%</span>
+                    <span class="stat-number">62.5%</span>
                     <span class="stat-label">Taxa Compliance</span>
                 </div>
             </div>
@@ -485,8 +537,11 @@
         
         
     <div class="indicator-section subordinacao">
-        <h2>📈 Subordinação</h2>
-        <div class="table-container">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('subordinacao')">
+            <span>📈 Subordinação (3/8)</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="subordinacao-content">
             <table class="indicator-table">
                 <thead>
                     <tr>
@@ -576,6 +631,59 @@
                                                 <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
                                                 <td>8.35%</td>
                                                 <td>R$ 6,404,173.01</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr class="violation-row" onclick="toggleDrilldown('sub_Dinie_Pool__2')" style="cursor: pointer;">
+                        <td class="pool-name">Dinie Pool #2</td>
+                        <td><span class="status-badge status-violation">VIOLADO CRÍTICO</span></td>
+                        <td class="days-count">-</td>
+                        <td class="value">11.67%</td>
+                        <td class="limit">20.0%</td>
+                        <td class="limit">15.0%</td>
+                        <td class="financial">R$ 85,546.40</td>
+                    </tr>
+                    <tr id="sub_Dinie_Pool__2" class="drilldown-row" style="display: none;">
+                        <td colspan="7">
+                            <div class="drilldown-content">
+                                <h4>💰 Dados Financeiros Detalhados</h4>
+                                <div class="financial-grid">
+                                    <div class="financial-item">
+                                        <label>PL Atual:</label>
+                                        <span>R$ 821,760.21</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>SR Atual:</label>
+                                        <span>R$ 725,845.29</span>
+                                    </div>
+                                    <div class="financial-item">
+                                        <label>JR Atual:</label>
+                                        <span>R$ 95,914.92</span>
+                                    </div>
+                                </div>
+                                
+                                <h4>📊 Histórico de Subordinação (Últimos 7 dias)</h4>
+                                <div class="historical-analysis">
+                                    <table class="historical-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Status</th>
+                                                <th>Valor IS (%)</th>
+                                                <th>Aporte p/ Enquadrar / Saque Disponível</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="hist-violation">
+                                                <td>2025-07-14</td>
+                                                <td><span class="status-mini violation">VIOLADO CRÍTICO</span></td>
+                                                <td>11.67%</td>
+                                                <td>R$ 85,546.40</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1088,6 +1196,906 @@
     </div>
     
         
+        
+    <div class="concentration-analysis">
+        <h2>🎯 Análise Detalhada de Concentração</h2>
+        <table class="concentration-table">
+            <thead>
+                <tr>
+                    <th>Pool</th>
+                    <th>Status</th>
+                    <th>Dias Consecutivos</th>
+                    <th>Individual Cedente</th>
+                    <th>Individual Sacado</th>
+                    <th>Top N Cedentes</th>
+                    <th>Top N Sacados</th>
+                    <th>Margem/Excesso</th>
+                </tr>
+            </thead>
+            <tbody>
+    
+                <tr class="violation-row">
+                    <td class="pool-name">Dinie Pool #2</td>
+                    <td><span class="status-badge status-violation">VIOLADO</span></td>
+                    <td class="days-count">1 dias</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail"><span class="violation clickable-entity" 
+                onclick="showEntityHistory('Dinie Pool #2', 'sacado', 'DINIE CORRESPONDENTE BANCARIO E MEIOS DE PAGAMENTOS LTDA', 'sac_Dinie_Pool___2')"
+                style="cursor: pointer; text-decoration: underline;">
+                104.78%</span><br><small>DINIE CORRESPONDENTE...</small></td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail"><span class="violation clickable-topn" 
+                onclick="showTopNBreakdown('Dinie Pool #2', 'sacado', 'topnsac_Dinie_Pool___2')"
+                style="cursor: pointer; text-decoration: underline; font-weight: bold;">
+                104.78%</span><br><small class="clickable-topn" 
+                onclick="showTopNBreakdown('Dinie Pool #2', 'sacado', 'topnsac_Dinie_Pool___2')"
+                style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
+                    <td class="margin"><span class="violation">-99.8%</span></td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_Dinie_Pool___2_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_Dinie_Pool___2_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_Dinie_Pool___2_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_Dinie_Pool___2_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_Dinie_Pool___2_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_Dinie_Pool___2_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_Dinie_Pool___2_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_Dinie_Pool___2_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="violation-row">
+                    <td class="pool-name">E-ctare Pool #1</td>
+                    <td><span class="status-badge status-violation">VIOLADO</span></td>
+                    <td class="days-count">1 dias</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail"><span class="violation clickable-entity" 
+                onclick="showEntityHistory('E-ctare Pool #1', 'sacado', 'Agritec Comercio de Produtos Agricolas Eireli', 'sac_E-ctare_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">
+                6.68%</span><br><small>Agritec Comercio de ...</small></td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="margin"><span class="violation">-0.0%</span></td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_E-ctare_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_E-ctare_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_E-ctare_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_E-ctare_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_E-ctare_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_E-ctare_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_E-ctare_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_E-ctare_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name">AFA Pool #1</td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('AFA Pool #1', 'cedente', 'AGROLESTE CEREALISTA LTDA', 'ced_AFA_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">
+                7.96%</span><br><small>AGROLESTE CEREALISTA...</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('AFA Pool #1', 'sacado', 'CARGILL AGRICOLA S A                    ', 'sac_AFA_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">
+                5.84%</span><br><small>CARGILL AGRICOLA S A...</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-topn" 
+                onclick="showTopNBreakdown('AFA Pool #1', 'cedente', 'topnced_AFA_Pool___1')"
+                style="cursor: pointer; text-decoration: underline; font-weight: bold;">
+                19.27%</span><br><small class="clickable-topn" 
+                onclick="showTopNBreakdown('AFA Pool #1', 'cedente', 'topnced_AFA_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-topn" 
+                onclick="showTopNBreakdown('AFA Pool #1', 'sacado', 'topnsac_AFA_Pool___1')"
+                style="cursor: pointer; text-decoration: underline; font-weight: bold;">
+                22.67%</span><br><small class="clickable-topn" 
+                onclick="showTopNBreakdown('AFA Pool #1', 'sacado', 'topnsac_AFA_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
+                    <td class="margin">0.0%</td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_AFA_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_AFA_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_AFA_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_AFA_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_AFA_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_AFA_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_AFA_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_AFA_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name">Credmei Pool #1</td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('Credmei Pool #1', 'sacado', 'SUINCO - COOPERATIVA DE SUINOCULTORES LTDA', 'sac_Credmei_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">
+                2.89%</span><br><small>SUINCO - COOPERATIVA...</small></td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="margin">0.0%</td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_Credmei_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_Credmei_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_Credmei_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_Credmei_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_Credmei_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_Credmei_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_Credmei_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_Credmei_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name">Formento Pool #3</td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('Formento Pool #3', 'cedente', 'LFO LAMINADOS', 'ced_Formento_Pool___3')"
+                style="cursor: pointer; text-decoration: underline;">
+                5.37%</span><br><small>LFO LAMINADOS...</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('Formento Pool #3', 'sacado', 'AHT SYSTEM', 'sac_Formento_Pool___3')"
+                style="cursor: pointer; text-decoration: underline;">
+                4.31%</span><br><small>AHT SYSTEM...</small></td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="concentration-detail">N/A</td>
+                    <td class="margin">0.0%</td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_Formento_Pool___3_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_Formento_Pool___3_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_Formento_Pool___3_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_Formento_Pool___3_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_Formento_Pool___3_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_Formento_Pool___3_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_Formento_Pool___3_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_Formento_Pool___3_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name">LeCapital Pool #1</td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('LeCapital Pool #1', 'cedente', 'TRANSTECWORLD LOGISTICA LTDA', 'ced_LeCapital_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">
+                12.96%</span><br><small>TRANSTECWORLD LOGIST...</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-entity" 
+                onclick="showEntityHistory('LeCapital Pool #1', 'sacado', 'MAERSK A/S', 'sac_LeCapital_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">
+                12.96%</span><br><small>MAERSK A/S...</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-topn" 
+                onclick="showTopNBreakdown('LeCapital Pool #1', 'cedente', 'topnced_LeCapital_Pool___1')"
+                style="cursor: pointer; text-decoration: underline; font-weight: bold;">
+                25.23%</span><br><small class="clickable-topn" 
+                onclick="showTopNBreakdown('LeCapital Pool #1', 'cedente', 'topnced_LeCapital_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
+                    <td class="concentration-detail"><span class="ok clickable-topn" 
+                onclick="showTopNBreakdown('LeCapital Pool #1', 'sacado', 'topnsac_LeCapital_Pool___1')"
+                style="cursor: pointer; text-decoration: underline; font-weight: bold;">
+                25.23%</span><br><small class="clickable-topn" 
+                onclick="showTopNBreakdown('LeCapital Pool #1', 'sacado', 'topnsac_LeCapital_Pool___1')"
+                style="cursor: pointer; text-decoration: underline;">Top 10</small></td>
+                    <td class="margin">0.0%</td>
+                </tr>
+                
+                <!-- Drilldown rows ocultas -->
+                <tr id="ced_LeCapital_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Cedente</h4>
+                            <div id="ced_LeCapital_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="sac_LeCapital_Pool___1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de Concentração - Sacado</h4>
+                            <div id="sac_LeCapital_Pool___1_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnced_LeCapital_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Cedentes</h4>
+                            <div id="topnced_LeCapital_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr id="topnsac_LeCapital_Pool___1_breakdown" class="drilldown-row topn-breakdown-row" style="display: none;">
+                    <td colspan="8">
+                        <div class="drilldown-content">
+                            <h4>🏆 Breakdown Top N Sacados</h4>
+                            <div id="topnsac_LeCapital_Pool___1_content" class="topn-content">
+                                Carregando breakdown...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+            </tbody>
+        </table>
+    </div>
+    
+    <style>
+    .concentration-analysis {
+        margin: 20px 0;
+    }
+    
+    .concentration-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    
+    .concentration-table th {
+        background: #f8f9fa;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+        font-size: 0.9em;
+    }
+    
+    .concentration-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.85em;
+    }
+    
+    .violation-row {
+        background: #fff2f2;
+    }
+    
+    .ok-row {
+        background: #f0f8ff;
+    }
+    
+    .concentration-detail {
+        text-align: center;
+    }
+    
+    .concentration-detail .violation {
+        color: #e53e3e;
+        font-weight: bold;
+    }
+    
+    .concentration-detail .ok {
+        color: #38a169;
+        font-weight: bold;
+    }
+    
+    .concentration-detail small {
+        color: #666;
+        display: block;
+        font-size: 0.8em;
+    }
+    
+    /* Estilos para Top N detalhado */
+    .topn-summary {
+        padding: 8px;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.5);
+        text-align: left;
+        font-size: 0.85em;
+        line-height: 1.3;
+    }
+    
+    .topn-summary.ok {
+        border-left: 3px solid #38a169;
+    }
+    
+    .topn-summary.violation {
+        border-left: 3px solid #e53e3e;
+    }
+    
+    .topn-total {
+        font-size: 1em;
+        margin-bottom: 4px;
+    }
+    
+    .topn-margin {
+        margin-bottom: 6px;
+        font-size: 0.9em;
+    }
+    
+    .margin-value {
+        font-weight: bold;
+        color: #2d3748;
+    }
+    
+    .topn-details {
+        font-size: 0.8em;
+    }
+    
+    .topn-details small {
+        display: block;
+        margin-bottom: 2px;
+        color: #4a5568;
+    }
+    
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-violation {
+        background: #fed7d7;
+        color: #c53030;
+    }
+    
+    .status-ok {
+        background: #c6f6d5;
+        color: #2f855a;
+    }
+    
+    .days-count {
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .margin .violation {
+        color: #e53e3e;
+        font-weight: bold;
+    }
+    
+    .margin .ok {
+        color: #38a169;
+        font-weight: bold;
+    }
+    
+    /* Drilldown styles */
+    .drilldown-row {
+        background: #f8f9fa !important;
+    }
+    
+    .drilldown-content {
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin: 10px 0;
+    }
+    
+    .drilldown-content h4 {
+        color: #2d3748;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+    }
+    
+    .clickable-entity, .clickable-topn {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    
+    .clickable-entity:hover, .clickable-topn:hover {
+        opacity: 0.8;
+    }
+    
+    .historical-table, .topn-table, .allocation-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 0.9em;
+    }
+    
+    .historical-table th, .topn-table th, .allocation-table th {
+        background: #f8f9fa;
+        padding: 8px 10px;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+        border: 1px solid #dee2e6;
+    }
+    
+    .historical-table td, .topn-table td, .allocation-table td {
+        padding: 8px 10px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .historical-violation {
+        background: #fff5f5;
+    }
+    
+    .historical-ok {
+        background: #f0fff4;
+    }
+    
+    .entity-clickable {
+        cursor: pointer;
+        text-decoration: underline;
+        color: #667eea;
+    }
+    
+    .entity-clickable:hover {
+        opacity: 0.8;
+    }
+    
+    .allocation-details {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+    
+    .topn-note {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 10px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-size: 0.9em;
+        color: #856404;
+    }
+    </style>
+    
+    <script>
+    // Dados históricos globais (serão populados pelo backend)
+    let historicalData = [];
+    
+    // Função para mostrar histórico de entidade
+    async function showEntityHistory(poolName, entityType, entityName, elementId) {
+        const historyRow = document.getElementById(elementId + '_history');
+        const contentDiv = document.getElementById(elementId + '_content');
+        
+        // Toggle visibility
+        if (historyRow.style.display === 'none' || historyRow.style.display === '') {
+            historyRow.style.display = 'table-row';
+            
+            // Carregar dados históricos via AJAX
+            try {
+                const response = await fetch('/api/concentration_history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pool_name: poolName,
+                        entity_type: entityType,
+                        entity_name: entityName
+                    })
+                });
+                
+                if (response.ok) {
+                    const historyData = await response.json();
+                    contentDiv.innerHTML = generateHistoryTable(historyData, entityType, entityName);
+                } else {
+                    contentDiv.innerHTML = '<p>Erro ao carregar histórico.</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                contentDiv.innerHTML = '<p>Erro de conexão ao carregar histórico.</p>';
+            }
+        } else {
+            historyRow.style.display = 'none';
+        }
+    }
+    
+    // Função para mostrar breakdown Top N
+    async function showTopNBreakdown(poolName, entityType, elementId) {
+        const breakdownRow = document.getElementById(elementId + '_breakdown');
+        const contentDiv = document.getElementById(elementId + '_content');
+        
+        // Toggle visibility
+        if (breakdownRow.style.display === 'none' || breakdownRow.style.display === '') {
+            breakdownRow.style.display = 'table-row';
+            
+            // Carregar breakdown Top N via AJAX
+            try {
+                const response = await fetch('/api/topn_breakdown', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pool_name: poolName,
+                        entity_type: entityType,
+                        date: 'latest'  // Usar data mais recente por default
+                    })
+                });
+                
+                if (response.ok) {
+                    const breakdownData = await response.json();
+                    contentDiv.innerHTML = generateTopNTable(breakdownData, entityType, poolName);
+                } else {
+                    contentDiv.innerHTML = '<p>Erro ao carregar breakdown Top N.</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar breakdown:', error);
+                contentDiv.innerHTML = '<p>Erro de conexão ao carregar breakdown.</p>';
+            }
+        } else {
+            breakdownRow.style.display = 'none';
+        }
+    }
+    
+    // Função para mostrar margens de alocação
+    async function showAllocationMargins(poolName, entityType, entityName, date) {
+        // Criar modal ou área expandida para mostrar margens detalhadas
+        const modalId = 'allocation_modal_' + Date.now();
+        
+        try {
+            const response = await fetch('/api/allocation_margins', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pool_name: poolName,
+                    entity_type: entityType,
+                    entity_name: entityName,
+                    date: date
+                })
+            });
+            
+            if (response.ok) {
+                const allocationData = await response.json();
+                showAllocationModal(allocationData);
+            } else {
+                alert('Erro ao carregar margens de alocação.');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar margens:', error);
+            alert('Erro de conexão ao carregar margens de alocação.');
+        }
+    }
+    
+    // Gerar tabela de histórico
+    function generateHistoryTable(historyData, entityType, entityName) {
+        if (!historyData || historyData.length === 0) {
+            return '<p>Nenhum histórico encontrado para esta entidade.</p>';
+        }
+        
+        let html = `
+        <div class="history-header">
+            <h5>${entityType === 'cedente' ? 'Cedente' : 'Sacado'}: ${entityName}</h5>
+        </div>
+        <table class="historical-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Concentração</th>
+                    <th>Status</th>
+                    <th>Limite</th>
+                    <th>Margem</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        historyData.forEach(item => {
+            const rowClass = item.status === 'violado' ? 'historical-violation' : 'historical-ok';
+            const statusBadge = item.status === 'violado' ? 
+                '<span class="status-mini violation">VIOLADO</span>' : 
+                '<span class="status-mini ok">ENQUADRADO</span>';
+            
+            html += `
+                <tr class="${rowClass}">
+                    <td>${item.date}</td>
+                    <td><strong>${item.percentual.toFixed(2)}%</strong></td>
+                    <td>${statusBadge}</td>
+                    <td>${item.limite.toFixed(1)}%</td>
+                    <td>${item.margem >= 0 ? '+' : ''}${item.margem.toFixed(2)}%</td>
+                    <td>
+                        <span class="entity-clickable" onclick="showAllocationMargins('${item.pool}', '${item.entity_type}', '${item.entity_name}', '${item.date}')">
+                            Ver Margens
+                        </span>
+                    </td>
+                </tr>`;
+        });
+        
+        html += `
+            </tbody>
+        </table>`;
+        
+        return html;
+    }
+    
+    // Gerar tabela Top N
+    function generateTopNTable(breakdownData, entityType, poolName) {
+        if (!breakdownData || breakdownData.length === 0) {
+            return '<p>Nenhum breakdown Top N encontrado.</p>';
+        }
+        
+        let html = `
+        <div class="topn-header">
+            <h5>Top ${breakdownData[0].n_total} ${entityType === 'cedente' ? 'Cedentes' : 'Sacados'}</h5>
+            <p>Status Geral: <span class="status-mini ${breakdownData[0].status_geral === 'violado' ? 'violation' : 'ok'}">
+                ${breakdownData[0].status_geral.toUpperCase()}</span></p>
+            <p>Limite: ${breakdownData[0].limite_configurado.toFixed(1)}%</p>
+        </div>
+        
+        ${breakdownData[0].note ? '<div class="topn-note"><strong>Nota:</strong> ' + breakdownData[0].note + '</div>' : ''}
+        
+        <table class="topn-table">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Entidade</th>
+                    <th>Exposição Atual</th>
+                    <th>% Atual</th>
+                    <th>Pode Crescer</th>
+                    <th>Saldo Após</th>
+                    <th>Limitada Por</th>
+                    <th>Explicação</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        breakdownData.forEach(item => {
+            // Debug: log dos dados para verificar
+            console.log('Item breakdown:', item);
+            
+            // Formatar valores da análise sequencial - usar valores específicos
+            const exposicaoAtual = item.valor_absoluto || item.exposicao_atual || 0;
+            const percentualAtual = item.percentual || item.percentual_atual || 0;
+            const capacidadeEfetiva = item.capacidade_efetiva || 0;
+            const saldoApos = item.saldo_apos || 0;
+            const limitadaPor = item.limitada_por || item.motivo_limite || 'N/A';
+            const explicacao = item.explicacao || 'N/A';
+            
+            // Verificar se valores são válidos
+            const exposicaoFormatted = (typeof exposicaoAtual === 'number' && !isNaN(exposicaoAtual)) 
+                ? exposicaoAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2})
+                : '0,00';
+            const capacidadeFormatted = (typeof capacidadeEfetiva === 'number' && !isNaN(capacidadeEfetiva))
+                ? capacidadeEfetiva.toLocaleString('pt-BR', {minimumFractionDigits: 2})
+                : '0,00';
+            const saldoFormatted = (typeof saldoApos === 'number' && !isNaN(saldoApos))
+                ? saldoApos.toLocaleString('pt-BR', {minimumFractionDigits: 2})
+                : '0,00';
+            const percentualFormatted = (typeof percentualAtual === 'number' && !isNaN(percentualAtual))
+                ? percentualAtual.toFixed(2)
+                : '0,00';
+            
+            html += `
+                <tr>
+                    <td><strong>${item.ranking === 'Total' ? 'Total' : '#' + item.ranking}</strong></td>
+                    <td title="${item.entity_name || 'N/A'}">${(item.entity_name || 'N/A').length > 30 ? (item.entity_name || 'N/A').substring(0, 30) + '...' : (item.entity_name || 'N/A')}</td>
+                    <td>R$ ${exposicaoFormatted}</td>
+                    <td><strong>${percentualFormatted}%</strong></td>
+                    <td>R$ ${capacidadeFormatted}</td>
+                    <td>R$ ${saldoFormatted}</td>
+                    <td><span class="limit-reason">${limitadaPor}</span></td>
+                    <td title="${explicacao}">${explicacao.length > 40 ? explicacao.substring(0, 40) + '...' : explicacao}</td>
+                </tr>`;
+        });
+        
+        html += `
+            </tbody>
+        </table>`;
+        
+        return html;
+    }
+    
+    // Mostrar modal de margens de alocação
+    function showAllocationModal(allocationData) {
+        // Implementar modal simples
+        let modalHtml = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;" onclick="this.remove()">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 800px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                <h3>📊 Margens de Alocação - ${allocationData.entity_name}</h3>
+                <p><strong>Pool:</strong> ${allocationData.pool_name} | <strong>Data:</strong> ${allocationData.date}</p>
+                
+                ${allocationData.individual_limit ? `
+                <div class="allocation-details">
+                    <h4>Limite Individual</h4>
+                    <p><strong>Concentração Atual:</strong> ${allocationData.individual_limit.percentual_atual.toFixed(2)}%</p>
+                    <p><strong>Limite Configurado:</strong> ${allocationData.individual_limit.limite_configurado.toFixed(1)}%</p>
+                    <p><strong>Status:</strong> <span class="status-mini ${allocationData.individual_limit.status === 'violado' ? 'violation' : 'ok'}">${allocationData.individual_limit.status.toUpperCase()}</span></p>
+                    <p><strong>Margem:</strong> ${allocationData.individual_limit.margem_limite >= 0 ? '+' : ''}${allocationData.individual_limit.margem_limite.toFixed(2)}%</p>
+                    <p><strong>Valor Absoluto:</strong> R$ ${allocationData.individual_limit.valor_absoluto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                </div>
+                ` : ''}
+                
+                ${allocationData.top_n_limits.map(topN => `
+                <div class="allocation-details">
+                    <h4>Limite Top ${topN.n_value}</h4>
+                    <p><strong>Ranking da Entidade:</strong> #${topN.entity_ranking}</p>
+                    <p><strong>Concentração da Entidade:</strong> ${topN.entity_percentual.toFixed(2)}%</p>
+                    <p><strong>Total Top ${topN.n_value}:</strong> ${topN.top_n_total_percentual.toFixed(2)}%</p>
+                    <p><strong>Limite Configurado:</strong> ${topN.limite_configurado.toFixed(1)}%</p>
+                    <p><strong>Status:</strong> <span class="status-mini ${topN.status === 'violado' ? 'violation' : 'ok'}">${topN.status.toUpperCase()}</span></p>
+                    <p><strong>Margem:</strong> ${topN.margem_limite >= 0 ? '+' : ''}${topN.margem_limite.toFixed(2)}%</p>
+                </div>
+                `).join('')}
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="this.closest('div[style*="position: fixed"]').remove()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Fechar</button>
+                </div>
+            </div>
+        </div>`;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    </script>
+    
+        
         <footer>
             <p>AmFi Monitoring System - 2025 | Dashboard de Tabelas por Indicador</p>
         </footer>
@@ -1113,6 +2121,21 @@
                 element.style.display = 'table-row';
             } else {
                 element.style.display = 'none';
+            }
+        }
+        
+        function toggleIndicatorSection(sectionName) {
+            const content = document.getElementById(sectionName + '-content');
+            const icon = document.querySelector('.collapsible-header .expand-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+                icon.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(180deg)';
+                icon.textContent = '▲';
             }
         }
         

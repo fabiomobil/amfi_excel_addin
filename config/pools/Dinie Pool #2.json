@@ -1,0 +1,294 @@
+{
+  "pool_id": "Dinie Pool #2",
+  "pool_name": "Dinie Pool #2",
+  "status": "ativo",
+  "data_emissao": "2025-03-31",
+  "data_vencimento": "2025-11-30",
+  
+  "valores": {
+    "total_emissao": 900000.0,
+    "senior": 720000.0,
+    "subordinada": 180000.0,
+    "reserva_despesas": 6000.0,
+    "reserva_extraordinaria": 4000.0
+  },
+  
+  
+  "provisoes_pdd": {
+    "grupos_risco": {
+      "AA": {"atraso_max_dias": 0, "provisao_pct": 0.000},
+      "A": {"atraso_max_dias": 15, "provisao_pct": 0.005},
+      "B": {"atraso_max_dias": 30, "provisao_pct": 0.010},
+      "C": {"atraso_max_dias": 60, "provisao_pct": 0.030},
+      "D": {"atraso_max_dias": 90, "provisao_pct": 0.100},
+      "E": {"atraso_max_dias": 120, "provisao_pct": 0.300},
+      "F": {"atraso_max_dias": 150, "provisao_pct": 0.500},
+      "G": {"atraso_max_dias": 180, "provisao_pct": 0.700},
+      "H": {"atraso_max_dias": 999, "provisao_pct": 1.000}
+    }
+  },
+  
+  "sacados_elegiveis": [
+    "Conforme análise de KYC do Originador",
+    "Listados no Anexo VI da escritura"
+  ],
+  
+  "triggers_aceleracao": {
+    "obrigacao_pecuniaria": {
+      "prazo_cura_dias": 5,
+      "tipo_prazo": "uteis",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "obrigacao_nao_pecuniaria": {
+      "prazo_cura_dias": 20,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "falencia_recuperacao": {
+      "prazo_cura_dias": 0,
+      "automatico": true,
+      "notificacao_requerida": false
+    },
+    "limite_concentracao": {
+      "prazo_cura_dias": 30,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    },
+    "subordinacao_inadimplencia": {
+      "prazo_cura_dias": 7,
+      "tipo_prazo": "corridos",
+      "automatico": false,
+      "notificacao_requerida": true
+    }
+  },
+  
+  "periodos_especiais": {
+    "formacao_carteira": {
+      "dias": 30,
+      "inicio": "2025-03-31",
+      "fim": "2025-04-30",
+      "regras_especiais": ["criterios_elegibilidade_flexibilizados"]
+    },
+    "carencia_amortizacao": {
+      "meses": 4,
+      "inicio": "2025-03-31",
+      "fim": "2025-07-31"
+    },
+    "limite_aquisicoes": {
+      "meses": 8,
+      "data_limite": "2025-11-30"
+    }
+  },
+  
+  "monitoramentos_ativos": [
+    {
+      "id": "subordinacao",
+      "tipo": "subordinacao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "critica",
+      "limites": {
+        "minimo": 0.20,
+        "critico": 0.15,
+        "calculo": "subordinada / (senior + subordinada)",
+        "acao_violacao": "amortizacao_extraordinaria",
+        "prazo_cura_dias": 5,
+        "tipo_prazo": "uteis"
+      },
+      "campos_necessarios": ["sr", "jr"],
+      "funcao_calculo": "calc_subordinacao"
+    },
+    {
+      "id": "concentracao",
+      "tipo": "concentracao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": [
+        {
+          "tipo": "individual",
+          "entidade": "sacado",
+          "limite": 0.05,
+          "inclui_grupo_economico": true
+        },
+        {
+          "tipo": "individual",
+          "entidade": "cedente",
+          "limite": 0.30,
+          "inclui_grupo_economico": true
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "sacado",
+          "n": 10,
+          "limite": 0.40,
+          "inclui_grupo_economico": true
+        },
+        {
+          "tipo": "top_n",
+          "entidade": "cedente",
+          "n": 10,
+          "limite": 0.70,
+          "inclui_grupo_economico": true
+        }
+      ],
+      "campos_necessarios": ["sacado", "cedente", "valor_presente", "grupo_economico"],
+      "funcao_calculo": "calc_concentracao"
+    },
+    {
+      "id": "inadimplencia_30d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "prazo_dias": 30,
+        "limite": 0.05
+      },
+      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "inadimplencia_60d",
+      "tipo": "inadimplencia",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "prazo_dias": 60,
+        "limite": 0.03
+      },
+      "campos_necessarios": ["dias_atraso", "valor_presente"],
+      "funcao_calculo": "calc_inadimplencia"
+    },
+    {
+      "id": "vencimento_medio",
+      "tipo": "prazo",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "media",
+      "limites": {
+        "maximo_dias": 45,
+        "ponderado_por_valor": true
+      },
+      "campos_necessarios": ["data_vencimento", "valor_presente"],
+      "funcao_calculo": "calc_vencimento_medio"
+    },
+    {
+      "id": "criterios_ativos",
+      "tipo": "elegibilidade",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "limites": {
+        "valor_minimo": 200.0,
+        "vencimento_minimo_dias": 7,
+        "vencimento_maximo_dias": 45,
+        "taxa_minima_mensal": 3.50,
+        "tipos_permitidos": ["ccb"],
+        "performadas_obrigatorio": true
+      },
+      "campos_necessarios": ["valor_presente", "data_vencimento", "taxa_mensal", "tipo_ativo"],
+      "funcao_calculo": "calc_criterios_elegibilidade"
+    },
+    {
+      "id": "pdd",
+      "tipo": "provisao",
+      "ativo": true,
+      "frequencia": "diaria",
+      "prioridade": "alta",
+      "campos_necessarios": ["dias_atraso", "valor_presente", "cedente"],
+      "funcao_calculo": "calc_pdd"
+    }
+  ],
+  
+  "cronograma_pagamentos": {
+    "carencia_meses": 4,
+    "inicio_amortizacao": "2025-07-31",
+    "cronograma_amortizacao": [
+      {"data": "2025-07-31", "percentual": 0.20},
+      {"data": "2025-08-31", "percentual": 0.25},
+      {"data": "2025-09-30", "percentual": 0.3333},
+      {"data": "2025-10-31", "percentual": 0.50},
+      {"data": "2025-11-30", "percentual": 1.0000}
+    ]
+  },
+
+  "remuneracao": {
+    "series_senior": {
+      "tipo": "pos_fixado",
+      "indexador": "Taxa_DI",
+      "premio_risco": 0.08,
+      "base_calculo": 360,
+      "formula": "Taxa DI + 8.0% a.a."
+    },
+    "series_subordinadas": {
+      "tipo": "residual",
+      "descricao": "Valor residual após incorridas todas as despesas, observada a Ordem de Alocação de Recursos"
+    }
+  },
+
+  "prestador_servicos_operacionais": {
+    "nome": "AMFI REPRESENTAÇÃO OPERACIONAL LTDA.",
+    "cnpj": "51.752.334/0001-52",
+    "contrato_data": "2025-03-31"
+  },
+
+  "originador_detalhado": {
+    "razao_social": "DINIE CORRESPONDENTE BANCARIO E MEIOS DE PAGAMENTOS LTDA.",
+    "cnpj": "34.183.318/0001-77",
+    "endereco": "Rua Arruda Alvim, nº 297, apt. 54, Pinheiros, São Paulo, SP",
+    "email_contato": "contato@dinie.com.br",
+    "responsavel": "Representante Legal"
+  },
+
+  "debenturistas_detalhados": {
+    "serie_senior": {
+      "nome": "INVESTIDORES VIA CROWDFUNDING",
+      "cnpj": "N/A",
+      "tipo": "crowdfunding",
+      "gestor": "AMFI PLATAFORMA ELETRÔNICA DE INVESTIMENTO LTDA.",
+      "endereco": "A definir conforme investidores",
+      "email_contato": "contato@amfi.finance",
+      "responsavel": "AmFi Crowdfunding"
+    },
+    "serie_subordinada": {
+      "nome": "DINIE CORRESPONDENTE BANCARIO E MEIOS DE PAGAMENTOS LTDA.",
+      "cnpj": "34.183.318/0001-77",
+      "tipo": "originador",
+      "endereco": "Rua Arruda Alvim, nº 297, apt. 54, Pinheiros, São Paulo, SP",
+      "email_contato": "contato@dinie.com.br",
+      "responsavel": "Representante Legal"
+    }
+  },
+
+  "securitizadora": {
+    "razao_social": "COMPANHIA SECURITIZADORA X S.A.",
+    "cnpj": "51.362.852/0001-60",
+    "endereco": "Rua Cardeal Arcoverde, nº 2365, cj. 33 (parte), Pinheiros, São Paulo, SP, CEP 05.407-003",
+    "representante": "Representantes Legais"
+  },
+
+  "metadata": {
+    "versao": "2.2",
+    "data_atualizacao": "2025-07-21",
+    "fonte_original": "Dinie Pool #2 - Escritura Debêntures - (v.signoff) 310325.docx - Clicksign.md",
+    "schema_version": "monitoring_v2",
+    "completude": "95%",
+    "notas_especiais": [
+      "CCB como único tipo de ativo elegível",
+      "Prazo curto (8 meses) comparado a outros pools",
+      "Operação via crowdfunding para série sênior",
+      "Concentração individual por sacado muito baixa (5%)",
+      "Taxa de financiamento mínima relativamente alta (3.5% mensal)"
+    ],
+    "limitacoes_identificadas": [
+      "PDD calculada por cedente (lógica padrão) - CCB deveria ser por ativo",
+      "Detalhes específicos de alguns sacados não especificados na escritura",
+      "Informações de contato do originador incompletas"
+    ]
+  }
+}

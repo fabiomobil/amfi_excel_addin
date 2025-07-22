@@ -26,12 +26,14 @@ from pathlib import Path
 try:
     from .daily_results_persistence import DailyResultsPersistence
     from .alerts import log_alerta
+    from .concentration_analysis import generate_concentration_summary_table
 except (ImportError, ValueError):
     import sys
     if os.path.dirname(__file__) not in sys.path:
         sys.path.insert(0, os.path.dirname(__file__))
     from daily_results_persistence import DailyResultsPersistence
     from alerts import log_alerta
+    from concentration_analysis import generate_concentration_summary_table
 
 
 class ComprehensiveDashboardGenerator:
@@ -179,6 +181,8 @@ class ComprehensiveDashboardGenerator:
         
         {self._generate_pools_overview(current_data)}
         
+        {self._generate_concentration_analysis_section(current_data)}
+        
         <footer>
             <p>AmFi Monitoring System - {datetime.now().year} | Gerado automaticamente</p>
         </footer>
@@ -237,6 +241,27 @@ class ComprehensiveDashboardGenerator:
         
         html += '</div>'
         return html
+    
+    def _generate_concentration_analysis_section(self, current_data: Dict[str, Any]) -> str:
+        """Gera seção de análise de concentração."""
+        try:
+            concentration_table = generate_concentration_summary_table(current_data)
+            
+            return f"""
+        <div class="concentration-analysis-section">
+            <h2>🎯 Análise de Concentração Detalhada</h2>
+            <div class="concentration-content">
+                {concentration_table}
+            </div>
+        </div>"""
+        except Exception as e:
+            return f"""
+        <div class="concentration-analysis-section">
+            <h2>🎯 Análise de Concentração</h2>
+            <div class="error-message">
+                <p>Erro ao gerar tabela de concentração: {str(e)}</p>
+            </div>
+        </div>"""
     
     def _generate_pool_status_badges(self, pool_data: Dict[str, Any]) -> str:
         """Gera badges de status para o pool."""
@@ -937,6 +962,32 @@ class ComprehensiveDashboardGenerator:
             color: #ffc107;
             margin-bottom: 20px;
             font-size: 2em;
+        }
+        
+        .concentration-analysis-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .concentration-analysis-section h2 {
+            color: #667eea;
+            padding: 25px 30px;
+            margin: 0;
+            font-size: 1.8em;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .concentration-content {
+            padding: 0;
+        }
+        
+        .error-message {
+            padding: 30px;
+            text-align: center;
+            color: #dc3545;
         }
         
         footer {

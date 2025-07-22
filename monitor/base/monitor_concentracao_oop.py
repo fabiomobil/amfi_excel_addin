@@ -111,7 +111,7 @@ class ConcentrationMonitor(BaseMonitor):
         # Mapeamento de campos da configuração para colunas reais
         campo_mapping = {
             'sacado': 'nome_do_sacado',
-            'cedente': 'nome_do_cedente',
+            'cedente': 'nome_cedente_original',  # CORREÇÃO: Usar cedente original
             'valor_presente': 'valor_presente',
             'grupo_economico': 'grupo_economico'  # Opcional
         }
@@ -126,7 +126,7 @@ class ConcentrationMonitor(BaseMonitor):
                 else:
                     campos_reais.append(campo)
             return campos_reais
-        return ['nome_do_sacado', 'nome_do_cedente', 'valor_presente']
+        return ['nome_do_sacado', 'nome_cedente_original', 'valor_presente']
     
     def _load_concentration_filters(self) -> Dict[str, Any]:
         """
@@ -238,7 +238,7 @@ class ConcentrationMonitor(BaseMonitor):
         try:
             # Determinar coluna baseada no tipo de entidade
             if entity_type == "cedente":
-                entity_column = "nome_do_cedente"
+                entity_column = "nome_cedente_original"  # CORREÇÃO: Usar cedente original
             elif entity_type == "sacado":
                 entity_column = "nome_do_sacado"
             else:
@@ -368,7 +368,7 @@ class ConcentrationMonitor(BaseMonitor):
             # 4. Validar colunas obrigatórias na carteira
             required_columns = self.get_required_columns()
             # Filtrar apenas colunas realmente obrigatórias (excluir opcionais)
-            essential_columns = ['nome_do_sacado', 'nome_do_cedente', 'valor_presente']
+            essential_columns = ['nome_do_sacado', 'nome_cedente_original', 'valor_presente']
             missing_columns = [col for col in essential_columns if col not in carteira_xlsx.columns]
             if missing_columns:
                 raise ValueError(f"Colunas obrigatórias ausentes na carteira: {missing_columns}")
@@ -416,7 +416,7 @@ class ConcentrationMonitor(BaseMonitor):
         """
         try:
             # Determinar coluna da entidade
-            entity_column = "nome_do_sacado" if limite.entidade == ConcentrationEntity.SACADO else "nome_do_cedente"
+            entity_column = "nome_do_sacado" if limite.entidade == ConcentrationEntity.SACADO else "nome_cedente_original"
             
             # Filtrar dados (remover entidades ignoradas)
             filtered_df = self._filter_concentration_data(carteira_df, limite.entidade.value)
@@ -436,6 +436,19 @@ class ConcentrationMonitor(BaseMonitor):
                     "entidade": limite.entidade.value,
                     "limite_configurado": limite.limite * 100,
                     "status": "sem_dados",
+                    "maior_concentracao": None,
+                    "margem_limite": 0,
+                    "total_entidades": 0
+                }
+            
+            if len(concentracao_por_entidade) == 0 or concentracao_por_entidade['percentual_pl'].empty:
+                # Caso especial: sem entidades ou dados vazios
+                return {
+                    "tipo": "individual",
+                    "entidade": limite.entidade_nome,
+                    "limite_configurado": limite.limite * 100,
+                    "status": "sem_dados",
+                    "concentracao_max": 0.0,
                     "maior_concentracao": None,
                     "margem_limite": 0,
                     "total_entidades": 0
@@ -492,7 +505,7 @@ class ConcentrationMonitor(BaseMonitor):
         """
         try:
             # Determinar coluna da entidade
-            entity_column = "nome_do_sacado" if limite.entidade == ConcentrationEntity.SACADO else "nome_do_cedente"
+            entity_column = "nome_do_sacado" if limite.entidade == ConcentrationEntity.SACADO else "nome_cedente_original"
             
             # Filtrar dados (remover entidades ignoradas)
             filtered_df = self._filter_concentration_data(carteira_df, limite.entidade.value)
@@ -518,8 +531,8 @@ class ConcentrationMonitor(BaseMonitor):
                     "status": "sem_dados",
                     "concentracao_agregada": None,
                     "margem_limite": 0,
-                    "total_entidades": 0
-                    # REMOVED: "detalhes_top_n": [] - não existe na versão original
+                    "total_entidades": 0,
+                    "detalhamento_top_n": []  # Reativado para suportar drilldown
                 }
             
             # Calcular agregação
@@ -533,15 +546,15 @@ class ConcentrationMonitor(BaseMonitor):
             # Calcular margem
             margem = limite_pct - percentual_agregado
             
-            # Detalhes do top N removidos para manter compatibilidade com versão original
-            # detalhes_top_n = []
-            # for _, row in top_n.iterrows():
-            #     detalhes_top_n.append({
-            #         "entidade": row[entity_column],
-            #         "valor_absoluto": float(row['valor_absoluto']),
-            #         "percentual_pl": float(row['percentual_pl']),  # Manter sem arredondamento
-            #         "quantidade_titulos": int(row['quantidade_titulos'])
-            #     })
+            # Detalhes do top N - reativado para suportar drilldown
+            detalhes_top_n = []
+            for _, row in top_n.iterrows():
+                detalhes_top_n.append({
+                    "entidade": row[entity_column],
+                    "valor_absoluto": float(row['valor_absoluto']),
+                    "percentual_pl": float(row['percentual_pl']),  # Manter sem arredondamento
+                    "quantidade_titulos": int(row['quantidade_titulos'])
+                })
             
             return {
                 "limite_id": f"top_{limite.n}_{limite.entidade.value}",
@@ -556,8 +569,8 @@ class ConcentrationMonitor(BaseMonitor):
                     "quantidade_entidades": len(top_n)
                 },
                 "margem_limite": margem,  # Não arredondar aqui para manter compatibilidade
-                "total_entidades": len(concentracao_por_entidade)
-                # REMOVED: "detalhes_top_n": detalhes_top_n - não existe na versão original
+                "total_entidades": len(concentracao_por_entidade),
+                "detalhamento_top_n": detalhes_top_n  # Reativado para suportar drilldown
             }
             
         except Exception as e:
@@ -920,7 +933,7 @@ Espaço disponível: {cabecalho['espaco_disponivel']:,.0f}
             for entidade_tipo in ["sacado", "cedente"]:
                 try:
                     # Determinar coluna da entidade
-                    entity_column = "nome_do_sacado" if entidade_tipo == "sacado" else "nome_do_cedente"
+                    entity_column = "nome_do_sacado" if entidade_tipo == "sacado" else "nome_cedente_original"
                     
                     # Verificar se há dados para esta entidade
                     if entity_column not in carteira_pool.columns:

@@ -11,6 +11,7 @@ import json
 import glob
 from datetime import datetime
 from pathlib import Path
+from monitor.utils.concentration_analysis import generate_concentration_summary_table
 
 def load_latest_json_data():
     """Carrega o arquivo JSON mais recente."""
@@ -224,10 +225,10 @@ def get_most_recent_pool_status(pool_name, historical_data):
     
     return None, None, None
 
-def get_most_recent_pool_data(pool_name, historical_data):
+def get_most_recent_pool_data(pool_name, historical_data, monitor_type='subordinacao'):
     """
     Busca todos os dados mais recentes de um pool no histórico.
-    Retorna todos os dados de subordinação da data mais recente disponível.
+    Retorna todos os dados do monitor especificado da data mais recente disponível.
     """
     if not historical_data:
         return None
@@ -239,10 +240,10 @@ def get_most_recent_pool_data(pool_name, historical_data):
         
         if pool_name in pools and pools[pool_name].get('sucesso', False):
             resultados = pools[pool_name].get('resultados', {})
-            subordinacao = resultados.get('subordinacao', {})
+            monitor_data = resultados.get(monitor_type, {})
             
-            if subordinacao:
-                return subordinacao
+            if monitor_data:
+                return monitor_data
     
     return None
 
@@ -360,15 +361,118 @@ def extract_subordinacao_data(data, historical_data):
     
     return subordinacao_pools
 
+def extract_concentracao_data(data, historical_data):
+    """Extrai dados de concentração com histórico."""
+    concentracao_pools = []
+    
+    for pool_name, pool_data in data['pools'].items():
+        if not pool_data.get('sucesso', False):
+            continue
+            
+        resultados = pool_data.get('resultados', {})
+        concentracao_base = resultados.get('concentracao', {})
+        
+        if not concentracao_base.get('sucesso', False):
+            continue
+            
+        # Buscar dados mais recentes se disponíveis
+        concentracao_recente = get_most_recent_pool_data(pool_name, historical_data, 'concentracao')
+        
+        if concentracao_recente:
+            concentracao = concentracao_recente
+            status_geral = concentracao.get('status_geral', 'unknown')
+            is_violation = status_geral.lower() == 'violado'
+        else:
+            concentracao = concentracao_base
+            status_geral = concentracao.get('status_geral', 'unknown')
+            is_violation = status_geral.lower() == 'violado'
+        
+        # Extrair informações principais
+        resumo = concentracao.get('resumo', {})
+        limites_violados = resumo.get('limites_violados', 0)
+        limites_analisados = resumo.get('total_limites_analisados', 0)
+        
+        # Encontrar principais violações e maior concentração
+        principais_violacoes = []
+        maior_concentracao = {}
+        maior_percentual = 0
+        
+        resultados_por_limite = concentracao.get('resultados_por_limite', [])
+        for limite in resultados_por_limite:
+            if limite.get('status') == 'violado':
+                principais_violacoes.append({
+                    'tipo': limite.get('limite_id', ''),
+                    'entidade': limite.get('entidade', ''),
+                    'limite': limite.get('limite_configurado', 0),
+                    'margem': limite.get('margem_limite', 0)
+                })
+            
+            # Verificar maior concentração
+            if limite.get('maior_concentracao'):
+                conc = limite['maior_concentracao']
+                percentual = conc.get('percentual_pl', 0)
+                if percentual > maior_percentual:
+                    maior_percentual = percentual
+                    maior_concentracao = {
+                        'entidade': conc.get('entidade', ''),
+                        'percentual': percentual,
+                        'valor': conc.get('valor_absoluto', 0),
+                        'tipo_limite': limite.get('entidade', '')
+                    }
+            elif limite.get('concentracao_top_n'):  # Para limites Top N
+                conc = limite['concentracao_top_n']
+                percentual = conc.get('percentual_pl', 0)
+                if percentual > maior_percentual:
+                    maior_percentual = percentual
+                    maior_concentracao = {
+                        'entidade': f"Top {limite.get('n', 'N')} {limite.get('entidade', '')}",
+                        'percentual': percentual,
+                        'valor': conc.get('valor_absoluto', 0),
+                        'tipo_limite': limite.get('entidade', '')
+                    }
+        
+        # Calcular dias consecutivos (placeholder - implementar lógica histórica)
+        dias_consecutivos = 0
+        if is_violation:
+            # TODO: Implementar cálculo baseado em dados históricos
+            dias_consecutivos = 1
+        
+        concentracao_pools.append({
+            'pool_name': pool_name,
+            'status_geral': status_geral.upper() if status_geral != 'unknown' else 'UNKNOWN',
+            'is_violation': is_violation,
+            'limites_violados': limites_violados,
+            'limites_analisados': limites_analisados,
+            'dias_consecutivos': dias_consecutivos,
+            'principais_violacoes': principais_violacoes,
+            'maior_concentracao': maior_concentracao,
+            'dados_completos': concentracao
+        })
+    
+    # Ordenar: violados por dias consecutivos (desc), depois enquadrados por nome
+    concentracao_pools.sort(key=lambda x: (
+        not x['is_violation'],  # Violados primeiro
+        -x['dias_consecutivos'] if x['is_violation'] else x['pool_name']
+    ))
+    
+    return concentracao_pools
+
 def generate_subordinacao_table(subordinacao_data):
     """Gera tabela HTML para subordinação."""
     if not subordinacao_data:
         return "<p>Nenhum dado de subordinação encontrado.</p>"
     
-    html = """
+    # Contar violações
+    total_pools = len(subordinacao_data)
+    violacoes = sum(1 for pool in subordinacao_data if pool['is_violation'])
+    
+    html = f"""
     <div class="indicator-section subordinacao">
-        <h2>📈 Subordinação</h2>
-        <div class="table-container">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('subordinacao')">
+            <span>📈 Subordinação ({violacoes}/{total_pools})</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="subordinacao-content">
             <table class="indicator-table">
                 <thead>
                     <tr>
@@ -485,6 +589,144 @@ def generate_subordinacao_table(subordinacao_data):
     
     return html
 
+def generate_concentracao_table(concentracao_data):
+    """Gera tabela HTML para concentração."""
+    if not concentracao_data:
+        return "<p>Nenhum dado de concentração encontrado.</p>"
+    
+    # Contar violações
+    total_pools = len(concentracao_data)
+    violacoes = sum(1 for pool in concentracao_data if pool['is_violation'])
+    
+    html = f"""
+    <div class="indicator-section concentracao">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('concentracao')">
+            <span>🎯 Concentração ({violacoes}/{total_pools})</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="concentracao-content">
+            <table class="indicator-table">
+                <thead>
+                    <tr>
+                        <th>Pool</th>
+                        <th>Status Geral</th>
+                        <th>Dias Consecutivos</th>
+                        <th>Principais Violações</th>
+                        <th>Maior Concentração</th>
+                        <th>% da Carteira</th>
+                        <th>Margem/Excesso</th>
+                    </tr>
+                </thead>
+                <tbody>
+    """
+    
+    for pool in concentracao_data:
+        pool_name = pool['pool_name']
+        status_geral = pool['status_geral']
+        is_violation = pool['is_violation']
+        dias_consecutivos = pool['dias_consecutivos']
+        principais_violacoes = pool['principais_violacoes']
+        maior_concentracao = pool['maior_concentracao']
+        
+        # Determinar classe da linha
+        row_class = "violation-row" if is_violation else "ok-row"
+        
+        # Status badge
+        status_class = "status-violation" if is_violation else "status-ok"
+        status_text = status_geral
+        
+        # Dias consecutivos
+        dias_text = f"{dias_consecutivos} dias" if is_violation and dias_consecutivos > 0 else "-"
+        
+        # Principais violações
+        if principais_violacoes:
+            violacoes_text = ", ".join([f"{v['tipo'].replace('_', ' ').title()}" for v in principais_violacoes[:2]])
+            if len(principais_violacoes) > 2:
+                violacoes_text += f" + {len(principais_violacoes) - 2} mais"
+        else:
+            violacoes_text = "-"
+        
+        # Maior concentração
+        if maior_concentracao:
+            entidade = maior_concentracao['entidade'][:30] + "..." if len(maior_concentracao['entidade']) > 30 else maior_concentracao['entidade']
+            percentual = maior_concentracao['percentual']
+            concentracao_text = entidade
+            percentual_text = f"{percentual:.2f}%"
+        else:
+            concentracao_text = "-"
+            percentual_text = "-"
+        
+        # Margem/Excesso (pegar da primeira violação ou maior concentração)
+        margem_text = "-"
+        if principais_violacoes:
+            margem = principais_violacoes[0]['margem']
+            if margem < 0:
+                margem_text = f"<span style='color: #e53e3e;'>-{abs(margem):.1f}%</span>"
+            else:
+                margem_text = f"<span style='color: #38a169;'>+{margem:.1f}%</span>"
+        
+        # ID único para drilldown
+        safe_pool_id = pool_name.replace(" ", "_").replace("#", "__")
+        
+        html += f"""
+                    <tr class="{row_class}" onclick="toggleDrilldown('conc_{safe_pool_id}')" style="cursor: pointer;">
+                        <td class="pool-name">{pool_name}</td>
+                        <td><span class="status-badge {status_class}">{status_text}</span></td>
+                        <td class="days-count">{dias_text}</td>
+                        <td class="violations-detail">{violacoes_text}</td>
+                        <td class="entity-name">{concentracao_text}</td>
+                        <td class="percentage">{percentual_text}</td>
+                        <td class="margin">{margem_text}</td>
+                    </tr>
+                    <tr id="conc_{safe_pool_id}" class="drilldown-row" style="display: none;">
+                        <td colspan="7">
+                            <div class="drilldown-content">
+                                <h4>🎯 Detalhes de Concentração</h4>
+                                <div class="concentration-details">
+        """
+        
+        # Adicionar detalhes dos limites
+        dados_completos = pool['dados_completos']
+        resultados_por_limite = dados_completos.get('resultados_por_limite', [])
+        
+        for limite in resultados_por_limite:
+            limite_id = limite.get('limite_id', '')
+            tipo = limite.get('tipo', '')
+            entidade = limite.get('entidade', '')
+            limite_config = limite.get('limite_configurado', 0)
+            status = limite.get('status', '')
+            margem = limite.get('margem_limite', 0)
+            
+            status_class_detail = "violation" if status == "violado" else "ok"
+            margem_color = "#e53e3e" if margem < 0 else "#38a169"
+            
+            html += f"""
+                                    <div class="limit-detail {status_class_detail}">
+                                        <strong>{limite_id.replace('_', ' ').title()}</strong> 
+                                        (Limite: {limite_config}%) - 
+                                        <span class="status-mini {status_class_detail}">{status.upper()}</span>
+                                        <span style="color: {margem_color}; margin-left: 10px;">
+                                            Margem: {margem:+.1f}%
+                                        </span>
+                                    </div>
+            """
+        
+        html += """
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+        """
+    
+    html += """
+                </tbody>
+            </table>
+        </div>
+    </div>
+    """
+    
+    return html
+
 def generate_table_dashboard_html(data, date):
     """Gera o HTML completo do dashboard com tabelas."""
     
@@ -493,6 +735,9 @@ def generate_table_dashboard_html(data, date):
     
     # Extrair dados de subordinação
     subordinacao_data = extract_subordinacao_data(data, historical_data)
+    
+    # Extrair dados de concentração
+    concentracao_data = extract_concentracao_data(data, historical_data)
     
     # Estatísticas gerais
     total_pools = len(subordinacao_data)
@@ -605,6 +850,23 @@ def generate_table_dashboard_html(data, date):
             padding: 20px 30px;
             margin: 0;
             font-size: 1.5em;
+        }}
+        
+        .collapsible-header {{
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }}
+        
+        .collapsible-header:hover {{
+            background: linear-gradient(135deg, #3A80D2 0%, #6B58DE 100%);
+        }}
+        
+        .expand-icon {{
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
         }}
         
         .table-container {{
@@ -785,6 +1047,41 @@ def generate_table_dashboard_html(data, date):
             color: #2d3748;
             margin-bottom: 15px;
             font-size: 1.1em;
+        }}
+        
+        .concentration-details {{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }}
+        
+        .limit-detail {{
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }}
+        
+        .limit-detail.violation {{
+            background: #fff2f2;
+            border-color: #f8d7da;
+        }}
+        
+        .limit-detail.ok {{
+            background: #f0f8ff;
+            border-color: #bee5eb;
+        }}
+        
+        .violations-detail, .entity-name {{
+            font-size: 0.9em;
+            color: #666;
+        }}
+        
+        .percentage {{
+            font-weight: 600;
+        }}
+        
+        .margin {{
+            font-family: monospace;
         }}
         
         .action-buttons {{
@@ -986,6 +1283,8 @@ def generate_table_dashboard_html(data, date):
         
         {generate_subordinacao_table(subordinacao_data)}
         
+        {generate_concentration_summary_table(data)}
+        
         <footer>
             <p>AmFi Monitoring System - 2025 | Dashboard de Tabelas por Indicador</p>
         </footer>
@@ -1011,6 +1310,21 @@ def generate_table_dashboard_html(data, date):
                 element.style.display = 'table-row';
             }} else {{
                 element.style.display = 'none';
+            }}
+        }}
+        
+        function toggleIndicatorSection(sectionName) {{
+            const content = document.getElementById(sectionName + '-content');
+            const icon = document.querySelector('.collapsible-header .expand-icon');
+            
+            if (content.style.display === 'none') {{
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+                icon.textContent = '▼';
+            }} else {{
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(180deg)';
+                icon.textContent = '▲';
             }}
         }}
         
