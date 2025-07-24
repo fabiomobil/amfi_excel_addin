@@ -37,7 +37,8 @@
       "Bash(gh auth:*)",
       "Bash(curl:*)",
       "Bash(sed:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(del:*)"
     ],
     "deny": []
   }
