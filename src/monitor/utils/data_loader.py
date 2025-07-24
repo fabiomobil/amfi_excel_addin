@@ -52,11 +52,11 @@ if not import_success:
 if not import_success:
     try:
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-        from monitor.utils.file_loaders import load_dashboard, load_portfolio, load_json_file, get_file_metadata
-        from monitor.utils.data_handler import data_validation, gerar_metadados_carregamento, validar_dados_por_pool
-        from monitor.utils.alerts import log_alerta
-        # from monitor.utils.file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
-        from monitor.utils.data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
+        from src.monitor.utils.file_loaders import load_dashboard, load_portfolio, load_json_file, get_file_metadata
+        from src.monitor.utils.data_handler import data_validation, gerar_metadados_carregamento, validar_dados_por_pool
+        from src.monitor.utils.alerts import log_alerta
+        # from src.monitor.utils.file_discovery import descobrir_arquivo_mais_recente, validar_consistencia_datas
+        from src.monitor.utils.data_handler import validar_data_d1, date_check_alert, gerar_alerta_nao_d1
         import_success = True
     except ImportError:
         pass

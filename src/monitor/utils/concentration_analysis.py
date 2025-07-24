@@ -1222,7 +1222,7 @@ def generate_concentration_summary_table(monitoring_results: Dict[str, Any]) -> 
 
 if __name__ == "__main__":
     # Teste da funcionalidade
-    from monitor.orchestrator import run_monitoring
+    from src.monitor.orchestrator import run_monitoring
     
     result = run_monitoring()
     if result['sucesso']:

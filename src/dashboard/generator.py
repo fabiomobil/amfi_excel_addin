@@ -11,12 +11,13 @@ import json
 import glob
 from datetime import datetime
 from pathlib import Path
-from monitor.utils.concentration_analysis import generate_concentration_summary_table
-from monitor.utils.pdd_analysis import extract_pdd_data
+from src.monitor.utils.concentration_analysis import generate_concentration_summary_table
+from src.monitor.utils.pdd_analysis import extract_pdd_data
 
 def load_latest_json_data():
     """Carrega o arquivo JSON mais recente."""
-    daily_dir = "C:\\amfi\\data\\output\\monitoring_results\\daily_consolidated"
+    project_root = Path(__file__).parent.parent.parent
+    daily_dir = project_root / "data" / "output" / "monitoring_results" / "daily_consolidated"
     
     if not os.path.exists(daily_dir):
         print(f"❌ Diretório não encontrado: {daily_dir}")
@@ -1449,7 +1450,7 @@ def generate_table_dashboard_html(data, date):
         <header>
             <h1>
                 <div class="logo-container">
-                    <img src="logo.svg" alt="AmFi Logo">
+                    <img src="../docs/assets/images/logo.svg" alt="AmFi Logo">
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>

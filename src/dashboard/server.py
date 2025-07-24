@@ -18,7 +18,7 @@ import platform
 
 # Importações para funcionalidade de concentração
 try:
-    from monitor.utils.concentration_analysis import (
+    from src.monitor.utils.concentration_analysis import (
         load_historical_monitoring_data,
         get_entity_historical_concentration,
         get_top_n_breakdown_for_date,
@@ -31,7 +31,7 @@ except ImportError as e:
 
 # Importações para funcionalidade de PDD
 try:
-    from monitor.utils.pdd_analysis import (
+    from src.monitor.utils.pdd_analysis import (
         get_pdd_pool_historical_analysis,
         get_pdd_cedente_breakdown_for_date,
         get_pdd_methodology_comparison
@@ -43,7 +43,7 @@ except ImportError as e:
 
 # Importações para funcionalidade de PDD Hierárquico
 try:
-    from monitor.utils.pdd_api_endpoints import (
+    from src.monitor.utils.pdd_api_endpoints import (
         get_pdd_hierarchy,
         get_pdd_group_cedentes,
         get_pdd_cedente_worst_assets,
@@ -88,7 +88,7 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         """Processa requisições GET."""
         # Definir caminhos baseados na plataforma
-        project_root = Path(__file__).parent
+        project_root = Path(__file__).parent.parent.parent  # src/dashboard -> src -> amfi
         dashboard_dir = project_root / "data" / "output" / "monitoring_results" / "dashboard"
         
         if self.path == '/' or self.path == '/index.html':
@@ -97,7 +97,7 @@ class AmFiHandler(http.server.SimpleHTTPRequestHandler):
             self.serve_dashboard(str(dashboard_path))
         elif self.path == '/logo.svg':
             # Servir o logo
-            logo_path = dashboard_dir / "logo.svg"
+            logo_path = project_root / "docs" / "assets" / "images" / "logo.svg"
             self.serve_file(str(logo_path), 'image/svg+xml')
         # Endpoints PDD Hierárquicos
         elif self.path.startswith('/api/pdd/') and '/hierarchy' in self.path:
@@ -743,7 +743,7 @@ def main():
     port = 8080
     
     # Definir diretório do projeto baseado na localização do script
-    project_root = Path(__file__).parent
+    project_root = Path(__file__).parent.parent.parent  # src/dashboard -> src -> amfi
     dashboard_dir = project_root / "data" / "output" / "monitoring_results" / "dashboard"
     
     # Criar diretório se não existir

@@ -16,10 +16,10 @@ import re
 import glob
 
 # Adicionar path do projeto
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 try:
-    import monitor.orchestrator as orchestrator
+    import src.monitor.orchestrator as orchestrator
 except ImportError:
     print(json.dumps({
         "success": False,
@@ -202,7 +202,7 @@ def main():
                     print("🎨 Gerando dashboard atualizado...")
                     import subprocess
                     
-                    dashboard_script = project_root / "generate_table_dashboard.py"
+                    dashboard_script = project_root / "scripts" / "generate_dashboard.py"
                     
                     subprocess.run([
                         sys.executable, 
