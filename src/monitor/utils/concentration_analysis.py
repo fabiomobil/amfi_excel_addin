@@ -495,12 +495,12 @@ def _calculate_consecutive_days(pool_name: str, concentracao_result: Dict[str, A
     # Carregar dados históricos para calcular dias consecutivos
     try:
         historical_data = load_historical_monitoring_data()
-        return _calculate_concentration_consecutive_violation_days(pool_name, historical_data)
+        return _calc_consecutive_violations(pool_name, historical_data)
     except Exception as e:
         print(f"⚠️ Erro ao calcular dias consecutivos para {pool_name}: {e}")
         return 1  # Fallback para 1 dia se não conseguir calcular
 
-def _calculate_concentration_consecutive_violation_days(pool_name: str, historical_data) -> int:
+def _calc_consecutive_violations(pool_name: str, historical_data) -> int:
     """Calcula dias consecutivos de violação de concentração para um pool específico."""
     if not historical_data:
         return 0
@@ -539,7 +539,7 @@ def _calculate_concentration_consecutive_violation_days(pool_name: str, historic
     
     return consecutive_days
 
-def generate_concentration_summary_table(monitoring_results: Dict[str, Any]) -> str:
+def gen_concentration_table(monitoring_results: Dict[str, Any]) -> str:
     """
     Gera tabela HTML formatada com análise de concentração e drilldown multi-nível.
     
@@ -1230,7 +1230,7 @@ if __name__ == "__main__":
         print("=== ANÁLISE DE CONCENTRAÇÃO ===")
         print(df.to_string())
         
-        html = generate_concentration_summary_table(result)
+        html = gen_concentration_table(result)
         with open('/tmp/concentration_analysis.html', 'w', encoding='utf-8') as f:
             f.write(html)
         print("\nHTML salvo em /tmp/concentration_analysis.html")

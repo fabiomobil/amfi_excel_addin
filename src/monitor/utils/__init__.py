@@ -14,8 +14,7 @@ from .data_converters import (
     aplicar_conversoes_csv,
     aplicar_conversoes_xlsx
 )
-from .import_helper import setup_imports, safe_import, get_import_context
-from .path_resolver import get_possible_paths
+# Arquivos obsoletos removidos: import_helper.py, path_resolver.py
 
 __all__ = [
     'load_pool_data',
@@ -34,9 +33,5 @@ __all__ = [
     'convert_brazilian_percentage_vectorized',
     'normalizar_nome_coluna',
     'aplicar_conversoes_csv',
-    'aplicar_conversoes_xlsx',
-    'setup_imports',
-    'safe_import',
-    'get_import_context',
-    'get_possible_paths'
+    'aplicar_conversoes_xlsx'
 ]

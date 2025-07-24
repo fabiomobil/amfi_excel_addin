@@ -107,6 +107,11 @@ class BaseMonitor(ABC):
             
         Returns:
             True se validação passou, False caso contrário
+            
+        Raises:
+            ValueError: Quando DataFrame está vazio ou colunas obrigatórias ausentes
+            KeyError: Quando tentativa de acesso a coluna inexistente
+            TypeError: Quando tipos de dados incompatíveis
         """
         try:
             # Validação: DataFrame não vazio

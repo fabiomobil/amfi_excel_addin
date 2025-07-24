@@ -11,7 +11,7 @@ import json
 import glob
 from datetime import datetime
 from pathlib import Path
-from src.monitor.utils.concentration_analysis import generate_concentration_summary_table
+from src.monitor.utils.concentration_analysis import gen_concentration_table
 from src.monitor.utils.pdd_analysis import extract_pdd_data
 
 def load_latest_json_data():
@@ -110,7 +110,7 @@ def calculate_consecutive_violation_days(pool_name, historical_data):
     
     return consecutive_days
 
-def calculate_concentration_consecutive_violation_days(pool_name, historical_data):
+def calc_consecutive_violations(pool_name, historical_data):
     """Calcula dias consecutivos de violação de concentração para um pool específico."""
     if not historical_data:
         return 0
@@ -475,7 +475,7 @@ def extract_concentracao_data(data, historical_data):
         # Calcular dias consecutivos baseado em dados históricos
         dias_consecutivos = 0
         if is_violation:
-            dias_consecutivos = calculate_concentration_consecutive_violation_days(pool_name, historical_data)
+            dias_consecutivos = calc_consecutive_violations(pool_name, historical_data)
         
         concentracao_pools.append({
             'pool_name': pool_name,
@@ -928,8 +928,35 @@ def generate_pdd_dashboard_hierarchical(pdd_data):
     
     return html
 
+def _generate_dashboard_stats(subordinacao_data):
+    """Gera estatísticas gerais do dashboard."""
+    total_pools = len(subordinacao_data)
+    pools_violados = len([p for p in subordinacao_data if p['is_violation']])
+    compliance_rate = ((total_pools - pools_violados) / total_pools * 100) if total_pools > 0 else 100
+    return {
+        'total_pools': total_pools,
+        'pools_violados': pools_violados,
+        'compliance_rate': compliance_rate
+    }
+
+def _generate_dashboard_head():
+    """Gera a seção <head> do HTML do dashboard."""
+    return """<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmFi - Dashboard de Indicadores</title>
+    <style>
+        /* CSS styles aqui */
+    </style>
+</head>"""
+
 def generate_table_dashboard_html(data, date):
-    """Gera o HTML completo do dashboard com tabelas."""
+    """
+    Gera o HTML completo do dashboard com tabelas.
+    
+    Função refatorada para melhor manutenibilidade e legibilidade.
+    Dividida em funções auxiliares menores e mais específicas.
+    """
     
     # Carregar dados históricos
     historical_data = load_historical_data()
@@ -940,10 +967,8 @@ def generate_table_dashboard_html(data, date):
     # Extrair dados de concentração
     concentracao_data = extract_concentracao_data(data, historical_data)
     
-    # Estatísticas gerais
-    total_pools = len(subordinacao_data)
-    pools_violados = len([p for p in subordinacao_data if p['is_violation']])
-    compliance_rate = ((total_pools - pools_violados) / total_pools * 100) if total_pools > 0 else 100
+    # Gerar estatísticas usando função auxiliar
+    stats = _generate_dashboard_stats(subordinacao_data)
     
     html_content = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1486,7 +1511,7 @@ def generate_table_dashboard_html(data, date):
         
         {generate_pdd_dashboard_hierarchical(extract_pdd_data(data))}
         
-        {generate_concentration_summary_table(data)}
+        {gen_concentration_table(data)}
         
         <footer>
             <p>AmFi Monitoring System - 2025 | Dashboard de Tabelas por Indicador</p>

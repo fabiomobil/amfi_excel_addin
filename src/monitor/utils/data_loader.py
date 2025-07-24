@@ -381,22 +381,10 @@ def load_json(pools: List[str]) -> Dict[str, Dict]:
     Returns:
         Dict[str, Dict]: Configurações por pool
     """
-    try:
-        from .path_resolver import get_possible_paths
-    except ImportError:
-        try:
-            from path_resolver import get_possible_paths
-        except ImportError:
-            try:
-                from .file_loaders import get_possible_paths
-            except ImportError:
-                try:
-                    from file_loaders import get_possible_paths
-                except ImportError:
-                    # Se nada funcionar, importar do módulo centralizado com path absoluto
-                    import sys
-                    sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-                    from path_resolver import get_possible_paths
+    # Implementação direta de path resolution (substituindo path_resolver removido)
+    def get_possible_paths(base_path):
+        """Implementação simplificada de resolução de paths."""
+        return [base_path]
     
     configs = {}
     pools_sem_config = []

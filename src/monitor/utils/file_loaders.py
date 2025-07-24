@@ -24,17 +24,25 @@ import os
 try:
     from .data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalizar_nome_coluna
     from .alerts import log_alerta
-    from .path_resolver import get_possible_paths, find_existing_path
+    # path_resolver removido - implementação direta
 except (ImportError, ValueError):
     # Fallback para imports diretos (Spyder)
     if os.path.dirname(__file__) not in sys.path:
         sys.path.insert(0, os.path.dirname(__file__))
     from data_converters import aplicar_conversoes_csv, aplicar_conversoes_xlsx, normalizar_nome_coluna
     from alerts import log_alerta
-    from path_resolver import get_possible_paths, find_existing_path
 
+# Implementação direta das funções que estavam no path_resolver
+def get_possible_paths(base_path):
+    """Implementação simplificada de resolução de paths."""
+    return [base_path]
 
-# Funções get_possible_paths e find_existing_path agora vêm do path_resolver
+def find_existing_path(paths):
+    """Encontra o primeiro path que existe."""
+    for path in paths:
+        if os.path.exists(path):
+            return path
+    return None
 
 
 def read_csv_raw(arquivo_path: str) -> pd.DataFrame:

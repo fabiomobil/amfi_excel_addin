@@ -194,6 +194,18 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
         >>> if resultado_liquidez['sucesso']:
         >>>     pool_liquidez = resultado_liquidez['resultados_liquidez']['LeCapital Pool #1']
         >>>     print(f"Próximo pagamento: R$ {pool_liquidez['next_payment']['amount']:,.2f}")
+    
+    Raises:
+        FileNotFoundError: Quando arquivos de dados ou configuração não são encontrados
+        ValueError: Quando dados têm formato inválido ou configuração incorreta
+        KeyError: Quando tentativa de acessar chaves inexistentes em configurações
+        ImportError: Quando módulos de monitores não podem ser importados
+        Exception: Qualquer erro não tratado é capturado e retornado na estrutura de resposta
+        
+    Note:
+        - Falhas em pools individuais não interrompem o processamento dos demais
+        - Todos os erros são capturados e incluídos na resposta final
+        - Sistema projetado para máxima resiliência e continuidade de operação
     """
     try:
         # Carregar dados
