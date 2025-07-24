@@ -120,7 +120,7 @@ def load_historical_monitoring_data() -> List[Dict[str, Any]]:
     Returns:
         Lista de dicionários com dados históricos ordenados por data
     """
-    daily_dir = "/mnt/c/amfi/data/output/monitoring_results/daily_consolidated"
+    daily_dir = "C:\\amfi\\data\\output\\monitoring_results\\daily_consolidated"
     
     if not os.path.exists(daily_dir):
         return []

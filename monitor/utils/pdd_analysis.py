@@ -32,7 +32,7 @@ def load_historical_monitoring_data() -> List[Dict[str, Any]]:
         Lista de dados históricos ordenados por data (mais recente primeiro)
     """
     try:
-        json_dir = Path('/mnt/c/amfi/data/output/monitoring_results/daily_consolidated')
+        json_dir = Path('C:/amfi/data/output/monitoring_results/daily_consolidated')
         
         if not json_dir.exists():
             print(f"⚠️ Diretório não encontrado: {json_dir}")

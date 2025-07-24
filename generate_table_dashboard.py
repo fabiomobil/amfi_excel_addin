@@ -1483,7 +1483,7 @@ def generate_table_dashboard_html(data, date):
         
         {generate_subordinacao_table(subordinacao_data)}
         
-        {generate_pdd_table(extract_pdd_data(data))}
+        {generate_pdd_dashboard_hierarchical(extract_pdd_data(data))}
         
         {generate_concentration_summary_table(data)}
         
