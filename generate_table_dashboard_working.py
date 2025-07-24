@@ -12,10 +12,11 @@ import glob
 from datetime import datetime
 from pathlib import Path
 from monitor.utils.concentration_analysis import generate_concentration_summary_table
+from monitor.utils.pdd_analysis import extract_pdd_data
 
 def load_latest_json_data():
     """Carrega o arquivo JSON mais recente."""
-    daily_dir = "C:\\amfi\\data\\output\\monitoring_results\\daily_consolidated"
+    daily_dir = "/mnt/c/amfi/data/output/monitoring_results/daily_consolidated"
     
     if not os.path.exists(daily_dir):
         print(f"❌ Diretório não encontrado: {daily_dir}")
@@ -42,7 +43,7 @@ def load_latest_json_data():
 
 def load_historical_data():
     """Carrega todos os arquivos JSON históricos ordenados por data."""
-    daily_dir = "C:\\amfi\\data\\output\\monitoring_results\\daily_consolidated"
+    daily_dir = "/mnt/c/amfi/data/output/monitoring_results/daily_consolidated"
     
     if not os.path.exists(daily_dir):
         return []
@@ -765,6 +766,146 @@ def generate_concentracao_table(concentracao_data):
     
     return html
 
+def generate_pdd_table(pdd_data):
+    """Gera tabela HTML para PDD/Inadimplência."""
+    if not pdd_data:
+        return "<p>Nenhum dado de PDD encontrado.</p>"
+    
+    # Contar violações (provisão > 5% considerado violação)
+    total_pools = len(pdd_data)
+    violacoes = sum(1 for pool in pdd_data if pool['is_violation'])
+    
+    html = f"""
+    <div class="pdd-analysis">
+        <h2 onclick="togglePDDSection()" style="cursor: pointer; user-select: none;">
+            <span id="pdd-toggle">▼</span> 🔍 Análise de PDD/Inadimplência ({violacoes}/{total_pools})
+        </h2>
+        <div id="pdd-content" style="display: block;">
+        <table class="concentration-table">
+            <thead>
+                <tr>
+                    <th>Pool</th>
+                    <th>Status</th>
+                    <th>Dias Consecutivos</th>
+                    <th>Provisão Total (%)</th>
+                    <th>Provisão Total (R$)</th>
+                    <th>Cedentes c/ PDD</th>
+                    <th>Pior Cedente</th>
+                    <th>Metodologia</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+    
+    for pool in pdd_data:
+        pool_name = pool['pool_name']
+        status = pool['status']
+        dias_consecutivos = pool['dias_consecutivos']
+        provisao_pct = pool['provisao_total_pct']
+        provisao_valor = pool['provisao_total_valor']
+        total_cedentes = pool['total_cedentes']
+        pior_cedente = pool['pior_cedente']
+        metodologia = pool['metodologia']
+        diferenca_pct = pool['diferenca_metodologica']
+        
+        # Classes CSS baseadas no status
+        status_class = "violation" if pool['is_violation'] else "ok"
+        row_class = "violation-row" if pool['is_violation'] else "ok-row"
+        
+        # Formatação do pior cedente
+        pior_cedente_display = "N/A"
+        if pior_cedente['nome'] != 'N/A':
+            nome_truncado = pior_cedente['nome'][:20] + "..." if len(pior_cedente['nome']) > 20 else pior_cedente['nome']
+            pior_cedente_display = f"{nome_truncado} ({pior_cedente['provisao_pct']:.1f}%)"
+        
+        # ID único para drilldown
+        pool_id_clean = pool_name.replace(' ', '_').replace('#', '___')
+        
+        html += f"""
+                <tr class="{row_class}" onclick="toggleDrilldown('pdd_{pool_id_clean}')" style="cursor: pointer;">
+                    <td class="pool-name">{pool_name}</td>
+                    <td><span class="status-badge status-{status_class}">{status}</span></td>
+                    <td class="days-count">{dias_consecutivos} dias</td>
+                    <td class="percentage">{provisao_pct:.2f}%</td>
+                    <td class="financial">R$ {provisao_valor:,.2f}</td>
+                    <td class="count">{total_cedentes}</td>
+                    <td class="entity-info">
+                        <span class="{status_class} clickable-entity"
+                        onclick="showPDDCedenteBreakdown('{pool_name}', 'latest', 'pdd_{pool_id_clean}_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        {pior_cedente_display}</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('{pool_name}', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        {metodologia} (+{diferenca_pct:.0f}%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('{pool_name}', 'pdd', '', 'pdd_{pool_id_clean}_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        """
+        
+        # Adicionar linha de drilldown oculta
+        html += f"""
+                <tr id="pdd_{pool_id_clean}" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - {pool_name}</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ {pool['carteira_valor']:,.2f}</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ {provisao_valor:,.2f} ({provisao_pct:.2f}%)</p>
+                                <p><strong>Grupos com Exposição:</strong> {pool['grupos_com_exposicao']}</p>
+                                <p><strong>Total de Cedentes:</strong> {total_cedentes}</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_{pool_id_clean}')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_{pool_id_clean}')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_{pool_id_clean}')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_{pool_id_clean}_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_{pool_id_clean}_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_{pool_id_clean}_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        """
+        
+        # Adicionar linha de histórico oculta
+        html += f"""
+                <tr id="pdd_{pool_id_clean}_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - {pool_name}</h4>
+                            <div id="pdd_{pool_id_clean}_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        """
+    
+    html += """
+                </tbody>
+            </table>
+        </div>
+    </div>
+    """
+    
+    return html
+
 def generate_table_dashboard_html(data, date):
     """Gera o HTML completo do dashboard com tabelas."""
     
@@ -1321,6 +1462,8 @@ def generate_table_dashboard_html(data, date):
         
         {generate_subordinacao_table(subordinacao_data)}
         
+        {generate_pdd_table(extract_pdd_data(data))}
+        
         {generate_concentration_summary_table(data)}
         
         <footer>
@@ -1472,6 +1615,248 @@ def generate_table_dashboard_html(data, date):
                 closeModal();
             }}
         }}
+        
+        // PDD Functions
+        function togglePDDSection() {{
+            const content = document.getElementById('pdd-content');
+            const toggle = document.getElementById('pdd-toggle');
+            
+            if (content.style.display === 'none') {{
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            }} else {{
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }}
+        }}
+        
+        async function showPDDHistory(poolName, entityType, entityName, elementId) {{
+            try {{
+                const response = await fetch('/api/pdd_history', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify({{
+                        pool_name: poolName,
+                        entity_type: entityType,
+                        entity_name: entityName
+                    }})
+                }});
+
+                if (!response.ok) {{
+                    throw new Error(`HTTP error! status: ${{response.status}}`);
+                }}
+
+                const historyData = await response.json();
+                const container = document.getElementById(elementId + '_content');
+                
+                if (container) {{
+                    container.innerHTML = generatePDDHistoryTable(historyData);
+                }}
+
+                // Mostrar o drilldown
+                document.getElementById(elementId).style.display = 'table-row';
+            }} catch (error) {{
+                console.error('Erro ao carregar histórico PDD:', error);
+                const container = document.getElementById(elementId + '_content');
+                if (container) {{
+                    container.innerHTML = '<p class="error">Erro ao carregar histórico de PDD.</p>';
+                }}
+            }}
+        }}
+        
+        async function showPDDCedenteBreakdown(poolName, date, elementId) {{
+            try {{
+                const response = await fetch('/api/pdd_cedente_breakdown', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify({{
+                        pool_name: poolName,
+                        date: date
+                    }})
+                }});
+
+                if (!response.ok) {{
+                    throw new Error(`HTTP error! status: ${{response.status}}`);
+                }}
+
+                const breakdownData = await response.json();
+                const container = document.getElementById(elementId);
+                
+                if (container) {{
+                    container.innerHTML = generatePDDCedenteTable(breakdownData, poolName);
+                }}
+            }} catch (error) {{
+                console.error('Erro ao carregar breakdown de cedentes PDD:', error);
+                const container = document.getElementById(elementId);
+                if (container) {{
+                    container.innerHTML = '<p class="error">Erro ao carregar análise por cedente.</p>';
+                }}
+            }}
+        }}
+        
+        async function showPDDMethodology(poolName, date) {{
+            try {{
+                const response = await fetch('/api/pdd_methodology', {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify({{
+                        pool_name: poolName,
+                        date: date
+                    }})
+                }});
+
+                if (!response.ok) {{
+                    throw new Error(`HTTP error! status: ${{response.status}}`);
+                }}
+
+                const methodologyData = await response.json();
+                showPDDMethodologyModal(methodologyData);
+            }} catch (error) {{
+                console.error('Erro ao carregar comparação metodológica PDD:', error);
+                alert('Erro ao carregar comparação metodológica');
+            }}
+        }}
+        
+        function generatePDDHistoryTable(historyData) {{
+            if (!historyData || historyData.length === 0) {{
+                return '<p>Nenhum histórico encontrado.</p>';
+            }}
+
+            let html = `
+            <table class="historical-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Provisão (%)</th>
+                        <th>Provisão (R$)</th>
+                        <th>Cedentes</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            historyData.forEach(entry => {{
+                const statusClass = entry.status === 'OK' ? 'ok' : 'violation';
+                html += `
+                    <tr class="hist-${{statusClass}}">
+                        <td>${{entry.date}}</td>
+                        <td><span class="status-mini ${{statusClass}}">${{entry.status}}</span></td>
+                        <td>${{entry.provisao_pct.toFixed(2)}}%</td>
+                        <td>R$ ${{entry.provisao_valor.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</td>
+                        <td>${{entry.cedentes}}</td>
+                    </tr>`;
+            }});
+
+            html += `
+                </tbody>
+            </table>`;
+
+            return html;
+        }}
+        
+        function generatePDDCedenteTable(breakdownData, poolName) {{
+            if (!breakdownData || breakdownData.length === 0) {{
+                return '<p>Nenhum dado de cedente encontrado.</p>';
+            }}
+
+            let html = `
+            <h5>📊 Análise Detalhada por Cedente - ${{poolName}}</h5>
+            <table class="cedente-table">
+                <thead>
+                    <tr>
+                        <th>Ranking</th>
+                        <th>Cedente</th>
+                        <th>Títulos</th>
+                        <th>Valor Total</th>
+                        <th>Grupo PDD</th>
+                        <th>Provisão (%)</th>
+                        <th>Provisão (R$)</th>
+                        <th>Pior Ativo</th>
+                        <th>Dias Atraso</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            breakdownData.forEach(cedente => {{
+                const statusClass = cedente.provisao_pct > 5 ? 'violation' : 'ok';
+                html += `
+                    <tr class="${{statusClass}}">
+                        <td>${{cedente.ranking}}</td>
+                        <td class="cedente-name">${{cedente.cedente_nome}}</td>
+                        <td>${{cedente.total_titulos}}</td>
+                        <td>R$ ${{cedente.valor_total.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</td>
+                        <td><span class="risk-group">${{cedente.grupo_pdd_aplicado}}</span></td>
+                        <td>${{cedente.provisao_pct.toFixed(2)}}%</td>
+                        <td>R$ ${{cedente.provisao_valor.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</td>
+                        <td>R$ ${{cedente.valor_titulo_pior.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</td>
+                        <td>${{cedente.dias_atraso_max}} dias</td>
+                    </tr>`;
+            }});
+
+            html += `
+                </tbody>
+            </table>`;
+
+            return html;
+        }}
+        
+        function showPDDMethodologyModal(methodologyData) {{
+            const modalContent = `
+            <div class="methodology-modal-content">
+                <h3>📊 Comparação Metodológica PDD - ${{methodologyData.pool_name}}</h3>
+                <p><strong>Data:</strong> ${{methodologyData.date}}</p>
+                
+                <div class="methodology-comparison">
+                    <div class="method-section">
+                        <h4>💰 Provisão por Cedente (Utilizada)</h4>
+                        <p class="amount">R$ ${{methodologyData.provisao_por_cedente.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</p>
+                        <p class="method-desc">${{methodologyData.regra_calculo}}</p>
+                    </div>
+                    
+                    <div class="method-section">
+                        <h4>📋 Provisão Individual (Comparação)</h4>
+                        <p class="amount">R$ ${{methodologyData.provisao_individual.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</p>
+                        <p class="method-desc">Cada título recebe provisão baseada apenas no seu próprio atraso</p>
+                    </div>
+                </div>
+                
+                <div class="difference-section">
+                    <h4>🔍 Diferença Financeira</h4>
+                    <p><strong>Valor Absoluto:</strong> R$ ${{methodologyData.diferenca_valor.toLocaleString('pt-BR', {{minimumFractionDigits: 2}})}}</p>
+                    <p><strong>Diferença Percentual:</strong> +${{methodologyData.diferenca_percentual.toFixed(1)}}%</p>
+                    <p class="explanation">${{methodologyData.explicacao_metodologia}}</p>
+                </div>
+                
+                <button onclick="closePDDMethodologyModal()" class="btn-close">Fechar</button>
+            </div>`;
+            
+            // Criar modal se não existir
+            let modal = document.getElementById('pddMethodologyModal');
+            if (!modal) {{
+                modal = document.createElement('div');
+                modal.id = 'pddMethodologyModal';
+                modal.className = 'modal';
+                modal.innerHTML = '<div class="modal-content">' + modalContent + '</div>';
+                document.body.appendChild(modal);
+            }} else {{
+                modal.querySelector('.modal-content').innerHTML = modalContent;
+            }}
+            
+            modal.style.display = 'block';
+        }}
+        
+        function closePDDMethodologyModal() {{
+            const modal = document.getElementById('pddMethodologyModal');
+            if (modal) {{
+                modal.style.display = 'none';
+            }}
+        }}
     </script>
 </body>
 </html>"""
@@ -1496,7 +1881,7 @@ def main():
     html_content = generate_table_dashboard_html(data, date)
     
     # Salvar arquivo
-    output_path = "C:\\amfi\\data\\output\\monitoring_results\\dashboard\\table_dashboard.html"
+    output_path = "/mnt/c/amfi/data/output/monitoring_results/dashboard/table_dashboard.html"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, 'w', encoding='utf-8') as f:
