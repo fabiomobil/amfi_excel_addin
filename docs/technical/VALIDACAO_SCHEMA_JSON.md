@@ -4,9 +4,43 @@
 Este documento consolida regras de validação para arquivos JSON de pools, processos de extração de features e checklists operacionais para garantir compatibilidade com o código Python de monitoramento e conformidade regulatória.
 
 > **Documentos Consolidados:**
+> - Análise comparativa de estruturas JSON existentes (ex-ANALISE_COMPARATIVA_JSONS.md)
+> - Padrão ideal baseado em LeCapital Pool (ex-ESTRUTURA_LECAPITAL_JSON.md)  
 > - Processos de extração de features de documentos legais
 > - Checklists operacionais para conversão de escrituras
 > - Validação de schema JSON e compatibilidade Python
+
+## Estrutura Padrão Recomendada
+
+### Template Ideal (baseado em LeCapital Pool #1)
+A estrutura do `LeCapital Pool #1` foi identificada como padrão ideal por:
+
+#### 1. Integração de Limites nos Monitores
+```json
+"monitoramentos_ativos": [
+  {
+    "id": "mon_subordinacao",
+    "tipo": "subordinacao", 
+    "limites": { "minimo": 0.25, "critico": 0.20 },
+    "ativo": true
+  }
+]
+```
+**Benefício**: Elimina redundância e centraliza configuração em estrutura única.
+
+#### 2. Formato Decimal Consistente
+```json
+"subordinacao": { "minimo": 0.25, "critico": 0.20 },
+"concentracao": { "limite": 0.35 }
+```
+**Benefício**: Elimina ambiguidade (25% vs 0.25) e facilita cálculos Python.
+
+## Problemas Identificados em Estruturas Legacy
+
+### Inconsistências de Formato
+- **AFA Pool**: Mistura `25.0` (decimal) com `"4%"` (string)
+- **SuperSim Pool**: Usa `0.35` (decimal) consistentemente ✅
+- **LeCapital Pool**: Usa `0.25` (decimal) em todos os casos ✅
 
 ## Requisitos de Tipos de Dados
 
