@@ -507,7 +507,7 @@
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>
-            <p class="date-info">Data Base: 2025-07-21 | Executado em: 22/07/2025 08:56</p>
+            <p class="date-info">Data Base: 2025-07-21 | Executado em: 22/07/2025 18:06</p>
             
             <div class="summary-stats">
                 <div class="stat-item">
@@ -1136,6 +1136,436 @@
                             </div>
                         </td>
                     </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+        
+        
+    <div class="pdd-analysis">
+        <h2 onclick="togglePDDSection()" style="cursor: pointer; user-select: none;">
+            <span id="pdd-toggle">▼</span> 🔍 Análise de PDD/Inadimplência (2/6)
+        </h2>
+        <div id="pdd-content" style="display: block;">
+        <table class="concentration-table">
+            <thead>
+                <tr>
+                    <th>Pool</th>
+                    <th>Status</th>
+                    <th>Dias Consecutivos</th>
+                    <th>Provisão Total (%)</th>
+                    <th>Provisão Total (R$)</th>
+                    <th>Cedentes c/ PDD</th>
+                    <th>Pior Cedente</th>
+                    <th>Metodologia</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+    
+                <tr class="violation-row" onclick="toggleDrilldown('pdd_E-ctare_Pool____1')" style="cursor: pointer;">
+                    <td class="pool-name">E-ctare Pool #1</td>
+                    <td><span class="status-badge status-violation">ALTO RISCO</span></td>
+                    <td class="days-count">6 dias</td>
+                    <td class="percentage">7.71%</td>
+                    <td class="financial">R$ 563,588.74</td>
+                    <td class="count">4</td>
+                    <td class="entity-info">
+                        <span class="violation clickable-entity"
+                        onclick="showPDDCedenteBreakdown('E-ctare Pool #1', 'latest', 'pdd_E-ctare_Pool____1_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        COOPERATIVA DOS PROD... (10.0%)</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('E-ctare Pool #1', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Por Cedente (+395%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('E-ctare Pool #1', 'pdd', '', 'pdd_E-ctare_Pool____1_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_E-ctare_Pool____1" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - E-ctare Pool #1</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ 7,311,178.67</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ 563,588.74 (7.71%)</p>
+                                <p><strong>Grupos com Exposição:</strong> 2</p>
+                                <p><strong>Total de Cedentes:</strong> 4</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_E-ctare_Pool____1')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_E-ctare_Pool____1')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_E-ctare_Pool____1')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_E-ctare_Pool____1_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_E-ctare_Pool____1_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_E-ctare_Pool____1_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_E-ctare_Pool____1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - E-ctare Pool #1</h4>
+                            <div id="pdd_E-ctare_Pool____1_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="violation-row" onclick="toggleDrilldown('pdd_Credmei_Pool____1')" style="cursor: pointer;">
+                    <td class="pool-name">Credmei Pool #1</td>
+                    <td><span class="status-badge status-violation">ATENÇÃO</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="percentage">2.73%</td>
+                    <td class="financial">R$ 495,965.27</td>
+                    <td class="count">64</td>
+                    <td class="entity-info">
+                        <span class="violation clickable-entity"
+                        onclick="showPDDCedenteBreakdown('Credmei Pool #1', 'latest', 'pdd_Credmei_Pool____1_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        IMPERIO DOS SALGADOS... (100.0%)</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('Credmei Pool #1', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Por Cedente (+91%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('Credmei Pool #1', 'pdd', '', 'pdd_Credmei_Pool____1_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_Credmei_Pool____1" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - Credmei Pool #1</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ 18,145,108.89</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ 495,965.27 (2.73%)</p>
+                                <p><strong>Grupos com Exposição:</strong> 8</p>
+                                <p><strong>Total de Cedentes:</strong> 64</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_Credmei_Pool____1')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_Credmei_Pool____1')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_Credmei_Pool____1')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_Credmei_Pool____1_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_Credmei_Pool____1_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_Credmei_Pool____1_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_Credmei_Pool____1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - Credmei Pool #1</h4>
+                            <div id="pdd_Credmei_Pool____1_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row" onclick="toggleDrilldown('pdd_Formento_Pool____3')" style="cursor: pointer;">
+                    <td class="pool-name">Formento Pool #3</td>
+                    <td><span class="status-badge status-ok">OK</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="percentage">0.50%</td>
+                    <td class="financial">R$ 13,060.55</td>
+                    <td class="count">1</td>
+                    <td class="entity-info">
+                        <span class="ok clickable-entity"
+                        onclick="showPDDCedenteBreakdown('Formento Pool #3', 'latest', 'pdd_Formento_Pool____3_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Formento Securitizad... (0.5%)</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('Formento Pool #3', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Por Cedente (+0%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('Formento Pool #3', 'pdd', '', 'pdd_Formento_Pool____3_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_Formento_Pool____3" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - Formento Pool #3</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ 2,612,109.72</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ 13,060.55 (0.50%)</p>
+                                <p><strong>Grupos com Exposição:</strong> 1</p>
+                                <p><strong>Total de Cedentes:</strong> 1</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_Formento_Pool____3')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_Formento_Pool____3')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_Formento_Pool____3')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_Formento_Pool____3_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_Formento_Pool____3_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_Formento_Pool____3_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_Formento_Pool____3_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - Formento Pool #3</h4>
+                            <div id="pdd_Formento_Pool____3_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row" onclick="toggleDrilldown('pdd_Up_Vendas_Pool____2')" style="cursor: pointer;">
+                    <td class="pool-name">Up Vendas Pool #2</td>
+                    <td><span class="status-badge status-ok">OK</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="percentage">0.50%</td>
+                    <td class="financial">R$ 25,920.02</td>
+                    <td class="count">1</td>
+                    <td class="entity-info">
+                        <span class="ok clickable-entity"
+                        onclick="showPDDCedenteBreakdown('Up Vendas Pool #2', 'latest', 'pdd_Up_Vendas_Pool____2_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Up Vendas (0.5%)</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('Up Vendas Pool #2', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Por Cedente (+0%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('Up Vendas Pool #2', 'pdd', '', 'pdd_Up_Vendas_Pool____2_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_Up_Vendas_Pool____2" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - Up Vendas Pool #2</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ 5,184,003.80</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ 25,920.02 (0.50%)</p>
+                                <p><strong>Grupos com Exposição:</strong> 1</p>
+                                <p><strong>Total de Cedentes:</strong> 1</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_Up_Vendas_Pool____2')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_Up_Vendas_Pool____2')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_Up_Vendas_Pool____2')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_Up_Vendas_Pool____2_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_Up_Vendas_Pool____2_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_Up_Vendas_Pool____2_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_Up_Vendas_Pool____2_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - Up Vendas Pool #2</h4>
+                            <div id="pdd_Up_Vendas_Pool____2_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row" onclick="toggleDrilldown('pdd_LeCapital_Pool____1')" style="cursor: pointer;">
+                    <td class="pool-name">LeCapital Pool #1</td>
+                    <td><span class="status-badge status-ok">OK</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="percentage">0.10%</td>
+                    <td class="financial">R$ 8,483.13</td>
+                    <td class="count">5</td>
+                    <td class="entity-info">
+                        <span class="ok clickable-entity"
+                        onclick="showPDDCedenteBreakdown('LeCapital Pool #1', 'latest', 'pdd_LeCapital_Pool____1_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        NOVEU FLORESTA LTDA (0.5%)</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('LeCapital Pool #1', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Por Cedente (+-80%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('LeCapital Pool #1', 'pdd', '', 'pdd_LeCapital_Pool____1_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_LeCapital_Pool____1" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - LeCapital Pool #1</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ 8,318,104.33</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ 8,483.13 (0.10%)</p>
+                                <p><strong>Grupos com Exposição:</strong> 2</p>
+                                <p><strong>Total de Cedentes:</strong> 5</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_LeCapital_Pool____1')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_LeCapital_Pool____1')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_LeCapital_Pool____1')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_LeCapital_Pool____1_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_LeCapital_Pool____1_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_LeCapital_Pool____1_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_LeCapital_Pool____1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - LeCapital Pool #1</h4>
+                            <div id="pdd_LeCapital_Pool____1_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row" onclick="toggleDrilldown('pdd_AFA_Pool____1')" style="cursor: pointer;">
+                    <td class="pool-name">AFA Pool #1</td>
+                    <td><span class="status-badge status-ok">OK</span></td>
+                    <td class="days-count">0 dias</td>
+                    <td class="percentage">0.05%</td>
+                    <td class="financial">R$ 11,186.98</td>
+                    <td class="count">9</td>
+                    <td class="entity-info">
+                        <span class="ok clickable-entity"
+                        onclick="showPDDCedenteBreakdown('AFA Pool #1', 'latest', 'pdd_AFA_Pool____1_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                         N1 DISTRIBUIDORA DE... (1.0%)</span>
+                    </td>
+                    <td class="methodology">
+                        <span class="clickable-methodology"
+                        onclick="showPDDMethodology('AFA Pool #1', 'latest'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        Por Cedente (+-91%)</span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-small" onclick="showPDDHistory('AFA Pool #1', 'pdd', '', 'pdd_AFA_Pool____1_history'); event.stopPropagation();">
+                            📊 Histórico
+                        </button>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_AFA_Pool____1" class="drilldown-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📋 Análise Detalhada - AFA Pool #1</h4>
+                            <div class="pdd-summary">
+                                <p><strong>Carteira Total:</strong> R$ 24,246,472.65</p>
+                                <p><strong>Provisão Metodologia por Cedente:</strong> R$ 11,186.98 (0.05%)</p>
+                                <p><strong>Grupos com Exposição:</strong> 3</p>
+                                <p><strong>Total de Cedentes:</strong> 9</p>
+                            </div>
+                            
+                            <div class="pdd-tabs">
+                                <button class="pdd-tab-button active" onclick="showPDDTab('grupos', 'pdd_AFA_Pool____1')">Grupos de Risco</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('cedentes', 'pdd_AFA_Pool____1')">Por Cedente</button>
+                                <button class="pdd-tab-button" onclick="showPDDTab('metodologia', 'pdd_AFA_Pool____1')">Metodologia</button>
+                            </div>
+                            
+                            <div id="pdd_AFA_Pool____1_grupos" class="pdd-tab-content active">
+                                <p>Carregando análise por grupos de risco...</p>
+                            </div>
+                            <div id="pdd_AFA_Pool____1_cedentes" class="pdd-tab-content">
+                                <p>Carregando análise por cedente...</p>
+                            </div>
+                            <div id="pdd_AFA_Pool____1_metodologia" class="pdd-tab-content">
+                                <p>Carregando comparação metodológica...</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr id="pdd_AFA_Pool____1_history" class="drilldown-row entity-history-row" style="display: none;">
+                    <td colspan="9">
+                        <div class="drilldown-content">
+                            <h4>📈 Histórico de PDD - AFA Pool #1</h4>
+                            <div id="pdd_AFA_Pool____1_history_content" class="historical-content">
+                                Carregando histórico...
+                            </div>
+                        </div>
+                    </td>
+                </tr>
         
                 </tbody>
             </table>
@@ -2126,6 +2556,248 @@
             const modal = document.getElementById('confirmModal');
             if (event.target === modal) {
                 closeModal();
+            }
+        }
+        
+        // PDD Functions
+        function togglePDDSection() {
+            const content = document.getElementById('pdd-content');
+            const toggle = document.getElementById('pdd-toggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▶';
+            }
+        }
+        
+        async function showPDDHistory(poolName, entityType, entityName, elementId) {
+            try {
+                const response = await fetch('/api/pdd_history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        pool_name: poolName,
+                        entity_type: entityType,
+                        entity_name: entityName
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const historyData = await response.json();
+                const container = document.getElementById(elementId + '_content');
+                
+                if (container) {
+                    container.innerHTML = generatePDDHistoryTable(historyData);
+                }
+
+                // Mostrar o drilldown
+                document.getElementById(elementId).style.display = 'table-row';
+            } catch (error) {
+                console.error('Erro ao carregar histórico PDD:', error);
+                const container = document.getElementById(elementId + '_content');
+                if (container) {
+                    container.innerHTML = '<p class="error">Erro ao carregar histórico de PDD.</p>';
+                }
+            }
+        }
+        
+        async function showPDDCedenteBreakdown(poolName, date, elementId) {
+            try {
+                const response = await fetch('/api/pdd_cedente_breakdown', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        pool_name: poolName,
+                        date: date
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const breakdownData = await response.json();
+                const container = document.getElementById(elementId);
+                
+                if (container) {
+                    container.innerHTML = generatePDDCedenteTable(breakdownData, poolName);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar breakdown de cedentes PDD:', error);
+                const container = document.getElementById(elementId);
+                if (container) {
+                    container.innerHTML = '<p class="error">Erro ao carregar análise por cedente.</p>';
+                }
+            }
+        }
+        
+        async function showPDDMethodology(poolName, date) {
+            try {
+                const response = await fetch('/api/pdd_methodology', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        pool_name: poolName,
+                        date: date
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const methodologyData = await response.json();
+                showPDDMethodologyModal(methodologyData);
+            } catch (error) {
+                console.error('Erro ao carregar comparação metodológica PDD:', error);
+                alert('Erro ao carregar comparação metodológica');
+            }
+        }
+        
+        function generatePDDHistoryTable(historyData) {
+            if (!historyData || historyData.length === 0) {
+                return '<p>Nenhum histórico encontrado.</p>';
+            }
+
+            let html = `
+            <table class="historical-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Provisão (%)</th>
+                        <th>Provisão (R$)</th>
+                        <th>Cedentes</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            historyData.forEach(entry => {
+                const statusClass = entry.status === 'OK' ? 'ok' : 'violation';
+                html += `
+                    <tr class="hist-${statusClass}">
+                        <td>${entry.date}</td>
+                        <td><span class="status-mini ${statusClass}">${entry.status}</span></td>
+                        <td>${entry.provisao_pct.toFixed(2)}%</td>
+                        <td>R$ ${entry.provisao_valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td>${entry.cedentes}</td>
+                    </tr>`;
+            });
+
+            html += `
+                </tbody>
+            </table>`;
+
+            return html;
+        }
+        
+        function generatePDDCedenteTable(breakdownData, poolName) {
+            if (!breakdownData || breakdownData.length === 0) {
+                return '<p>Nenhum dado de cedente encontrado.</p>';
+            }
+
+            let html = `
+            <h5>📊 Análise Detalhada por Cedente - ${poolName}</h5>
+            <table class="cedente-table">
+                <thead>
+                    <tr>
+                        <th>Ranking</th>
+                        <th>Cedente</th>
+                        <th>Títulos</th>
+                        <th>Valor Total</th>
+                        <th>Grupo PDD</th>
+                        <th>Provisão (%)</th>
+                        <th>Provisão (R$)</th>
+                        <th>Pior Ativo</th>
+                        <th>Dias Atraso</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            breakdownData.forEach(cedente => {
+                const statusClass = cedente.provisao_pct > 5 ? 'violation' : 'ok';
+                html += `
+                    <tr class="${statusClass}">
+                        <td>${cedente.ranking}</td>
+                        <td class="cedente-name">${cedente.cedente_nome}</td>
+                        <td>${cedente.total_titulos}</td>
+                        <td>R$ ${cedente.valor_total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td><span class="risk-group">${cedente.grupo_pdd_aplicado}</span></td>
+                        <td>${cedente.provisao_pct.toFixed(2)}%</td>
+                        <td>R$ ${cedente.provisao_valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td>R$ ${cedente.valor_titulo_pior.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td>${cedente.dias_atraso_max} dias</td>
+                    </tr>`;
+            });
+
+            html += `
+                </tbody>
+            </table>`;
+
+            return html;
+        }
+        
+        function showPDDMethodologyModal(methodologyData) {
+            const modalContent = `
+            <div class="methodology-modal-content">
+                <h3>📊 Comparação Metodológica PDD - ${methodologyData.pool_name}</h3>
+                <p><strong>Data:</strong> ${methodologyData.date}</p>
+                
+                <div class="methodology-comparison">
+                    <div class="method-section">
+                        <h4>💰 Provisão por Cedente (Utilizada)</h4>
+                        <p class="amount">R$ ${methodologyData.provisao_por_cedente.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                        <p class="method-desc">${methodologyData.regra_calculo}</p>
+                    </div>
+                    
+                    <div class="method-section">
+                        <h4>📋 Provisão Individual (Comparação)</h4>
+                        <p class="amount">R$ ${methodologyData.provisao_individual.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                        <p class="method-desc">Cada título recebe provisão baseada apenas no seu próprio atraso</p>
+                    </div>
+                </div>
+                
+                <div class="difference-section">
+                    <h4>🔍 Diferença Financeira</h4>
+                    <p><strong>Valor Absoluto:</strong> R$ ${methodologyData.diferenca_valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                    <p><strong>Diferença Percentual:</strong> +${methodologyData.diferenca_percentual.toFixed(1)}%</p>
+                    <p class="explanation">${methodologyData.explicacao_metodologia}</p>
+                </div>
+                
+                <button onclick="closePDDMethodologyModal()" class="btn-close">Fechar</button>
+            </div>`;
+            
+            // Criar modal se não existir
+            let modal = document.getElementById('pddMethodologyModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'pddMethodologyModal';
+                modal.className = 'modal';
+                modal.innerHTML = '<div class="modal-content">' + modalContent + '</div>';
+                document.body.appendChild(modal);
+            } else {
+                modal.querySelector('.modal-content').innerHTML = modalContent;
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        function closePDDMethodologyModal() {
+            const modal = document.getElementById('pddMethodologyModal');
+            if (modal) {
+                modal.style.display = 'none';
             }
         }
     </script>
