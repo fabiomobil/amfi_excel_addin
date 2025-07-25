@@ -767,6 +767,116 @@ def generate_concentracao_table(concentracao_data):
     
     return html
 
+def generate_pdd_table(pdd_data):
+    """Gera tabela HTML para PDD (sem colunas Metodologia e Ações)."""
+    if not pdd_data:
+        return "<p>Nenhum dado de PDD encontrado.</p>"
+    
+    # Contar violações
+    total_pools = len(pdd_data)
+    violacoes = sum(1 for pool in pdd_data if pool['is_violation'])
+    
+    html = f"""
+    <div class="indicator-section pdd">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('pdd')">
+            <span>🔍 PDD/Inadimplência ({violacoes}/{total_pools})</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="pdd-content">
+        <table class="concentration-table">
+            <thead>
+                <tr>
+                    <th>Pool</th>
+                    <th>Status</th>
+                    <th>Dias Consecutivos</th>
+                    <th>Provisão Total (%)</th>
+                    <th>Provisão Total (R$)</th>
+                    <th>Cedentes c/ PDD</th>
+                    <th>Pior Cedente</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+    
+    for pool in pdd_data:
+        # Determinar classe da linha
+        row_class = "violation-row" if pool['is_violation'] else "ok-row"
+        
+        # Status badge
+        status_class = "status-violation" if pool['is_violation'] else "status-ok"
+        status_text = pool['status']
+        
+        # Dias consecutivos
+        dias_text = f"{pool['dias_consecutivos']} dias" if pool['dias_consecutivos'] > 0 else "-"
+        
+        # Provisão formatada
+        provisao_pct = f"{pool['provisao_total_pct']:.2f}%"
+        provisao_valor = f"R$ {pool['provisao_total_valor']:,.2f}"
+        
+        # Pior cedente formatado
+        pior_cedente = pool['pior_cedente']
+        if pior_cedente['nome'] != 'N/A':
+            cedente_nome = pior_cedente['nome'][:30] + "..." if len(pior_cedente['nome']) > 30 else pior_cedente['nome']
+            pior_cedente_text = f"{cedente_nome} ({pior_cedente['provisao_pct']:.1f}%)"
+            pior_cedente_class = "violation" if pior_cedente['provisao_pct'] > 5.0 else "ok"
+        else:
+            pior_cedente_text = "N/A"
+            pior_cedente_class = "ok"
+        
+        # ID único para drilldown
+        safe_pool_id = pool['pool_name'].replace(" ", "_").replace("#", "__")
+        
+        html += f"""
+                <tr class="{row_class}" onclick="toggleDrilldown('pdd_{safe_pool_id}')" style="cursor: pointer;">
+                    <td class="pool-name">{pool['pool_name']}</td>
+                    <td><span class="status-badge {status_class}">{status_text}</span></td>
+                    <td class="days-count">{dias_text}</td>
+                    <td class="percentage">{provisao_pct}</td>
+                    <td class="financial">{provisao_valor}</td>
+                    <td class="count">{pool['total_cedentes']}</td>
+                    <td class="entity-info">
+                        <span class="{pior_cedente_class} clickable-entity"
+                        onclick="showPDDCedenteBreakdown('{pool['pool_name']}', 'latest', 'pdd_{safe_pool_id}_cedentes'); event.stopPropagation();"
+                        style="cursor: pointer; text-decoration: underline;">
+                        {pior_cedente_text}</span>
+                    </td>
+                </tr>
+                <tr id="pdd_{safe_pool_id}" class="drilldown-row" style="display: none;">
+                    <td colspan="7">
+                        <div class="drilldown-content">
+                            <h4>🔍 Detalhes PDD - {pool['pool_name']}</h4>
+                            <div class="pdd-details">
+                                <div class="pdd-summary">
+                                    <p><strong>Valor da Carteira:</strong> R$ {pool['carteira_valor']:,.2f}</p>
+                                    <p><strong>Grupos com Exposição:</strong> {pool['grupos_com_exposicao']}</p>
+                                    <p><strong>Diferença Metodológica:</strong> {pool['diferenca_metodologica']:+.1f}%</p>
+                                </div>
+                                
+                                <div class="cedentes-breakdown" id="pdd_{safe_pool_id}_cedentes">
+                                    <p>Clique em "Pior Cedente" para ver detalhamento por cedente.</p>
+                                </div>
+                                
+                                <div class="pdd-history" id="pdd_{safe_pool_id}_history" style="display: none;">
+                                    <h5>📈 Histórico PDD</h5>
+                                    <div id="pdd_{safe_pool_id}_history_content">
+                                        Carregando histórico...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        """
+    
+    html += """
+            </tbody>
+        </table>
+        </div>
+    </div>
+    """
+    
+    return html
+
 def generate_pdd_dashboard_hierarchical(pdd_data):
     """Gera dashboard hierárquico PDD com heat map e drilldown real."""
     if not pdd_data:
@@ -1509,7 +1619,7 @@ def generate_table_dashboard_html(data, date):
         
         {generate_subordinacao_table(subordinacao_data)}
         
-        {generate_pdd_dashboard_hierarchical(extract_pdd_data(data))}
+        {generate_pdd_table(extract_pdd_data(data))}
         
         {gen_concentration_table(data)}
         
