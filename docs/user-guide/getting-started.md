@@ -4,16 +4,35 @@
 
 Dashboard interativo web para monitoramento de pools de recebíveis com análise histórica e drilldown detalhado.
 
+> **⚠️ ATUALIZAÇÃO IMPORTANTE (2025-07-24)**: Os comandos foram atualizados para a nova estrutura. 
+> Use `python scripts/[nome_script].py` em vez dos comandos antigos. 
+> O dashboard continua funcionando em `http://localhost:8080`.
+
 ## 🚀 Como Usar
+
+### Executar Monitoramento
+```bash
+# Executar análise completa de todos os pools
+python scripts/run_monitoring.py
+
+# Forçar nova execução mesmo se já rodou hoje
+python scripts/run_monitoring.py --force
+```
 
 ### Geração do Dashboard
 ```bash
-cd /mnt/c/amfi
-python3 generate_table_dashboard.py
+cd C:\amfi
+python scripts/generate_dashboard.py
 ```
 
 ### Acesso
-Abra o arquivo gerado: `/mnt/c/amfi/data/output/monitoring_results/dashboard/table_dashboard.html`
+Abra o arquivo gerado: `C:\amfi\data\output\monitoring_results\dashboard\table_dashboard.html`
+
+### Servidor de Dashboard (Opcional)
+```bash
+# Para acessar via navegador em http://localhost:8080
+python scripts/run_dashboard.py
+```
 
 ## 🎯 Funcionalidades Principais
 
@@ -150,7 +169,7 @@ function toggleDrilldown(elementId) {
 
 ### Modificar Períodos Históricos
 ```python
-# Em generate_table_dashboard.py
+# Em src/dashboard/generator.py
 historico_dias = 7  # Alterar para mais/menos dias
 ```
 
@@ -175,9 +194,9 @@ indicadores_extras = ['concentracao', 'inadimplencia', 'pdd']
 3. **Dados**: Verificar JSONs de origem
 
 ### Dados Desatualizados
-1. **Regerar**: Execute `python3 generate_table_dashboard.py`
+1. **Regerar**: Execute `python scripts/generate_dashboard.py`
 2. **Fonte**: Verificar data de referência no header
-3. **Processamento**: Rodar monitoring se necessário
+3. **Processamento**: Rodar `python scripts/run_monitoring.py` se necessário
 
 ### Performance Lenta
 1. **Dados**: Reduzir período histórico

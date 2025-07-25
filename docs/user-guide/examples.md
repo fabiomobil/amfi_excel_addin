@@ -4,6 +4,18 @@
 
 A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de monitoramento AmFi. Todas as funções legacy foram removidas em 2025-07-14.
 
+### Execução via Scripts (Recomendado)
+```bash
+# Executar monitoramento completo
+python scripts/run_monitoring.py
+
+# Gerar dashboard após monitoramento
+python scripts/generate_dashboard.py
+
+# Servir dashboard via web (http://localhost:8080)
+python scripts/run_dashboard.py
+```
+
 ### Monitores Disponíveis (2025-07-14)
 - ✅ **Subordinação**: Índice de subordinação com limites
 - ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.)
@@ -13,11 +25,28 @@ A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de mo
 
 ## 1. Uso Básico
 
+### Via Script (Mais Simples)
+```bash
+# Executar via linha de comando
+cd C:\amfi
+
+# Executar monitoramento
+python scripts/run_monitoring.py
+
+# Gerar dashboard
+python scripts/generate_dashboard.py
+
+# Servir dashboard (opcional)
+python scripts/run_dashboard.py
+```
+
+### Via Import Python
+
 ### Processar Todos os Pools (Modo Debug)
 ```python
-from monitor.orchestrator import run_monitoring
+from src.monitor.orchestrator import run_monitoring
 
-# Executa todos os pools configurados em test_pools.json
+# Executa todos os pools configurados em _test_pools.json
 resultado = run_monitoring()
 
 # Verificar sucesso geral
@@ -193,7 +222,7 @@ if resultado['sucesso']:
 
 ## 6. Configuração de Modo Debug
 
-### Arquivo test_pools.json
+### Arquivo _test_pools.json
 ```json
 {
   "metadata": {
@@ -214,10 +243,10 @@ if resultado['sucesso']:
 
 ### Uso do Modo Debug
 ```python
-# Se test_pools.json existir, processa apenas pools listados
+# Se _test_pools.json existir, processa apenas pools listados
 resultado = run_monitoring()  # Processa apenas AFA e LeCapital
 
-# Para forçar um pool específico (ignora test_pools.json)
+# Para forçar um pool específico (ignora _test_pools.json)
 resultado = run_monitoring("Outro Pool #3")
 ```
 
@@ -420,16 +449,52 @@ dashboard_executivo()
 
 A função `run_monitoring()` funciona em todos os ambientes:
 
-- ✅ **Windows**: `C:\amfi\...`
-- ✅ **WSL**: `/mnt/c/amfi/...`
+- ✅ **Windows**: `C:\amfi\...` (ambiente atual)
+- ✅ **WSL**: `/mnt/c/amfi/...` (legacy)
 - ✅ **Spyder**: Descoberta automática de caminhos
 - ✅ **Linha de comando**: Python direto
 - ✅ **Jupyter**: Notebooks compatíveis
+
+### Novos Scripts (2025-07-24)
+- `scripts/run_monitoring.py`: Interface para execução de monitoramento
+- `scripts/generate_dashboard.py`: Geração de dashboard HTML
+- `scripts/run_dashboard.py`: Servidor web para dashboard
 
 ## Observações Importantes
 
 1. **Interface única**: `run_monitoring()` é a única função oficial
 2. **Funções legacy removidas**: Não use funções antigas do orchestrator
 3. **Enriquecimento automático**: DataFrame XLSX é automaticamente enriquecido
-4. **Modo debug**: Use `test_pools.json` para limitar pools processados
+4. **Modo debug**: Use `_test_pools.json` para limitar pools processados
 5. **Tratamento robusto**: Falha de um pool não para a execução dos outros
+
+## Melhorias Implementadas (2025-07-24)
+
+### Estrutura Reorganizada
+- Scripts movidos para pasta `scripts/` para melhor organização
+- Arquivos obsoletos removidos (dashboard_server.py, generate_table_dashboard.py)
+- Imports reorganizados com prefixo `src.` para maior clareza
+
+### Novos Recursos
+- **Scripts simplificados**: Comandos mais intuitivos para usuários
+- **Documentação melhorada**: Tratamento de exceções documentado
+- **Sistema mais estável**: Remoção de código legacy e duplicado
+- **Interface consistente**: Mesma funcionalidade com caminhos atualizados
+
+### Comandos Atualizados
+```bash
+# ANTES (descontinuado)
+python dashboard_server.py
+python generate_table_dashboard.py
+
+# AGORA (estrutura atual)
+python scripts/run_dashboard.py
+python scripts/generate_dashboard.py
+python scripts/run_monitoring.py
+```
+
+### Funcionalidades Mantidas
+- Dashboard web continua em `http://localhost:8080`
+- Interface `run_monitoring()` permanece igual
+- Todos os monitores funcionam identicamente
+- Compatibilidade com ambientes Windows/WSL mantida

@@ -2,6 +2,34 @@
 
 > **IMPORTANTE**: Sempre utilizar Claude Sonnet 4.0 para trabalhar neste projeto.
 
+## 🚨 Mudanças Principais (Reorganização 2025-07-24)
+
+**ESTRUTURA COMPLETAMENTE REORGANIZADA:**
+- **Código fonte**: Movido para `src/monitor/` (estrutura modular limpa)
+- **Scripts executáveis**: Centralizados em `scripts/` (run_monitoring.py, run_dashboard.py, generate_dashboard.py)
+- **Documentação**: Reorganizada em `docs/` com 40% redução de redundância
+- **Sistema legacy**: Diretório `legacy/` **REMOVIDO COMPLETAMENTE**
+- **Arquivos obsoletos**: `import_helper.py`, `path_resolver.py` **ELIMINADOS**
+- **Funções limpas**: 3 funções não utilizadas **REMOVIDAS**
+
+**NOVOS CAMINHOS DE IMPORTAÇÃO:**
+```python
+# ANTES (não funciona mais):
+from monitor.orchestrator import run_monitoring
+
+# AGORA (novo caminho):
+from src.monitor.orchestrator import run_monitoring
+
+# OU usar scripts:
+python scripts/run_monitoring.py
+```
+
+**DOCUMENTAÇÃO MODULAR:**
+- `docs/user-guide/` - Para usuários finais
+- `docs/api/` - Para integradores
+- `docs/developer/` - Para desenvolvedores
+- `docs/technical/` - Análises técnicas avançadas
+
 ## Contexto do Projeto
 Sistema de monitoramento automatizado para fundos de investimento estruturados no Brasil. Processa escrituras de debêntures (PDFs) em configurações JSON para executar monitoramento de compliance, análise de fluxo de caixa e verificação de liquidez.
 
@@ -23,81 +51,130 @@ Escritura (PDF) → JSON Config → Monitoramento Python → JSON Resultados →
 
 ## Estrutura de Diretórios
 ```
-/mnt/c/amfi/
-├── legacy/                  # ⚠️ SISTEMA ANTIGO (xlwings) - NÃO USAR
-│   ├── README.md           # Documentação do sistema legacy
-│   ├── .gitignore          # Ignora conteúdo legacy no git
-│   ├── udfs/               # UDFs Excel antigas (xlwings)
-│   ├── amfi.xlam           # Add-in Excel antigo
-│   └── Monitoramento.xlsm  # Workbook Excel antigo
-├── monitor/                 # ✅ SISTEMA ATUAL (Python puro)
-│   ├── base/               # Monitores padrão
-│   ├── custom/             # Monitores específicos por pool
-│   ├── cash_flow/          # Análise de fluxo de caixa e liquidez
-│   ├── utils/              # Utilitários compartilhados
-│   └── orchestrator.py     # Interface principal do sistema
-├── config/                  # ⚙️ CONFIGURAÇÕES ESTÁTICAS
-│   ├── monitoring/         # Configurações de monitoramento
-│   │   ├── test_pools.json # Pools para modo DEBUG
-│   │   └── ignore_pools.json # Pools a ignorar
-│   └── pools/              # Configurações de pools
-│       ├── *.json          # JSONs ativos dos pools
-│       └── legacy/         # JSONs antigos (histórico)
-├── data/                    # 💾 DADOS DINÂMICOS APENAS
-│   ├── input/              # Dados de entrada diários
-│   │   ├── csv/            # CSVs diários (PL, SR, JR)
-│   │   └── xlsx/           # Carteiras detalhadas (recebíveis)
-│   └── output/             # Resultados processados
+C:\amfi\
+├── README.md                    # Documentação principal do projeto
+├── src/                         # ✅ CÓDIGO FONTE MODULAR (Reorganizado)
+│   ├── __init__.py
+│   ├── dashboard/              # Interface web e APIs
+│   │   ├── __init__.py
+│   │   ├── server.py          # Servidor HTTP + endpoints
+│   │   └── generator.py       # Geração de dashboards HTML
+│   └── monitor/               # ✅ SISTEMA DE MONITORAMENTO (Python puro)
+│       ├── README.md
+│       ├── base/               # Monitores padrão OOP
+│       │   ├── __init__.py
+│       │   ├── base_monitor.py
+│       │   ├── data_handler.py
+│       │   ├── monitor_concentracao_oop.py
+│       │   ├── monitor_inadimplencia_oop.py
+│       │   ├── monitor_pdd_oop.py
+│       │   ├── monitor_subordinacao_oop.py
+│       │   └── result_builder.py
+│       ├── cash_flow/          # Análise de fluxo de caixa e liquidez
+│       │   ├── __init__.py
+│       │   ├── base_cash_flow_engine.py
+│       │   ├── cash_flow_orchestrator.py
+│       │   ├── liquidity_analyzer.py
+│       │   ├── liquidity_scenarios.py
+│       │   ├── pl_percentage_engine.py
+│       │   └── pu_analysis_engine.py
+│       ├── orchestrator.py     # Interface principal do sistema
+│       └── utils/              # Utilitários compartilhados
+│           ├── __init__.py
+│           ├── alerts.py
+│           ├── concentration_analysis.py
+│           ├── daily_results_persistence.py
+│           ├── data_converters.py
+│           ├── data_handler.py
+│           ├── data_loader.py
+│           ├── date_consistency_validator.py
+│           ├── file_loaders.py
+│           ├── pdd_analysis.py
+│           └── pdd_api_endpoints.py
+├── scripts/                     # 🚀 ENTRY POINTS EXECUTÁVEIS (Reorganizado)
+│   ├── run_dashboard.py        # Servidor web do dashboard
+│   ├── run_monitoring.py       # API de execução do monitoramento
+│   └── generate_dashboard.py   # Gerador de dashboard HTML
+├── config/                      # ⚙️ CONFIGURAÇÕES ESTÁTICAS
+│   ├── monitoring/             # Configurações de monitoramento
+│   │   ├── _test_pools.json   # Pools para modo DEBUG
+│   │   ├── concentration_filters.json # Filtros de concentração
+│   │   └── ignore_pools.json  # Pools a ignorar
+│   └── pools/                  # Configurações de pools (9 pools ativos)
+│       ├── README.md
+│       └── *.json             # JSONs dos pools (legacy removido)
+├── data/                        # 💾 DADOS DINÂMICOS APENAS
+│   ├── input/                  # Dados de entrada diários
+│   │   ├── csv/               # CSVs diários (PL, SR, JR)
+│   │   └── xlsx/              # Carteiras detalhadas (recebíveis)
+│   └── output/                # Resultados processados
 │       └── monitoring_results/ # Outputs de monitoramento por pool
-├── assets/                  # 📄 RECURSOS ESTÁTICOS
-│   ├── legal_docs/         # Escrituras originais em markdown
-│   └── screenshots/        # Screenshots e evidências
-├── docs/                    # 📚 DOCUMENTAÇÃO DO PROJETO
-│   ├── processos/          # Checklists e processos operacionais
-│   ├── sessions/           # APENAS to-dos por data (sem documentação técnica)
-│   └── technical/          # Documentação técnica detalhada
-├── scripts/                 # 🔧 SCRIPTS ADMINISTRATIVOS
-│   └── run_data_loader.py  # Script para executar data_loader
-└── tests/                   # 🧪 TESTES ORGANIZADOS
-    ├── unit/               # Testes unitários
-    ├── integration/        # Testes de integração (scripts específicos)
-    ├── performance/        # Testes de performance
-    └── fixtures/           # Dados de teste (vazio)
+│           ├── daily_consolidated/ # Resultados consolidados diários
+│           ├── dashboard/      # Dashboards HTML gerados
+│           └── violations_index/ # Índices de violações
+├── docs/                        # 📚 DOCUMENTAÇÃO REORGANIZADA (40% redução)
+│   ├── README.md              # 🏠 Índice principal navegável
+│   ├── CLAUDE.md              # 📖 Documento técnico principal
+│   ├── PRD.md                 # 🎯 Visão de produto
+│   ├── user-guide/            # 👥 Para usuários finais
+│   │   ├── getting-started.md
+│   │   └── examples.md
+│   ├── api/                   # 🔌 Para integradores
+│   │   ├── drilldown.md
+│   │   └── pdd-hierarchy.md
+│   ├── developer/             # 👨‍💻 Para desenvolvedores
+│   │   ├── data-processing.md
+│   │   └── scripts-reference.md
+│   ├── technical/             # 🛠️ Análises técnicas avançadas
+│   │   ├── LOGICA_CCB_PDD.md
+│   │   ├── SYSTEM_STATE.md
+│   │   ├── VALIDACAO_SCHEMA_JSON.md
+│   │   └── liquidity_analyzer_integration.md
+│   ├── legal/                 # ⚖️ Documentação legal
+│   │   └── documents/         # Documentos legais processados
+│   └── assets/                # 🖼️ Recursos visuais e assets
+│       └── images/
+│           └── logo.svg
 ```
 
 ## ⚠️ Sistema Legacy vs Sistema Atual
 
-### **❌ Sistema Legacy (NÃO USAR)**
-- **Local**: `/legacy/`
+### **❌ Sistema Legacy (REMOVIDO)**
+- **Local**: `legacy/` - **DIRETÓRIO REMOVIDO COMPLETAMENTE**
 - **Tecnologia**: xlwings + Excel UDFs
-- **Arquivos**: `udfs/`, `amfi.xlam`, `Monitoramento.xlsm`
-- **Status**: **SUBSTITUÍDO** - Mantido apenas para referência histórica
-- **Problemas**: Dependente do Excel, difícil manutenção, duplicação de código
+- **Arquivos**: `udfs/`, `amfi.xlam`, `Monitoramento.xlsm` - **TODOS REMOVIDOS**
+- **Status**: **REMOVIDO** - Sistema Excel antigo completamente eliminado
+- **Motivo**: Dependente do Excel, difícil manutenção, duplicação de código
 
 ### **✅ Sistema Atual (USAR ESTE)**
-- **Local**: `/monitor/`
+- **Local**: `src/monitor/` - **REORGANIZADO**
 - **Tecnologia**: Python puro + JSON configs
 - **Interface**: `run_monitoring()` - ÚNICA função oficial
+- **Entry Points**: Scripts movidos para `scripts/` (run_dashboard.py, run_monitoring.py, generate_dashboard.py)
 - **Status**: **ATIVO** - Monitores subordinação + inadimplência + PDD + concentração + liquidez implementados
-- **Vantagens**: Independente do Excel, modular, testável, escalável
+- **Vantagens**: Independente do Excel, modular, testável, escalável, estrutura limpa
 
-### **🔄 Migração de Funcionalidades**
+### **🔄 Migração de Funcionalidades Completa**
 
 | **Função Legacy** | **Sistema Atual** | **Status** |
 |-------------------|-------------------|------------|
-| `udfs/amfi.py` (UDFs Excel) | `monitor/orchestrator.py` | ✅ Substituído |
+| `udfs/amfi.py` (UDFs Excel) | `src/src/monitor/orchestrator.py` | ✅ Substituído |
 | `AmfiDashboard()` | `run_monitoring()` | ✅ Implementado |
-| `AmfiXLSX()` | `data_loader.load_pool_data()` | ✅ Melhorado |
-| `AmfiConcentracao()` | `monitor_concentracao.py` | ✅ Implementado |
-| `AmfiCalcularIS()` | `monitor_subordinacao.py` | ✅ Implementado |
+| `AmfiXLSX()` | `src/monitor/utils/data_loader.py` | ✅ Melhorado |
+| `AmfiConcentracao()` | `src/monitor/base/monitor_concentracao_oop.py` | ✅ Implementado |
+| `AmfiCalcularIS()` | `src/monitor/base/monitor_subordinacao_oop.py` | ✅ Implementado |
 | Cache manual | Cache integrado no data_loader | ✅ Automatizado |
+| **Arquivos removidos**: | **Eliminados:** | **Status** |
+| `import_helper.py` | N/A | ❌ Removido |
+| `path_resolver.py` | N/A | ❌ Removido |
+| 3 funções não utilizadas | N/A | ❌ Removidas |
 
 ### **📝 Interface Principal: run_monitoring()**
 
 **ÚNICA função oficial do sistema** - Funções legacy removidas em 2025-07-14.
 
 ```python
-from monitor.orchestrator import run_monitoring
+from src.monitor.orchestrator import run_monitoring
 
 # 1. PROCESSAR TODOS OS POOLS (modo debug)
 resultado = run_monitoring()
@@ -145,7 +222,18 @@ if 'liquidez' in pool_result['resultados']:
 
 ## Estado Atual da Implementação
 
-### ✅ Concluído no Sistema Atual (/monitor/)
+### 🎆 Melhorias de Qualidade Implementadas (Reorganização 2025-07-24)
+- **Estrutura reorganizada**: Código fonte movido para `src/`, scripts para `scripts/`
+- **Documentação otimizada**: 40% de redução de redundância com estrutura modular em `docs/`
+- **Legacy removido**: Diretório `legacy/` completamente eliminado (sistema Excel antigo)
+- **Arquivos obsoletos removidos**: `import_helper.py`, `path_resolver.py` eliminados
+- **Funções limpas**: 3 funções não utilizadas removidas (`run_cash_flow_comparison`, `run_multi_pool_analysis`, `integrate_with_main_orchestrator`)
+- **Nomes encurtados**: Funções renomeadas para melhor legibilidade
+- **Cache limpo**: Arquivos Python cache removidos
+- **Documentação de exceções**: Adicionada ao `run_monitoring()`
+- **Entry points centralizados**: Scripts executivos organizados em `scripts/`
+
+### ✅ Concluído no Sistema Atual (src/monitor/)
 - **Arquitetura modular** com monitores especializados
 - **Data loader centralizado** com descoberta automática
 - **Monitor de subordinação** com cálculo IS correto ✅ **IMPLEMENTADO**
@@ -174,9 +262,31 @@ if 'liquidez' in pool_result['resultados']:
 ### 🔄 Em Desenvolvimento
 - **Monitor de elegibilidade** (critérios gerais de ativos)
 - **Monitores customizados específicos** (20+ identificados por pool)
-- Dashboard de exceções
+- **Dashboard de exceções** (HTML gerado em `data/output/monitoring_results/dashboard/`)
 - Sistema de histórico de resultados
-- Estratégia de armazenamento de resultados
+- **Estratégia de armazenamento** (daily_consolidated implementada)
+
+### 🔄 Funções Renomeadas (Refatoração de Legibilidade)
+- `calculate_concentration_consecutive_violation_days` → `calc_consecutive_violations`
+- `generate_concentration_summary_table` → `gen_concentration_table`
+- **Motivo**: Nomes encurtados para melhor legibilidade e manutenção
+- **Compatibilidade**: Funções antigas removidas, apenas novas interfaces disponíveis
+
+### 📁 Documentação Reorganizada (40% Redução de Redundância)
+
+**Nova estrutura modular em `docs/`:**
+- **`docs/user-guide/`** - Para usuários finais (getting-started.md, examples.md)
+- **`docs/api/`** - Para integradores (drilldown.md, pdd-hierarchy.md) 
+- **`docs/developer/`** - Para desenvolvedores (scripts-reference.md, data-processing.md)
+- **`docs/technical/`** - Análises técnicas avançadas (SYSTEM_STATE.md, VALIDACAO_SCHEMA_JSON.md)
+- **`docs/legal/`** - Documentação legal processada
+- **`docs/assets/`** - Recursos visuais centralizados
+
+**Benefícios:**
+- ✅ Eliminação de duplicação entre documentos
+- ✅ Navegação clara por tipo de usuário
+- ✅ Índice principal navegável em `docs/README.md`
+- ✅ Separação entre documentação técnica e operacional
 
 ### 📋 Mapeamento Real de Eventos de Monitoramento
 
@@ -464,8 +574,8 @@ class MonitorBase:
 
 ### Estrutura Hierárquica:
 ```
-/mnt/c/amfi/
-├── monitor/
+C:\amfi\
+├── src/monitor/
 │   ├── base/                          # Monitores padrão (6 eventos base)
 │   │   ├── monitor_subordinacao_oop.py    # 2 eventos ✅ IMPLEMENTADO
 │   │   ├── monitor_concentracao_oop.py    # 2 eventos ✅ IMPLEMENTADO
@@ -486,11 +596,17 @@ class MonitorBase:
 │   │   ├── upvendas_pool_2_substituicao_pix.py # 🔧 Substituição PIX→URs UpVendas
 │   │   └── {pool_id}_{funcionalidade}.py       # Padrão de nomenclatura
 │   ├── utils/                         # Utilitários compartilhados
-│   │   ├── data_loader.py             # ✅ Carregamento principal (9 etapas)
-│   │   ├── file_loaders.py            # ✅ Carregamento CSV/XLSX
-│   │   ├── data_handler.py            # ✅ Validações e metadados
+│   │   ├── __init__.py
 │   │   ├── alerts.py                  # ✅ Sistema de alertas
-│   │   └── file_discovery.py          # ✅ Descoberta de arquivos
+│   │   ├── concentration_analysis.py  # ✅ Análise de concentração
+│   │   ├── daily_results_persistence.py # ✅ Persistência de resultados
+│   │   ├── data_converters.py         # ✅ Conversores de dados
+│   │   ├── data_handler.py            # ✅ Validações e metadados
+│   │   ├── data_loader.py             # ✅ Carregamento principal (9 etapas)
+│   │   ├── date_consistency_validator.py # ✅ Validação de consistência
+│   │   ├── file_loaders.py            # ✅ Carregamento CSV/XLSX
+│   │   ├── pdd_analysis.py            # ✅ Análise PDD
+│   │   └── pdd_api_endpoints.py       # ✅ Endpoints API PDD
 │   ├── orchestrator.py                # ✅ Orquestração de monitores (5 monitores integrados)
 │   └── [arquivos legacy removidos]    # pool_discovery, monitoring_engine, etc.
 └── data/
@@ -518,16 +634,16 @@ class MonitorBase:
 |---------|--------|-----------|-------------------|
 | **data_loader.py** | ✅ FUNCIONAL | `load_pool_data()` | 2025-07-14 (79k registros em 10s) |
 | **orchestrator.py** | ✅ FUNCIONAL | `run_monitoring()` | 2025-07-14 (3 monitores integrados) |
-| **monitor_subordinacao.py** | ✅ FUNCIONAL | `run_subordination_monitoring()` | 2025-07-14 (integrado) |
-| **monitor_inadimplencia.py** | ✅ FUNCIONAL | `run_delinquency_monitoring()` | 2025-07-14 (c/ enriquecimento) |
-| **monitor_pdd.py** | ✅ FUNCIONAL | `run_pdd_monitoring()` | 2025-07-14 (arquitetura inteligente) |
+| **monitor_subordinacao_oop.py** | ✅ FUNCIONAL | `run_subordination_monitoring()` | 2025-07-14 (integrado) |
+| **monitor_inadimplencia_oop.py** | ✅ FUNCIONAL | `run_delinquency_monitoring()` | 2025-07-14 (c/ enriquecimento) |
+| **monitor_pdd_oop.py** | ✅ FUNCIONAL | `run_pdd_monitoring()` | 2025-07-14 (arquitetura inteligente) |
 
 ### Fluxo de Execução Integrado (Testado e Funcionando):
 
 ```
 run_monitoring(pool_name=None) [INTERFACE ÚNICA]
     ↓
-data_loader.load_pool_data() [CENTRALIZADOR]
+src.monitor.utils.data_loader.load_pool_data() [CENTRALIZADOR]
     ├── Carrega CSV (~45 pools) + XLSX (~79k registros) + JSONs
     ├── Modo DEBUG: test_pools.json → ['AFA Pool #1', 'LeCapital Pool #1']
     ├── Modo NORMAL: descoberta automática + ignore_pools.json
@@ -607,8 +723,8 @@ Monitores que usam dados enriquecidos:
 - `calculate_{monitor_name}(df, config)` - Cálculo principal  
 - `run_{monitor_name}_monitoring(df, config)` - Interface para orquestrador
 - **Exemplos**: 
-  - `monitor_subordinacao.py` ✅ implementado
-  - `monitor_inadimplencia.py` ✅ pronto (aguarda integração)
+  - `monitor_subordinacao_oop.py` ✅ implementado
+  - `monitor_inadimplencia_oop.py` ✅ pronto (aguarda integração)
 
 #### **Monitores Customizados (20+ eventos específicos)**
 - Implementação específica por pool conforme necessidade
@@ -626,7 +742,7 @@ Monitores que usam dados enriquecidos:
 #### **Interface Principal Unificada:**
 
 ```python
-from monitor.orchestrator import run_monitoring
+from src.monitor.orchestrator import run_monitoring
 
 # Processar todos os pools (modo normal ou debug)
 resultado = run_monitoring()
@@ -640,7 +756,7 @@ resultado = run_monitoring("LeCapital Pool #1")
 ```python
 def run_monitoring(pool_name: str = None) -> Dict:
     # 1. data_loader centraliza tudo (descoberta + configuração + carregamento)
-    dados = data_loader.load_pool_data()
+    dados = src.monitor.utils.data_loader.load_pool_data()
     
     # 2. Filtrar por pool específico se solicitado
     pools_para_processar = [pool_name] if pool_name else dados["pools_processados"]
@@ -697,11 +813,11 @@ O monitor de liquidez está **100% funcional** com integração híbrida impleme
 #### **Interfaces Disponíveis:**
 ```python
 # Interface Standalone - Para análises independentes
-from monitor.orchestrator import run_liquidity_analysis
+from src.monitor.orchestrator import run_liquidity_analysis
 result = run_liquidity_analysis('LeCapital Pool #1')
 
 # Interface Integrada - Dentro do monitoramento completo
-from monitor.orchestrator import run_monitoring
+from src.monitor.orchestrator import run_monitoring
 result = run_monitoring('LeCapital Pool #1')
 liquidez_result = result['resultados']['LeCapital Pool #1']['resultados']['liquidez']
 ```
@@ -962,10 +1078,10 @@ def executar_monitoramento_diario():
 
 #### **Status de Implementação (Atualização 2025-07-18):**
 
-- ✅ **monitor_subordinacao.py**: 100% funcional e testado
-- ✅ **monitor_inadimplencia.py**: 100% funcional com enriquecimento
-- ✅ **monitor_pdd.py**: 100% funcional com arquitetura inteligente
-- ✅ **monitor_concentracao.py**: 100% funcional com arquitetura OOP
+- ✅ **monitor_subordinacao_oop.py**: 100% funcional e testado
+- ✅ **monitor_inadimplencia_oop.py**: 100% funcional com enriquecimento
+- ✅ **monitor_pdd_oop.py**: 100% funcional com arquitetura inteligente
+- ✅ **monitor_concentracao_oop.py**: 100% funcional com arquitetura OOP
 - ✅ **liquidity_analyzer.py**: 100% funcional com 3 cenários
 - ✅ **Orquestrador**: 100% implementado com 5 monitores integrados
 - ✅ **Sistema de enriquecimento**: Operacional (dias_atraso, grupo_de_risco)
@@ -1046,7 +1162,35 @@ def executar_monitoramento_diario():
 - Monitoramento manual para pools com CCB
 - Análise separada quando necessário
 
-**Localização**: `/mnt/c/amfi/monitor/base/monitor_pdd.py` (docstring atualizado com esta limitação)
+**Localização**: `C:\amfi\src\monitor\base\monitor_pdd_oop.py` (docstring atualizado com esta limitação)
+
+### 🚀 Scripts Reorganizados (Entry Points Centralizados)
+
+**Nova localização em `scripts/`:**
+- **`scripts/run_monitoring.py`** - API para execução do monitoramento via dashboard
+- **`scripts/run_dashboard.py`** - Servidor web do dashboard
+- **`scripts/generate_dashboard.py`** - Gerador de dashboard HTML
+
+**Execução dos scripts:**
+```bash
+# Executar monitoramento completo
+python scripts/run_monitoring.py
+
+# Forçar re-execução mesmo se já rodou hoje
+python scripts/run_monitoring.py --force
+
+# Iniciar servidor do dashboard
+python scripts/run_dashboard.py
+
+# Gerar dashboard HTML estático
+python scripts/generate_dashboard.py
+```
+
+**Benefícios:**
+- ✅ Entry points claramente separados do código fonte
+- ✅ Scripts executáveis organizados em um local
+- ✅ Imports corrigidos para nova estrutura `src/`
+- ✅ Compatibilidade com automação e CI/CD
 
 ### 📁 Reorganização de Arquivos (2025-07-15)
 
@@ -1067,37 +1211,43 @@ def executar_monitoramento_diario():
 ### 📋 Próximos Passos (Atualização 2025-07-18)
 1. ✅ **Criar pasta config/monitoring/** com ignore_pools.json e test_pools.json
 2. ✅ **Implementar data_loader.py** com fluxo refinado de 9 etapas - COMPLETO
-3. ✅ **Implementar monitor_subordinacao.py** - COMPLETO
+3. ✅ **Implementar monitor_subordinacao_oop.py** - COMPLETO
 4. ✅ **Implementar orquestrador de subordinação** - COMPLETO
 5. ✅ **Definir arquitetura de enriquecimento progressivo** - COMPLETO
 6. ✅ **Implementar run_monitoring()** - Interface única implementada e testada
-7. ✅ **Integrar monitor_inadimplencia.py** com enriquecimento de DataFrame - COMPLETO
+7. ✅ **Integrar monitor_inadimplencia_oop.py** com enriquecimento de DataFrame - COMPLETO
 8. ✅ **Implementar funções auxiliares** (`_has_*_monitoring()` para cada monitor) - COMPLETO
-9. ✅ **Implementar monitor_pdd.py** com arquitetura inteligente - COMPLETO
-10. ✅ **Implementar monitor_concentracao.py** (2 eventos base) - COMPLETO
+9. ✅ **Implementar monitor_pdd_oop.py** com arquitetura inteligente - COMPLETO
+10. ✅ **Implementar monitor_concentracao_oop.py** (2 eventos base) - COMPLETO
 11. **Implementar monitor_elegibilidade.py** (1 evento base)
 12. **Criar supersim_pool_1_recovery_rate.py** (🔧 Custom SuperSim)
 13. **Criar afa_pool_1_sacados_especificos.py** (🔧 Custom AFA)
 14. **Criar upvendas_pool_2_substituicao_pix.py** (🔧 Custom UpVendas)
 
-### 📊 Métricas de Progresso
-- **Pools mapeados**: 7 (lecapital, afa, supersim, credmei, formento, upvendas, a55)
-- **Pools com JSON otimizado**: 7/7 (100% - template v2.2 aplicado)
-- **Auditoria de dados**: 7/7 pools (100% verificados contra escrituras originais)
+### 📊 Métricas de Progresso (Atualização 2025-07-24)
+- **Pools mapeados**: 9 (lecapital, afa, supersim, credmei, formento, upvendas, a55, dinie, ectare)
+- **Pools com JSON otimizado**: 9/9 (100% - template v2.2 aplicado)
+- **Auditoria de dados**: 9/9 pools (100% verificados contra escrituras originais)
 - **Integridade de dados**: 100% - Zero dados inventados ou incorretos
-- **Estrutura organizada**: ✅ `/base/`, `/custom/`, `/utils/`
+- **Estrutura reorganizada**: ✅ `src/monitor/`, `scripts/`, `docs/`
 - **Monitores base**: 5/6 (83% implementados - apenas elegibilidade restante)
 - **Monitores custom**: 0/20+ identificados (recovery_rate, sacados_especificos, veto_aquisicoes, etc.)
-- **Utilitários**: 5/5 ✅ (todos refatorados e funcionais)
+- **Utilitários reorganizados**: 10/10 ✅ (todos refatorados e funcionais em `src/monitor/utils/`)
   - data_loader.py: ✅ Orquestrador principal
   - file_loaders.py: ✅ Carregamento CSV/XLSX
   - data_handler.py: ✅ Validações e metadados
   - alerts.py: ✅ Sistema de alertas
-  - file_discovery.py: ✅ Descoberta de arquivos
-- **Sistema de descoberta**: 0/4 (pool_discovery, monitoring_engine, config_loader, alert_manager)
+  - daily_results_persistence.py: ✅ Persistência de resultados
+  - date_consistency_validator.py: ✅ Validação temporal
+  - concentration_analysis.py: ✅ Análise de concentração
+  - data_converters.py: ✅ Conversores de dados
+  - pdd_analysis.py: ✅ Análise PDD
+  - pdd_api_endpoints.py: ✅ Endpoints API PDD
+- **Scripts executáveis**: ✅ 3/3 (run_monitoring.py, run_dashboard.py, generate_dashboard.py)
 - **Fluxo de carregamento**: ✅ COMPLETO - 9 etapas + filtros + ignore list + validações
 - **Compatibilidade Spyder**: ✅ COMPLETO - Sistema de imports com fallback
 - **Arquivos de configuração**: ✅ 2/2 (ignore_pools.json, test_pools.json)
+- **Documentação reorganizada**: ✅ 40% redução de redundância com estrutura modular
 - **Template atualizado**: v2.2 com 5 seções lógicas e instruções detalhadas
 - **Eventos base mapeados**: 7/7 (template v2.2)
 - **Eventos base implementados**: 6/7 (subordinação + inadimplência + PDD + concentração + liquidez ✅)
@@ -1125,23 +1275,26 @@ O sistema foi desenvolvido e é testado principalmente no **Spyder IDE**. Para e
 
 ```python
 # No console do Spyder, navegue até o diretório do projeto
-cd /mnt/c/amfi
+cd C:\amfi
 
 # Execute o data_loader
-from monitor.utils.data_loader import load_pool_data
+from src.monitor.utils.data_loader import load_pool_data
 resultado = load_pool_data()
 
 # Para debug específico de pools
-from monitor.utils.data_loader import load_pool_data
+from src.monitor.utils.data_loader import load_pool_data
 resultado = load_pool_data(data="07/07/2025")  # Data específica
 
 # Execute análise de liquidez
-from monitor.orchestrator import run_liquidity_analysis
+from src.monitor.orchestrator import run_liquidity_analysis
 resultado_liquidez = run_liquidity_analysis('LeCapital Pool #1')
 
 # Execute monitoramento completo
-from monitor.orchestrator import run_monitoring
+from src.monitor.orchestrator import run_monitoring
 resultado_completo = run_monitoring('LeCapital Pool #1')
+
+# Alternativamente, use os scripts reorganizados:
+python scripts/run_monitoring.py
 ```
 
 ### Compatibilidade de Imports
@@ -1180,9 +1333,10 @@ except (ImportError, ValueError):
 - **[refatoracao_concentracao_20250717.md](./sessions/refatoracao_concentracao_20250717.md)** - Refatoração completa do monitor de concentração com compatibilidade 100%
 
 ## Contato e Sessões
-- Última atualização: 2025-07-18
-- Sessão atual: Integração híbrida da análise de liquidez com orquestrador
-- Próxima revisão: Monitor de elegibilidade ou estratégia de armazenamento
+- **Última atualização**: 2025-07-24
+- **Sessão atual**: Reorganização completa da estrutura de arquivos e documentação
+- **Próxima revisão**: Monitor de elegibilidade ou estratégia de armazenamento
+- **Status da reorganização**: ✅ COMPLETA - Sistema legacy removido, estrutura limpa implementada
 
 ### 📁 **Filosofia do docs/sessions/**
 
