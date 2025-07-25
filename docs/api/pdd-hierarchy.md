@@ -2,7 +2,20 @@
 
 ## 📋 Resumo da Entrega
 
-Implementação completa dos endpoints Python necessários para o dashboard PDD hierárquico do sistema AmFi, conforme especificação solicitada.
+Implementação completa dos endpoints Python necessários para o dashboard PDD hierárquico do sistema AmFi, com melhorias de interface implementadas em 2025-07-25.
+
+## 🆕 Atualizações Recentes (2025-07-25)
+
+### Simplificação da Interface PDD:
+- **Colunas removidas**: "Metodologia" e "Ações" removidas da tabela principal
+- **Drilldown direto**: Clique no pool agora mostra cedentes imediatamente
+- **Performance otimizada**: Menos dados processados, resposta mais rápida
+- **Foco essencial**: Apenas dados críticos para tomada de decisão
+
+### Padronização Visual:
+- **Seção colapsível**: PDD agora segue padrão das outras seções
+- **Header consistente**: Gradiente e ícone expansivo padronizados
+- **Interação simplificada**: Um clique leva diretamente aos dados do cedente
 
 ## 🏗️ Arquivos Criados/Modificados
 
@@ -24,16 +37,16 @@ Implementação completa dos endpoints Python necessários para o dashboard PDD 
   - Suporte a query parameters
 
 ### 3. Script de Demonstração - `/example_pdd_hierarchical_api.py`
-- **Descrição**: Exemplo completo de uso de todos os endpoints
-- **Tamanho**: 370 linhas
+- **Descrição**: Exemplo simplificado focado em cedentes
+- **Tamanho**: 270 linhas (otimizado)
 - **Funcionalidades**:
-  - Demonstração interativa de todos os endpoints
-  - Análise detalhada das respostas
-  - Guia de uso em produção
+  - Demonstração direta: pool → cedentes
+  - Resposta rápida e essencial
+  - Integração com interface colapsível
 
-## 🚀 Endpoints Implementados
+## 🚀 Endpoints Implementados (Interface Simplificada)
 
-### 1. `GET /api/pdd/{pool_id}/hierarchy`
+### 1. `GET /api/pdd/{pool_id}/hierarchy` - **SIMPLIFICADO**
 ```json
 {
   "success": true,
@@ -41,12 +54,11 @@ Implementação completa dos endpoints Python necessários para o dashboard PDD 
     "pool_id": "E-ctare Pool #1",
     "total_groups": 9,
     "total_cedentes": 4,
-    "metodologia": "por_cedente",
     "grupos": {
       "AA": {
-        "stats": { ... },
-        "cedentes": [ ... ],
-        "ui_metadata": { ... }
+        "stats": { "count": 120, "vp_total": 15000000, "percentual_pl": 12.5 },
+        "cedentes": [ "Cedente A", "Cedente B" ],
+        "ui_metadata": { "color": "#22c55e", "status": "baixo_risco" }
       }
     }
   }

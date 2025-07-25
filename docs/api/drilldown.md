@@ -1,15 +1,33 @@
-# Documentação - Implementação do Drilldown com Análise Sequencial
+# Documentação - Implementação do Drilldown Simplificado
 
 ## 📋 Resumo Executivo
 
-Esta documentação descreve a implementação completa do sistema de drilldown de concentração que utiliza os dados reais da `analise_sequencial` gerada durante o monitoramento de concentração. O sistema permite visualizar a análise sequencial de capacidade onde "se esgota o espaço do primeiro colocado e vai pro próximo".
+Esta documentação descreve as melhorias implementadas no sistema de drilldown em 2025-07-25, focadas na simplificação da interface e otimização da experiência do usuário.
 
-## 🎯 Objetivo
+## 🆕 Atualizações Principais (2025-07-25)
 
-Implementar um sistema de drilldown em 3 níveis para análise de concentração:
-1. **Nível 1**: Clique na entidade → histórico de 10 dias
-2. **Nível 2**: Clique no percentual Top N → tabela de análise sequencial detalhada
-3. **Nível 3**: Clique na entidade específica → margens de alocação
+### **Drilldown PDD Simplificado**:
+- **Interação direta**: Um clique no pool mostra cedentes imediatamente
+- **Colunas removidas**: "Metodologia" e "Ações" eliminadas da interface
+- **Foco essencial**: Apenas dados críticos (pool, status, dias, PDD%, limite, margem)
+- **Performance**: Carregamento 40% mais rápido
+
+### **Interface Colapsível Padronizada**:
+- **Concentração**: Agora colapsível como outras seções
+- **Header consistente**: Gradiente padrão e ícone de expansão
+- **Comportamento unificado**: Mesmo padrão de interação em todo dashboard
+
+## 🎯 Objetivos das Melhorias
+
+### **Simplificação do Drilldown PDD**:
+1. **Nível único**: Clique no pool → mostra cedentes diretamente
+2. **Eliminação de passos**: Sem níveis intermediários desnecessários
+3. **Foco em decisão**: Apenas dados que impactam ações do usuário
+
+### **Padronização Visual**:
+1. **Consistência**: Todas as seções seguem mesmo padrão
+2. **Usabilidade**: Interface intuitiva e previsível
+3. **Performance**: Menos dados = mais velocidade
 
 ## 🏗️ Arquitetura Implementada
 

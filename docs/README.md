@@ -7,16 +7,20 @@ Bem-vindo à documentação completa do Sistema AmFi! Esta é sua porta de entra
 ### [🚀 **user-guide/**](user-guide/)
 Documentação para analistas e gestores que usam o sistema diariamente.
 
-- **[getting-started.md](user-guide/getting-started.md)** - Guia completo do dashboard e interface
+- **[getting-started.md](user-guide/getting-started.md)** - Guia completo do dashboard e interface *(Atualizado 2025-07-25)*
 - **[examples.md](user-guide/examples.md)** - Exemplos práticos de uso e interpretação
+
+**🆕 Novidades:** Interface padronizada, seções colapsíveis, tabela PDD simplificada
 
 ## 🔌 **Para Integradores** 
 
 ### [📡 **api/**](api/)
 Documentação das APIs e endpoints para integrações externas.
 
-- **[pdd-hierarchy.md](api/pdd-hierarchy.md)** - APIs hierárquicas do sistema PDD
-- **[drilldown.md](api/drilldown.md)** - Implementação de análises detalhadas
+- **[pdd-hierarchy.md](api/pdd-hierarchy.md)** - APIs hierárquicas do sistema PDD *(Simplificado 2025-07-25)*
+- **[drilldown.md](api/drilldown.md)** - Implementação de análises detalhadas *(Interface atualizada)*
+
+**🆕 Melhorias:** PDD drilldown direto, colunas desnecessárias removidas, performance otimizada
 
 ## 👨‍💻 **Para Desenvolvedores**
 
@@ -31,10 +35,12 @@ Documentação técnica para desenvolvimento e manutenção do sistema.
 ### [🛠️ **technical/**](technical/)
 Análises técnicas detalhadas, arquitetura e especificações internas.
 
-- **[SYSTEM_STATE.md](technical/SYSTEM_STATE.md)** - Estado atual do sistema e componentes
+- **[SYSTEM_STATE.md](technical/SYSTEM_STATE.md)** - Estado atual do sistema e componentes *(Atualizado 2025-07-25)*
 - **[VALIDACAO_SCHEMA_JSON.md](technical/VALIDACAO_SCHEMA_JSON.md)** - Padrões e validação de configurações JSON
 - **[LOGICA_CCB_PDD.md](technical/LOGICA_CCB_PDD.md)** - Limitações e especificações técnicas CCB
 - **[liquidity_analyzer_integration.md](technical/liquidity_analyzer_integration.md)** - Integração de análise de liquidez
+
+**🆕 Dashboard:** Logo SVG, headers colapsíveis, UI padronizada, concentração colapsível
 
 ## 📋 **Documentos Principais**
 

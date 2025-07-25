@@ -42,9 +42,9 @@ python scripts/run_dashboard.py
 - **Pools Violados**: Quantidade em violação
 - **Taxa Compliance**: Percentual de conformidade
 
-### 2. Tabela de Subordinação
+### 2. Seções do Dashboard (Todas Colapsíveis)
 
-#### Colunas Principais:
+#### Seção Subordinação:
 - **Pool**: Nome do pool
 - **Status**: 
   - 🔴 **VIOLADO CRÍTICO**: Abaixo do limite crítico
@@ -56,7 +56,21 @@ python scripts/run_dashboard.py
 - **Limite Crítico**: Limite de alerta
 - **Aporte/Saque**: Valor financeiro inteligente
 
-#### Ordenação:
+#### Seção PDD/Inadimplência (Simplificada):
+**Melhorias 2025-07-25:**
+- **Colunas removidas**: "Metodologia" e "Ações" (desnecessárias)
+- **Drilldown simplificado**: Clique no pool mostra cedentes diretamente
+- **Foco essencial**: Pool, Status, Dias, PDD%, Limite, Margem
+- **Performance otimizada**: Carregamento mais rápido
+
+#### Seção Concentração (NOVA - Colapsível):
+**Nova funcionalidade 2025-07-25:**
+- **Agora colapsível**: Mesmo padrão visual das outras seções
+- **Contagem de dias**: Dias consecutivos de violação implementada
+- **Header padronizado**: Gradiente e ícone de expansão
+- **Interface consistente**: Segue mesmo estilo do dashboard
+
+#### Ordenação Padrão:
 1. **Violados Críticos** (topo)
 2. **Violados Mínimos** 
 3. **Enquadrados** (base)
@@ -100,6 +114,12 @@ saque_disponivel = margem * pl_atual
 
 ## 🎨 Interface Visual
 
+### Design Atualizado (2025-07-25):
+- **Logo SVG**: Exibido no header via caminho `/logo.svg`
+- **Header Colapsível**: Todas as seções podem ser recolhidas/expandidas
+- **Gradientes Consistentes**: Visual padronizado em todo o dashboard
+- **Animações Suaves**: Transições CSS para melhor UX
+
 ### Códigos de Cor:
 - **🔴 Vermelho**: Violações (crítica/mínima)
 - **🟢 Verde**: Pools enquadrados
@@ -109,6 +129,7 @@ saque_disponivel = margem * pl_atual
 - **Hover Effects**: Destaque ao passar mouse
 - **Row Highlighting**: Diferenciação de status
 - **Responsive Design**: Adapta a diferentes telas
+- **Seções Colapsíveis**: Clique no header para expandir/recolher
 
 ### Badges de Status:
 - **VIOLADO CRÍTICO**: Fundo vermelho

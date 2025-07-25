@@ -14,6 +14,72 @@ from pathlib import Path
 from src.monitor.utils.concentration_analysis import gen_concentration_table
 from src.monitor.utils.pdd_analysis import extract_pdd_data
 
+def extract_liquidez_data(data):
+    """Extrai dados de liquidez de todos os pools."""
+    liquidez_pools = []
+    
+    for pool_name, pool_data in data['pools'].items():
+        if not pool_data.get('sucesso', False):
+            continue
+            
+        resultados = pool_data.get('resultados', {})
+        liquidez = resultados.get('liquidez', {})
+        
+        if not liquidez:
+            continue
+            
+        # Dados básicos
+        next_payment = liquidez.get('next_payment', {})
+        scenarios = liquidez.get('scenarios', {})
+        
+        # Verificar se há problemas de liquidez
+        optimistic = scenarios.get('optimistic', {})
+        predicted = scenarios.get('predicted', {})
+        conservative = scenarios.get('conservative', {})
+        
+        # Determinar status geral baseado no cenário conservador
+        status = "ENQUADRADO"
+        worst_scenario = "conservative"
+        worst_gap = 0
+        
+        # Status determinado apenas pelo cenário conservador
+        conservative_sufficient = conservative.get('sufficient', True)
+        # Lidar com valores string "True"/"False" vindos do JSON
+        if isinstance(conservative_sufficient, str):
+            conservative_sufficient = conservative_sufficient.lower() == 'true'
+        
+        if not conservative_sufficient:
+            status = "VIOLADO"
+            worst_gap = conservative.get('gap', 0)
+            worst_scenario = "conservative"
+        
+        liquidez_pools.append({
+            'pool_name': pool_name,
+            'status': status,
+            'next_payment_date': next_payment.get('date', '-'),
+            'next_payment_amount': next_payment.get('amount', 0),
+            'next_payment_percentage': next_payment.get('percentage', 0),
+            'current_pl': next_payment.get('current_pl', 0),
+            'optimistic_sufficient': optimistic.get('sufficient', True),
+            'optimistic_coverage': optimistic.get('coverage_ratio', 0),
+            'predicted_sufficient': str(predicted.get('sufficient', True)).lower() == 'true' if isinstance(predicted.get('sufficient', True), str) else predicted.get('sufficient', True),
+            'predicted_coverage': predicted.get('coverage_ratio', 0),
+            'conservative_sufficient': conservative_sufficient,
+            'conservative_coverage': conservative.get('coverage_ratio', 0),
+            'worst_scenario': worst_scenario,
+            'worst_gap': worst_gap,
+            'available_cash': optimistic.get('available_cash', 0),
+            'scenarios': scenarios
+        })
+    
+    # Ordenar: violados primeiro, depois por próximo pagamento
+    liquidez_pools.sort(key=lambda x: (
+        x['status'] != 'VIOLADO',  # Violados primeiro
+        x['next_payment_date'] if x['next_payment_date'] != '-' else '9999-12-31'
+    ))
+    
+    return liquidez_pools
+
 def load_latest_json_data():
     """Carrega o arquivo JSON mais recente."""
     project_root = Path(__file__).parent.parent.parent
@@ -864,6 +930,160 @@ def generate_pdd_table(pdd_data):
     
     return html
 
+def generate_liquidez_table(liquidez_data):
+    """Gera tabela HTML para liquidez."""
+    if not liquidez_data:
+        return "<p>Nenhum dado de liquidez encontrado.</p>"
+    
+    # Contar violações
+    total_pools = len(liquidez_data)
+    violacoes = sum(1 for pool in liquidez_data if pool['status'] == 'VIOLADO')
+    
+    html = f"""
+    <div class="indicator-section liquidez">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('liquidez')">
+            <span>💧 Análise de Liquidez ({violacoes}/{total_pools})</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="liquidez-content">
+            <table class="indicator-table">
+                <thead>
+                    <tr>
+                        <th>Pool</th>
+                        <th>Status</th>
+                        <th>PL Atual (R$)</th>
+                        <th>Próximo Pagamento</th>
+                        <th>Valor (R$)</th>
+                        <th>% PL</th>
+                        <th>Caixa Disponível</th>
+                        <th>Conservador</th>
+                        <th>Previsto</th>
+                        <th>Otimista</th>
+                    </tr>
+                </thead>
+                <tbody>
+    """
+    
+    for pool in liquidez_data:
+        pool_name = pool['pool_name']
+        status = pool['status']
+        next_payment_date = pool['next_payment_date']
+        next_payment_amount = pool['next_payment_amount']
+        next_payment_percentage = pool['next_payment_percentage']
+        available_cash = pool['available_cash']
+        current_pl = pool['current_pl']
+        
+        # Determinar classe da linha
+        row_class = "violation-row" if status == 'VIOLADO' else "ok-row"
+        
+        # Status badge
+        status_class = "status-violation" if status == 'VIOLADO' else "status-ok"
+        
+        # Formatação de valores
+        pl_formatted = f"R$ {current_pl:,.2f}".replace(',', '.')
+        amount_formatted = f"R$ {next_payment_amount:,.2f}".replace(',', '.')
+        percentage_formatted = f"{next_payment_percentage*100:.1f}%" if next_payment_percentage else "-"
+        cash_formatted = f"R$ {available_cash:,.2f}".replace(',', '.')
+        
+        # Cenários de cobertura
+        opt_coverage = pool['optimistic_coverage']
+        pred_coverage = pool['predicted_coverage']
+        cons_coverage = pool['conservative_coverage']
+        
+        opt_class = "ok" if pool['optimistic_sufficient'] else "violation"
+        pred_class = "ok" if pool['predicted_sufficient'] else "violation"
+        cons_class = "ok" if pool['conservative_sufficient'] else "violation"
+        
+        opt_text = f"{opt_coverage:.1f}x" if opt_coverage > 0 else "Insuf."
+        pred_text = f"{pred_coverage:.1f}x" if pred_coverage > 0 else "Insuf."
+        cons_text = f"{cons_coverage:.1f}x" if cons_coverage > 0 else "Insuf."
+        
+        # ID seguro para drilldown
+        safe_pool_id = pool_name.replace(' ', '_').replace('#', '__')
+        
+        html += f"""
+                <tr class="{row_class}">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_{safe_pool_id}');" style="cursor: pointer;">
+                        {pool_name}
+                    </td>
+                    <td><span class="status-badge {status_class}">{status}</span></td>
+                    <td class="text-right">{pl_formatted}</td>
+                    <td class="text-center">{next_payment_date}</td>
+                    <td class="text-right">{amount_formatted}</td>
+                    <td class="text-center">{percentage_formatted}</td>
+                    <td class="text-right">{cash_formatted}</td>
+                    <td class="text-center">
+                        <span class="coverage-badge {cons_class}">{cons_text}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge {pred_class}">{pred_text}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge {opt_class}">{opt_text}</span>
+                    </td>
+                </tr>
+        """
+        
+        # Drilldown com detalhes dos cenários
+        scenarios = pool['scenarios']
+        optimistic = scenarios.get('optimistic', {})
+        predicted = scenarios.get('predicted', {})
+        conservative = scenarios.get('conservative', {})
+        
+        html += f"""
+                <tr id="liquidez_{safe_pool_id}" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - {pool_name}</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> {conservative.get('description', 'N/A')}</p>
+                                    <p><strong>Total Disponível:</strong> R$ {conservative.get('total_available', 0):,.2f}</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ {conservative.get('conservative_receipts', 0):,.2f}</p>
+                                    <p><strong>Cobertura:</strong> {conservative.get('coverage_ratio', 0):.2f}x</p>
+                                    <p class="{'sufficient' if str(conservative.get('sufficient')).lower() == 'true' else 'insufficient'}">
+                                        <strong>Status:</strong> {'✅ Suficiente' if str(conservative.get('sufficient')).lower() == 'true' else '❌ Insuficiente'}
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> {predicted.get('description', 'N/A')}</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ {predicted.get('total_available', 0):,.2f}</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ {predicted.get('predicted_receipts', 0):,.2f}</p>
+                                    <p><strong>Cobertura:</strong> {predicted.get('coverage_ratio', 0):.2f}x</p>
+                                    <p class="{'sufficient' if str(predicted.get('sufficient')).lower() == 'true' else 'insufficient'}">
+                                        <strong>Status:</strong> {'✅ Suficiente' if str(predicted.get('sufficient')).lower() == 'true' else '❌ Insuficiente'}
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> {optimistic.get('description', 'N/A')}</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ {optimistic.get('available_cash', 0):,.2f}</p>
+                                    <p><strong>Cobertura:</strong> {optimistic.get('coverage_ratio', 0):.2f}x</p>
+                                    <p class="{'sufficient' if optimistic.get('sufficient') else 'insufficient'}">
+                                        <strong>Status:</strong> {'✅ Suficiente' if optimistic.get('sufficient') else '❌ Insuficiente'}
+                                    </p>
+                                    {f"<p><strong>Superávit:</strong> R$ {optimistic.get('surplus', 0):,.2f}</p>" if optimistic.get('sufficient') else f"<p><strong>Gap:</strong> R$ {optimistic.get('gap', 0):,.2f}</p>"}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        """
+    
+    html += """
+                </tbody>
+            </table>
+        </div>
+    </div>
+    """
+    
+    return html
+
 def generate_pdd_dashboard_hierarchical(pdd_data):
     """Gera dashboard hierárquico PDD com heat map e drilldown real."""
     if not pdd_data:
@@ -1025,14 +1245,43 @@ def generate_pdd_dashboard_hierarchical(pdd_data):
     
     return html
 
-def _generate_dashboard_stats(subordinacao_data):
+def _generate_dashboard_stats(subordinacao_data, pdd_data=None, liquidez_data=None):
     """Gera estatísticas gerais do dashboard."""
-    total_pools = len(subordinacao_data)
-    pools_violados = len([p for p in subordinacao_data if p['is_violation']])
-    compliance_rate = ((total_pools - pools_violados) / total_pools * 100) if total_pools > 0 else 100
+    # Pools únicos analisados
+    all_pools = set()
+    
+    # Adicionar pools de subordinação
+    if subordinacao_data:
+        all_pools.update([p['pool_name'] for p in subordinacao_data])
+    
+    # Adicionar pools de PDD
+    if pdd_data:
+        all_pools.update([p['pool_name'] for p in pdd_data])
+    
+    # Adicionar pools de liquidez
+    if liquidez_data:
+        all_pools.update([p['pool_name'] for p in liquidez_data])
+    
+    total_pools = len(all_pools)
+    
+    # Contar violações por tipo
+    pools_violados = set()
+    
+    if subordinacao_data:
+        pools_violados.update([p['pool_name'] for p in subordinacao_data if p['is_violation']])
+    
+    if pdd_data:
+        pools_violados.update([p['pool_name'] for p in pdd_data if p['is_violation']])
+        
+    if liquidez_data:
+        pools_violados.update([p['pool_name'] for p in liquidez_data if p['status'] == 'VIOLADO'])
+    
+    pools_violados_count = len(pools_violados)
+    compliance_rate = ((total_pools - pools_violados_count) / total_pools * 100) if total_pools > 0 else 100
+    
     return {
         'total_pools': total_pools,
-        'pools_violados': pools_violados,
+        'pools_violados': pools_violados_count,
         'compliance_rate': compliance_rate
     }
 
@@ -1061,11 +1310,12 @@ def generate_table_dashboard_html(data, date):
     # Extrair dados de subordinação
     subordinacao_data = extract_subordinacao_data(data, historical_data)
     
-    # Extrair dados de concentração
+    # Extrair dados de concentração e liquidez
     concentracao_data = extract_concentracao_data(data, historical_data)
+    liquidez_data = extract_liquidez_data(data)
     
-    # Gerar estatísticas usando função auxiliar
-    stats = _generate_dashboard_stats(subordinacao_data)
+    # Gerar estatísticas usando função auxiliar (incluindo todos os tipos)
+    stats = _generate_dashboard_stats(subordinacao_data, extract_pdd_data(data), liquidez_data)
     
     html_content = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1380,6 +1630,78 @@ def generate_table_dashboard_html(data, date):
             gap: 10px;
         }}
         
+        /* Estilos específicos para Liquidez */
+        .scenarios-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }}
+        
+        .scenario-card {{
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid;
+        }}
+        
+        .scenario-card.optimistic {{
+            border-left-color: #28a745;
+        }}
+        
+        .scenario-card.predicted {{
+            border-left-color: #ffc107;
+        }}
+        
+        .scenario-card.conservative {{
+            border-left-color: #dc3545;
+        }}
+        
+        .scenario-card h5 {{
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }}
+        
+        .scenario-card p {{
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }}
+        
+        .sufficient {{
+            color: #28a745;
+            font-weight: bold;
+        }}
+        
+        .insufficient {{
+            color: #dc3545;
+            font-weight: bold;
+        }}
+        
+        .coverage-badge {{
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }}
+        
+        .coverage-badge.ok {{
+            background: #d4edda;
+            color: #155724;
+        }}
+        
+        .coverage-badge.violation {{
+            background: #f8d7da;
+            color: #721c24;
+        }}
+        
+        .text-center {{
+            text-align: center;
+        }}
+        
+        .text-right {{
+            text-align: right;
+        }}
+        
         .limit-detail {{
             padding: 10px 15px;
             border-radius: 6px;
@@ -1611,6 +1933,8 @@ def generate_table_dashboard_html(data, date):
         {generate_pdd_table(extract_pdd_data(data))}
         
         {gen_concentration_table(data)}
+        
+        {generate_liquidez_table(extract_liquidez_data(data))}
         
         <footer>
             <p>AmFi Monitoring System - 2025 | Dashboard de Tabelas por Indicador</p>

@@ -311,6 +311,78 @@
             gap: 10px;
         }
         
+        /* Estilos específicos para Liquidez */
+        .scenarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .scenario-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+        
+        .scenario-card.optimistic {
+            border-left-color: #28a745;
+        }
+        
+        .scenario-card.predicted {
+            border-left-color: #ffc107;
+        }
+        
+        .scenario-card.conservative {
+            border-left-color: #dc3545;
+        }
+        
+        .scenario-card h5 {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .scenario-card p {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .sufficient {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .insufficient {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .coverage-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .coverage-badge.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .coverage-badge.violation {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
         .limit-detail {
             padding: 10px 15px;
             border-radius: 6px;
@@ -509,7 +581,7 @@
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>
-            <p class="date-info">Data Base: 2025-07-21 | Executado em: 25/07/2025 12:36</p>
+            <p class="date-info">Data Base: 2025-07-21 | Executado em: 25/07/2025 13:02</p>
             
             <div class="summary-stats">
                 <div class="stat-item">
@@ -517,11 +589,11 @@
                     <span class="stat-label">Pools Monitorados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">2</span>
+                    <span class="stat-number">3</span>
                     <span class="stat-label">Pools Violados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">71.4%</span>
+                    <span class="stat-number">57.1%</span>
                     <span class="stat-label">Taxa Compliance</span>
                 </div>
             </div>
@@ -2129,6 +2201,484 @@
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
     </script>
+    
+        
+        
+    <div class="indicator-section liquidez">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('liquidez')">
+            <span>💧 Análise de Liquidez (0/7)</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="liquidez-content">
+            <table class="indicator-table">
+                <thead>
+                    <tr>
+                        <th>Pool</th>
+                        <th>Status</th>
+                        <th>PL Atual (R$)</th>
+                        <th>Próximo Pagamento</th>
+                        <th>Valor (R$)</th>
+                        <th>% PL</th>
+                        <th>Caixa Disponível</th>
+                        <th>Conservador</th>
+                        <th>Previsto</th>
+                        <th>Otimista</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_E-ctare_Pool___1');" style="cursor: pointer;">
+                        E-ctare Pool #1
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 10.325.970.03</td>
+                    <td class="text-center">2025-07-28</td>
+                    <td class="text-right">R$ 516.298.50</td>
+                    <td class="text-center">5.0%</td>
+                    <td class="text-right">R$ 3.553.380.10</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">15.3x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">100.4x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">6.9x</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_E-ctare_Pool___1" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - E-ctare Pool #1</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> Excluir cedentes/sacados com atraso</p>
+                                    <p><strong>Total Disponível:</strong> R$ 7,912,235.91</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 4,358,855.81</p>
+                                    <p><strong>Cobertura:</strong> 15.32x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> Caixa + recebimentos previstos</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 51,821,644.17</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 48,268,264.07</p>
+                                    <p><strong>Cobertura:</strong> 100.37x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> Apenas caixa atual</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 3,553,380.10</p>
+                                    <p><strong>Cobertura:</strong> 6.88x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                    <p><strong>Superávit:</strong> R$ 3,037,081.60</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_AFA_Pool___1');" style="cursor: pointer;">
+                        AFA Pool #1
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 22.132.218.07</td>
+                    <td class="text-center">2026-10-07</td>
+                    <td class="text-right">R$ 1.229.568.65</td>
+                    <td class="text-center">5.6%</td>
+                    <td class="text-right">R$ 17.382.177.49</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">52.1x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">188.6x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">14.1x</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_AFA_Pool___1" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - AFA Pool #1</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> Excluir cedentes/sacados com atraso</p>
+                                    <p><strong>Total Disponível:</strong> R$ 64,043,699.11</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 46,661,521.62</p>
+                                    <p><strong>Cobertura:</strong> 52.09x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> Caixa + recebimentos previstos</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 231,865,423.19</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 214,483,245.70</p>
+                                    <p><strong>Cobertura:</strong> 188.57x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> Apenas caixa atual</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 17,382,177.49</p>
+                                    <p><strong>Cobertura:</strong> 14.14x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                    <p><strong>Superávit:</strong> R$ 16,152,608.84</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_Credmei_Pool___1');" style="cursor: pointer;">
+                        Credmei Pool #1
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 20.290.722.21</td>
+                    <td class="text-center">2026-10-11</td>
+                    <td class="text-right">R$ 20.290.722.21</td>
+                    <td class="text-center">100.0%</td>
+                    <td class="text-right">R$ 0.00</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">2.3x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">10.6x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge violation">Insuf.</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_Credmei_Pool___1" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - Credmei Pool #1</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> Excluir cedentes/sacados com atraso</p>
+                                    <p><strong>Total Disponível:</strong> R$ 46,661,521.62</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 46,661,521.62</p>
+                                    <p><strong>Cobertura:</strong> 2.30x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> Caixa + recebimentos previstos</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 214,534,129.40</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 214,534,129.40</p>
+                                    <p><strong>Cobertura:</strong> 10.57x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> Apenas caixa atual</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 0.00</p>
+                                    <p><strong>Cobertura:</strong> 0.00x</p>
+                                    <p class="insufficient">
+                                        <strong>Status:</strong> ❌ Insuficiente
+                                    </p>
+                                    <p><strong>Gap:</strong> R$ 20,290,722.21</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_LeCapital_Pool___1');" style="cursor: pointer;">
+                        LeCapital Pool #1
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 8.796.905.00</td>
+                    <td class="text-center">2026-10-18</td>
+                    <td class="text-right">R$ 488.717.34</td>
+                    <td class="text-center">5.6%</td>
+                    <td class="text-right">R$ 6.612.367.52</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">109.0x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">452.7x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">13.5x</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_LeCapital_Pool___1" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - LeCapital Pool #1</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> Excluir cedentes/sacados com atraso</p>
+                                    <p><strong>Total Disponível:</strong> R$ 53,292,215.86</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 46,679,848.34</p>
+                                    <p><strong>Cobertura:</strong> 109.05x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> Caixa + recebimentos previstos</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 221,231,205.53</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 214,618,838.01</p>
+                                    <p><strong>Cobertura:</strong> 452.68x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> Apenas caixa atual</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 6,612,367.52</p>
+                                    <p><strong>Cobertura:</strong> 13.53x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                    <p><strong>Superávit:</strong> R$ 6,123,650.18</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_Formento_Pool___3');" style="cursor: pointer;">
+                        Formento Pool #3
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 2.624.039.97</td>
+                    <td class="text-center">2027-12-31</td>
+                    <td class="text-right">R$ 2.624.039.97</td>
+                    <td class="text-center">100.0%</td>
+                    <td class="text-right">R$ 72.121.46</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">18.2x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">83.2x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge violation">0.0x</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_Formento_Pool___3" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - Formento Pool #3</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> Excluir cedentes/sacados com atraso</p>
+                                    <p><strong>Total Disponível:</strong> R$ 47,836,182.65</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 47,764,061.19</p>
+                                    <p><strong>Cobertura:</strong> 18.23x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> Caixa + recebimentos previstos</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 218,442,085.11</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 218,369,963.65</p>
+                                    <p><strong>Cobertura:</strong> 83.25x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> Apenas caixa atual</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 72,121.46</p>
+                                    <p><strong>Cobertura:</strong> 0.03x</p>
+                                    <p class="insufficient">
+                                        <strong>Status:</strong> ❌ Insuficiente
+                                    </p>
+                                    <p><strong>Gap:</strong> R$ 2,551,918.51</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_Up_Vendas_Pool___2');" style="cursor: pointer;">
+                        Up Vendas Pool #2
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 5.347.873.73</td>
+                    <td class="text-center">2028-04-28</td>
+                    <td class="text-right">R$ 5.347.873.73</td>
+                    <td class="text-center">100.0%</td>
+                    <td class="text-right">R$ 274.343.05</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">9.0x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">40.9x</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge violation">0.1x</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_Up_Vendas_Pool___2" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - Up Vendas Pool #2</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> Excluir cedentes/sacados com atraso</p>
+                                    <p><strong>Total Disponível:</strong> R$ 48,038,404.24</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 47,764,061.19</p>
+                                    <p><strong>Cobertura:</strong> 8.98x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> Caixa + recebimentos previstos</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 218,644,306.70</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 218,369,963.65</p>
+                                    <p><strong>Cobertura:</strong> 40.88x</p>
+                                    <p class="sufficient">
+                                        <strong>Status:</strong> ✅ Suficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> Apenas caixa atual</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 274,343.05</p>
+                                    <p><strong>Cobertura:</strong> 0.05x</p>
+                                    <p class="insufficient">
+                                        <strong>Status:</strong> ❌ Insuficiente
+                                    </p>
+                                    <p><strong>Gap:</strong> R$ 5,073,530.68</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                <tr class="ok-row">
+                    <td class="pool-name" onclick="toggleDrilldown('liquidez_a55_Pool___2');" style="cursor: pointer;">
+                        a55 Pool #2
+                    </td>
+                    <td><span class="status-badge status-ok">ENQUADRADO</span></td>
+                    <td class="text-right">R$ 0.00</td>
+                    <td class="text-center">-</td>
+                    <td class="text-right">R$ 0.00</td>
+                    <td class="text-center">-</td>
+                    <td class="text-right">R$ 0.00</td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">Insuf.</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">Insuf.</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="coverage-badge ok">Insuf.</span>
+                    </td>
+                </tr>
+        
+                <tr id="liquidez_a55_Pool___2" class="drilldown-row" style="display: none;">
+                    <td colspan="10">
+                        <div class="drilldown-content">
+                            <h4>💧 Detalhes de Liquidez - a55 Pool #2</h4>
+                            
+                            <div class="scenarios-grid">
+                                <div class="scenario-card conservative">
+                                    <h5>🔴 Cenário Conservador</h5>
+                                    <p><strong>Descrição:</strong> N/A</p>
+                                    <p><strong>Total Disponível:</strong> R$ 0.00</p>
+                                    <p><strong>Recebimentos Conservadores:</strong> R$ 0.00</p>
+                                    <p><strong>Cobertura:</strong> 0.00x</p>
+                                    <p class="insufficient">
+                                        <strong>Status:</strong> ❌ Insuficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card predicted">
+                                    <h5>🟡 Cenário Previsto</h5>
+                                    <p><strong>Descrição:</strong> N/A</p>
+                                    <p><strong>Caixa + Recebimentos:</strong> R$ 0.00</p>
+                                    <p><strong>Recebimentos Previstos:</strong> R$ 0.00</p>
+                                    <p><strong>Cobertura:</strong> 0.00x</p>
+                                    <p class="insufficient">
+                                        <strong>Status:</strong> ❌ Insuficiente
+                                    </p>
+                                </div>
+                                
+                                <div class="scenario-card optimistic">
+                                    <h5>🟢 Cenário Otimista</h5>
+                                    <p><strong>Descrição:</strong> N/A</p>
+                                    <p><strong>Caixa Disponível:</strong> R$ 0.00</p>
+                                    <p><strong>Cobertura:</strong> 0.00x</p>
+                                    <p class="insufficient">
+                                        <strong>Status:</strong> ❌ Insuficiente
+                                    </p>
+                                    <p><strong>Gap:</strong> R$ 0.00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
     
         
         <footer>
