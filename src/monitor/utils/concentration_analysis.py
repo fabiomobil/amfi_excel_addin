@@ -561,10 +561,18 @@ def gen_concentration_table(monitoring_results: Dict[str, Any]) -> str:
     df['_sort_key'] = df['status_geral'] != 'VIOLADO'  # Violados primeiro
     df_sorted = df.sort_values(['_sort_key', 'pool'])
     
-    html = """
-    <div class="concentration-analysis">
-        <h2>🎯 Análise Detalhada de Concentração</h2>
-        <table class="concentration-table">
+    # Contar violações para o header
+    violations_count = len(df_sorted[df_sorted['status_geral'] == 'VIOLADO'])
+    total_pools = len(df_sorted)
+    
+    html = f"""
+    <div class="indicator-section concentracao">
+        <h2 class="collapsible-header" onclick="toggleIndicatorSection('concentracao')">
+            <span>🎯 Análise de Concentração ({violations_count}/{total_pools})</span>
+            <span class="expand-icon">▼</span>
+        </h2>
+        <div class="table-container" id="concentracao-content">
+            <table class="indicator-table concentration-table">
             <thead>
                 <tr>
                     <th>Pool</th>
@@ -726,41 +734,10 @@ def gen_concentration_table(monitoring_results: Dict[str, Any]) -> str:
     html += """
             </tbody>
         </table>
+        </div>
     </div>
     
     <style>
-    .concentration-analysis {
-        margin: 20px 0;
-    }
-    
-    .concentration-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    
-    .concentration-table th {
-        background: #f8f9fa;
-        padding: 12px 8px;
-        text-align: left;
-        font-weight: 600;
-        border-bottom: 2px solid #dee2e6;
-        font-size: 0.9em;
-    }
-    
-    .concentration-table td {
-        padding: 10px 8px;
-        border-bottom: 1px solid #dee2e6;
-        font-size: 0.85em;
-    }
-    
-    .violation-row {
-        background: #fff2f2;
-    }
-    
-    .ok-row {
-        background: #f0f8ff;
-    }
     
     .concentration-detail {
         text-align: center;

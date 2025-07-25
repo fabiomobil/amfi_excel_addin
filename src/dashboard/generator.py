@@ -551,10 +551,11 @@ def generate_subordinacao_table(subordinacao_data):
         
         # ID único para drilldown
         pool_id = pool['pool_name'].replace(' ', '_').replace('#', '_')
+        pool_name = pool['pool_name']
         
         html += f"""
                     <tr class="{row_class}" onclick="toggleDrilldown('sub_{pool_id}')" style="cursor: pointer;">
-                        <td class="pool-name">{pool['pool_name']}</td>
+                        <td class="pool-name">{pool_name}</td>
                         <td><span class="status-badge {status_class}">{status_text}</span></td>
                         <td class="days-count">{dias_text}</td>
                         <td class="value">{valor_atual}</td>
@@ -783,7 +784,7 @@ def generate_pdd_table(pdd_data):
             <span class="expand-icon">▼</span>
         </h2>
         <div class="table-container" id="pdd-content">
-        <table class="concentration-table">
+        <table class="indicator-table">
             <thead>
                 <tr>
                     <th>Pool</th>
@@ -825,10 +826,11 @@ def generate_pdd_table(pdd_data):
         
         # ID único para drilldown
         safe_pool_id = pool['pool_name'].replace(" ", "_").replace("#", "__")
+        pool_name = pool['pool_name']
         
         html += f"""
-                <tr class="{row_class}" onclick="toggleDrilldown('pdd_{safe_pool_id}')" style="cursor: pointer;">
-                    <td class="pool-name">{pool['pool_name']}</td>
+                <tr class="{row_class}" onclick="toggleDrilldown('pdd_{safe_pool_id}_cedentes'); showPDDCedenteBreakdown('{pool_name}', 'latest', 'pdd_{safe_pool_id}_cedentes_content');" style="cursor: pointer;">
+                    <td class="pool-name">{pool_name}</td>
                     <td><span class="status-badge {status_class}">{status_text}</span></td>
                     <td class="days-count">{dias_text}</td>
                     <td class="percentage">{provisao_pct}</td>
@@ -836,32 +838,17 @@ def generate_pdd_table(pdd_data):
                     <td class="count">{pool['total_cedentes']}</td>
                     <td class="entity-info">
                         <span class="{pior_cedente_class} clickable-entity"
-                        onclick="showPDDCedenteBreakdown('{pool['pool_name']}', 'latest', 'pdd_{safe_pool_id}_cedentes'); event.stopPropagation();"
+                        onclick="showPDDCedenteBreakdown('{pool_name}', 'latest', 'pdd_{safe_pool_id}_cedentes_content'); event.stopPropagation();"
                         style="cursor: pointer; text-decoration: underline;">
                         {pior_cedente_text}</span>
                     </td>
                 </tr>
-                <tr id="pdd_{safe_pool_id}" class="drilldown-row" style="display: none;">
+                <tr id="pdd_{safe_pool_id}_cedentes" class="drilldown-row" style="display: none;">
                     <td colspan="7">
                         <div class="drilldown-content">
-                            <h4>🔍 Detalhes PDD - {pool['pool_name']}</h4>
-                            <div class="pdd-details">
-                                <div class="pdd-summary">
-                                    <p><strong>Valor da Carteira:</strong> R$ {pool['carteira_valor']:,.2f}</p>
-                                    <p><strong>Grupos com Exposição:</strong> {pool['grupos_com_exposicao']}</p>
-                                    <p><strong>Diferença Metodológica:</strong> {pool['diferenca_metodologica']:+.1f}%</p>
-                                </div>
-                                
-                                <div class="cedentes-breakdown" id="pdd_{safe_pool_id}_cedentes">
-                                    <p>Clique em "Pior Cedente" para ver detalhamento por cedente.</p>
-                                </div>
-                                
-                                <div class="pdd-history" id="pdd_{safe_pool_id}_history" style="display: none;">
-                                    <h5>📈 Histórico PDD</h5>
-                                    <div id="pdd_{safe_pool_id}_history_content">
-                                        Carregando histórico...
-                                    </div>
-                                </div>
+                            <h4>📊 Cedentes - {pool_name}</h4>
+                            <div id="pdd_{safe_pool_id}_cedentes_content">
+                                <p>Carregando análise detalhada dos cedentes...</p>
                             </div>
                         </div>
                     </td>
@@ -1129,13 +1116,15 @@ def generate_table_dashboard_html(data, date):
         }}
         
         .logo-container {{
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 60px;
             height: 60px;
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
-            padding: 8px;
             backdrop-filter: blur(10px);
+            padding: 8px;
         }}
         
         .logo-container img {{
@@ -1585,7 +1574,7 @@ def generate_table_dashboard_html(data, date):
         <header>
             <h1>
                 <div class="logo-container">
-                    <img src="../docs/assets/images/logo.svg" alt="AmFi Logo">
+                    <img src="/logo.svg" alt="AmFi Logo">
                 </div>
                 AmFi - Dashboard de Indicadores
             </h1>
@@ -1593,15 +1582,15 @@ def generate_table_dashboard_html(data, date):
             
             <div class="summary-stats">
                 <div class="stat-item">
-                    <span class="stat-number">{total_pools}</span>
+                    <span class="stat-number">{stats['total_pools']}</span>
                     <span class="stat-label">Pools Monitorados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">{pools_violados}</span>
+                    <span class="stat-number">{stats['pools_violados']}</span>
                     <span class="stat-label">Pools Violados</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number">{compliance_rate:.1f}%</span>
+                    <span class="stat-number">{stats['compliance_rate']:.1f}%</span>
                     <span class="stat-label">Taxa Compliance</span>
                 </div>
             </div>

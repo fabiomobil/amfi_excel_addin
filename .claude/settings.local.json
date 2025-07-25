@@ -52,7 +52,12 @@
       "Bash(wc:*)",
       "Bash(tail:*)",
       "Bash(py:*)",
-      "Bash(/c/Users/Mariana/AppData/Local/Microsoft/WindowsApps/python3 -m src.dashboard.generator)"
+      "Bash(/c/Users/Mariana/AppData/Local/Microsoft/WindowsApps/python3 -m src.dashboard.generator)",
+      "Bash(cmd /c:*)",
+      "Bash(C:/Users/Mariana/Anaconda3/python.exe c:/amfi/scripts/generate_dashboard.py)",
+      "Bash(C:UsersMarianaanaconda3python.exe scriptsgenerate_dashboard.py)",
+      "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" scriptsgenerate_dashboard.py)",
+      "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" scripts/generate_dashboard.py)"
     ],
     "deny": []
   }
