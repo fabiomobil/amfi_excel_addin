@@ -293,12 +293,13 @@ def load_pool_data(data: str = None) -> Dict:
 def get_dashboard_pools(csv_df: pd.DataFrame) -> List[str]:
     """
     Extrai lista de pools únicos do DataFrame CSV.
+    NOVO: Filtra apenas pools que têm arquivo JSON de configuração.
     
     Args:
         csv_df: DataFrame do CSV
         
     Returns:
-        List[str]: Lista de nomes de pools únicos
+        List[str]: Lista de nomes de pools únicos que têm JSON config
         
     Raises:
         ValueError: Se coluna 'Nome' não existir
@@ -314,17 +315,73 @@ def get_dashboard_pools(csv_df: pd.DataFrame) -> List[str]:
     pools_df = csv_df[csv_df[tipo_col] == 'Pool'] if tipo_col in csv_df.columns else csv_df
     
     # Extrair nomes únicos e remover espaços extras
-    pools = pools_df[nome_col].dropna().str.strip().unique().tolist()
+    todos_pools = pools_df[nome_col].dropna().str.strip().unique().tolist()
     
     # Remover strings vazias
-    pools = [pool for pool in pools if pool and pool.strip()]
+    todos_pools = [pool for pool in todos_pools if pool and pool.strip()]
+    
+    # NOVO: Filtrar apenas pools que têm arquivo JSON de configuração
+    pools_com_json = []
+    pools_sem_json = []
+    
+    try:
+        import os
+        from pathlib import Path
+        
+        # Tentar diferentes caminhos para config
+        possible_config_paths = [
+            Path(__file__).parent.parent.parent / "config" / "pools",
+            Path("config") / "pools",
+            Path("../config/pools"),
+            Path("../../config/pools")
+        ]
+        
+        config_dir = None
+        for path in possible_config_paths:
+            if path.exists():
+                config_dir = path
+                break
+        
+        if config_dir:
+            # Descobrir pools com JSON
+            for pool in todos_pools:
+                json_file = config_dir / f"{pool}.json"
+                if json_file.exists():
+                    pools_com_json.append(pool)
+                else:
+                    pools_sem_json.append(pool)
+        else:
+            log_alerta({
+                "tipo": "warning",
+                "mensagem": "Diretório config/pools não encontrado - processando todos os pools"
+            })
+            pools_com_json = todos_pools
+            
+    except Exception as e:
+        log_alerta({
+            "tipo": "warning",
+            "mensagem": f"Erro ao filtrar pools por JSON: {str(e)} - processando todos os pools"
+        })
+        pools_com_json = todos_pools
+    
+    # Logs informativos
+    log_alerta({
+        "tipo": "info",
+        "mensagem": f"Encontrados {len(todos_pools)} pools no CSV total"
+    })
+    
+    if pools_sem_json:
+        log_alerta({
+            "tipo": "info",
+            "mensagem": f"Pools SEM JSON (ignorados): {len(pools_sem_json)} - {', '.join(pools_sem_json)}"
+        })
     
     log_alerta({
         "tipo": "info",
-        "mensagem": f"Encontrados {len(pools)} pools no CSV"
+        "mensagem": f"Pools COM JSON (processados): {len(pools_com_json)} - {', '.join(pools_com_json)}"
     })
     
-    return pools
+    return pools_com_json
 
 
 def filter_ignored_pools(pools: List[str]) -> List[str]:

@@ -1,260 +1,208 @@
-# Dashboard AmFi - Guia Completo
+# Guia de Início Rápido - AmFi
 
-## 📊 Visão Geral
+## Visão Geral
 
-Dashboard interativo web para monitoramento de pools de recebíveis com análise histórica e drilldown detalhado.
+O sistema AmFi fornece monitoramento automatizado de compliance para fundos de investimento estruturados. Este guia ajudará você a começar rapidamente com o uso diário e análise histórica.
 
-> **⚠️ ATUALIZAÇÃO IMPORTANTE (2025-07-24)**: Os comandos foram atualizados para a nova estrutura. 
-> Use `python scripts/[nome_script].py` em vez dos comandos antigos. 
-> O dashboard continua funcionando em `http://localhost:8080`.
+## Requisitos
 
-## 🚀 Como Usar
+- Python 3.8+
+- Dados CSV e XLSX atualizados em `data/input/`
+- Configurações JSON dos pools em `config/pools/`
 
-### Executar Monitoramento
+## 🚀 Uso Diário - Monitoramento Atual
+
+### Execução Básica
 ```bash
-# Executar análise completa de todos os pools
+# Monitoramento completo (todos os pools)
 python scripts/run_monitoring.py
 
-# Forçar nova execução mesmo se já rodou hoje
-python scripts/run_monitoring.py --force
+# Pool específico via Python
+python -c "from src.monitor.orchestrator import run_monitoring; resultado = run_monitoring('AFA Pool #1'); print(f'Status: {resultado.get(\"sucesso\")}')"
 ```
 
-### Geração do Dashboard
+### Dashboard Interativo
 ```bash
-cd C:\amfi
-python scripts/generate_dashboard.py
-```
-
-### Acesso
-Abra o arquivo gerado: `C:\amfi\data\output\monitoring_results\dashboard\table_dashboard.html`
-
-### Servidor de Dashboard (Opcional)
-```bash
-# Para acessar via navegador em http://localhost:8080
+# Iniciar servidor web
 python scripts/run_dashboard.py
+# Acesse: http://localhost:8080
+
+# Ou gerar HTML estático
+python scripts/generate_dashboard.py
+# Arquivo em: data/output/monitoring_results/dashboard/
 ```
 
-## 🎯 Funcionalidades Principais
+### Interpretação de Resultados
+- **✅ Sucesso**: Pool dentro dos limites configurados
+- **⚠️ Violação Mínima**: Acima do limite mínimo, mas abaixo do crítico
+- **❌ Violação Crítica**: Acima do limite crítico - ação imediata necessária
 
-### 1. Visão Geral (Header)
-- **Data de Referência**: Última data processada
-- **Pools Monitorados**: Total de pools ativos
-- **Pools Violados**: Quantidade em violação
-- **Taxa Compliance**: Percentual de conformidade
+## 📅 Análise Histórica
 
-### 2. Seções do Dashboard (Todas Colapsíveis)
+### Quando Usar
+- **Análise de tendências** - Identificar deterioração ao longo do tempo
+- **Auditoria retrospectiva** - Verificar compliance em períodos passados
+- **Comparação temporal** - Avaliar impacto de mudanças
 
-#### Seção Subordinação:
-- **Pool**: Nome do pool
-- **Status**: 
-  - 🔴 **VIOLADO CRÍTICO**: Abaixo do limite crítico
-  - 🟡 **VIOLADO MÍNIMO**: Entre crítico e mínimo
-  - 🟢 **ENQUADRADO**: Acima do limite mínimo
-- **Dias Consecutivos**: Tempo em violação
-- **Valor Atual**: Percentual de subordinação atual
-- **Limite Mínimo**: Limite regulatório
-- **Limite Crítico**: Limite de alerta
-- **Aporte/Saque**: Valor financeiro inteligente
-
-#### Seção PDD/Inadimplência (Simplificada):
-**Melhorias 2025-07-25:**
-- **Colunas removidas**: "Metodologia" e "Ações" (desnecessárias)
-- **Drilldown simplificado**: Clique no pool mostra cedentes diretamente
-- **Foco essencial**: Pool, Status, Dias, PDD%, Limite, Margem
-- **Performance otimizada**: Carregamento mais rápido
-
-#### Seção Concentração (NOVA - Colapsível):
-**Nova funcionalidade 2025-07-25:**
-- **Agora colapsível**: Mesmo padrão visual das outras seções
-- **Contagem de dias**: Dias consecutivos de violação implementada
-- **Header padronizado**: Gradiente e ícone de expansão
-- **Interface consistente**: Segue mesmo estilo do dashboard
-
-#### Ordenação Padrão:
-1. **Violados Críticos** (topo)
-2. **Violados Mínimos** 
-3. **Enquadrados** (base)
-
-### 3. Análise Drilldown
-
-**Como Acessar**: Clique em qualquer linha da tabela
-
-#### Dados Financeiros Detalhados:
-- **PL Atual**: Patrimônio Líquido
-- **SR Atual**: Saldo de Recebíveis  
-- **JR Atual**: Juros sobre Recebíveis
-
-#### Histórico de Subordinação:
-- **Últimos 7 dias**: Evolução temporal
-- **Status por Data**: Mudanças de enquadramento
-- **Valores IS**: Percentuais históricos
-- **Valores Financeiros**: Aporte/saque por período
-
-## 💰 Lógica Financeira
-
-### Pools Violados
-**Aporte para Enquadrar** = `max(aporte_mínimo, aporte_crítico)`
-
+### Monitor Unificado AmFi (Recomendado)
 ```python
-# Cálculo do aporte necessário
-if violacao_critica:
-    aporte = (limite_critico - valor_atual) / 100 * pl_atual
-else:  # violacao_minima
-    aporte = (limite_minimo - valor_atual) / 100 * pl_atual
+# Importar no Spyder/Cursor
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# 1. PREVIEW primeiro (seguro)
+preview = monitor.run_historical_load(mode='preview')
+print(f"Datas processadas: {preview['dates_processed']}")
+
+# 2. COMMIT após análise
+if input("Aplicar mudanças? (s/n): ").lower() == 's':
+    commit = monitor.run_historical_load(mode='commit')
 ```
 
-### Pools Enquadrados
-**Saque Disponível** = `(valor_atual - limite_mínimo) / 100 * pl_atual`
 
+### Análise de Data Específica
 ```python
-# Margem de segurança disponível para saque
-margem = (subordinacao_atual - limite_minimo) / 100
-saque_disponivel = margem * pl_atual
+# Via Python - análise pontual
+from src.monitor.orchestrator import run_monitoring
+
+# Todos os pools em data específica
+resultado = run_monitoring(data="14/07/2025")
+
+# Pool específico em data específica
+resultado = run_monitoring("Baru Pool #2", data="14/07/2025")
+
+# Verificar se deu certo
+if resultado.get('sucesso'):
+    print(f"Pools processados: {len(resultado['pools_processados'])}")
+    # Extrair dados específicos
+    pool_result = resultado['resultados']['Baru Pool #2']
+    print(f"Monitores executados: {pool_result['monitores_executados']}")
+else:
+    print(f"Erro: {resultado.get('erro')}")
 ```
 
-## 🎨 Interface Visual
+## 📊 Estrutura de Resultados
 
-### Design Atualizado (2025-07-25):
-- **Logo SVG**: Exibido no header via caminho `/logo.svg`
-- **Header Colapsível**: Todas as seções podem ser recolhidas/expandidas
-- **Gradientes Consistentes**: Visual padronizado em todo o dashboard
-- **Animações Suaves**: Transições CSS para melhor UX
+### Arquivos Gerados
+```
+data/output/monitoring_results/
+├── daily_consolidated/     # Histórico diário em JSON
+│   ├── 2025-07-14.json    # Dados completos do dia
+│   ├── 2025-07-15.json
+│   └── ...
+├── dashboard/              # Dashboards HTML
+│   ├── table_dashboard.html
+│   └── violations_dashboard.html
+└── violations_index/       # Índices de violações
+    ├── active_violations.json
+    └── subordinacao_violations.json
+```
 
-### Códigos de Cor:
-- **🔴 Vermelho**: Violações (crítica/mínima)
-- **🟢 Verde**: Pools enquadrados
-- **🟡 Amarelo**: Alertas e avisos
-
-### Estados Visuais:
-- **Hover Effects**: Destaque ao passar mouse
-- **Row Highlighting**: Diferenciação de status
-- **Responsive Design**: Adapta a diferentes telas
-- **Seções Colapsíveis**: Clique no header para expandir/recolher
-
-### Badges de Status:
-- **VIOLADO CRÍTICO**: Fundo vermelho
-- **VIOLADO MÍNIMO**: Fundo laranja
-- **ENQUADRADO**: Fundo verde
-
-## 📱 Recursos Técnicos
-
-### Auto-refresh
-- **Intervalo**: 5 minutos
-- **Automático**: Recarrega página automaticamente
-- **Manual**: F5 para atualização forçada
-
-### Responsividade
-- **Desktop**: Layout completo
-- **Tablet**: Colunas adaptadas
-- **Mobile**: Interface simplificada
-
-### JavaScript
-```javascript
-// Toggle drilldown
-function toggleDrilldown(elementId) {
-    const element = document.getElementById(elementId);
-    element.style.display = element.style.display === 'none' ? 'table-row' : 'none';
+### Dados por Pool
+```json
+{
+  "Pool Name": {
+    "sucesso": true,
+    "monitores_executados": ["subordinacao", "inadimplencia", "pdd"],
+    "resultados": {
+      "subordinacao": {
+        "subordination_ratio_percent": 25.18,
+        "status_limite_minimo": "enquadrado",
+        "aporte_necessario": {"para_limite_minimo": 0.0}
+      },
+      "inadimplencia": {
+        "resultados": {
+          "inadimplencia_30d": {"inadimplencia_percent": 2.5},
+          "inadimplencia_90d": {"inadimplencia_percent": 1.2}
+        }
+      }
+    }
+  }
 }
 ```
 
-## 📈 Interpretação de Dados
+## 🔍 Casos de Uso Comuns
 
-### Status de Violação
+### 1. Monitoramento Diário
+```bash
+# Executar de manhã
+python scripts/run_monitoring.py
 
-#### VIOLADO CRÍTICO
-- **Risco**: Alto
-- **Ação**: Aporte imediato necessário
-- **Prazo**: Urgente (regulatório)
-
-#### VIOLADO MÍNIMO  
-- **Risco**: Médio
-- **Ação**: Planejamento de aporte
-- **Prazo**: Médio prazo
-
-#### ENQUADRADO
-- **Risco**: Baixo
-- **Ação**: Manutenção ou possível saque
-- **Prazo**: Monitoramento regular
-
-### Dias Consecutivos
-- **1-3 dias**: Situação pontual
-- **4-7 dias**: Tendência preocupante  
-- **8+ dias**: Problema estrutural
-
-### Evolução Histórica
-- **Melhoria**: Valores IS crescentes
-- **Deterioração**: Valores IS decrescentes
-- **Estabilidade**: Variação < 0.5%
-
-## 🔧 Configuração e Customização
-
-### Modificar Períodos Históricos
-```python
-# Em src/dashboard/generator.py
-historico_dias = 7  # Alterar para mais/menos dias
+# Ver dashboard
+python scripts/run_dashboard.py
+# Acessar http://localhost:8080
 ```
 
-### Personalizar Limites
-```python
-# Alterar thresholds de alerta
-limite_dias_critico = 7  # Dias para alerta crítico
-auto_refresh_interval = 300000  # 5 minutos em ms
+### 2. Análise Semanal de Tendências
+```bash
+# Últimos 7 dias
+python scripts/amfi_monitor.py --historical --start-date 15/07/2025 --end-date 21/07/2025 --preview
+
+# Comparar evolution via dashboard
+python scripts/run_dashboard.py
 ```
 
-### Adicionar Métricas
+### 3. Auditoria de Pool Específico
 ```python
-# Incluir novos indicadores na tabela
-indicadores_extras = ['concentracao', 'inadimplencia', 'pdd']
+# Análise histórica de um pool
+from src.monitor.orchestrator import run_monitoring
+
+pool_name = "Baru Pool #2"
+datas = ["14/07/2025", "15/07/2025", "16/07/2025"]
+
+for data in datas:
+    resultado = run_monitoring(pool_name, data=data)
+    if resultado.get('sucesso'):
+        pool_data = resultado['resultados'][pool_name]
+        sub_ratio = pool_data['resultados']['subordinacao']['subordination_ratio_percent']
+        print(f"{data}: {sub_ratio:.2f}%")
 ```
 
-## 🛠️ Troubleshooting
+### 4. Verificação de Compliance CCB
+```python
+# Verificar se pool usa lógica CCB (ex: Baru Pool #2)
+resultado = run_monitoring("Baru Pool #2", data="14/07/2025")
+if resultado.get('sucesso'):
+    pdd_result = resultado['resultados']['Baru Pool #2']['resultados'].get('pdd')
+    if pdd_result:
+        tipo_ativo = pdd_result.get('tipo_ativo', 'Normal')
+        print(f"Tipo de ativo: {tipo_ativo}")
+        if tipo_ativo == 'CCB':
+            print("✅ Usando lógica CCB (cálculo por ativo individual)")
+```
 
-### Dashboard Não Carrega
-1. **Verificar arquivo**: Confirmar geração bem-sucedida
-2. **Navegador**: Limpar cache (Ctrl+F5)
-3. **Dados**: Verificar JSONs de origem
+## ⚠️ Solução de Problemas Comuns
 
-### Dados Desatualizados
-1. **Regerar**: Execute `python scripts/generate_dashboard.py`
-2. **Fonte**: Verificar data de referência no header
-3. **Processamento**: Rodar `python scripts/run_monitoring.py` se necessário
+### Dados Não Encontrados
+```bash
+# Verificar estrutura de arquivos
+ls data/input/csv/
+ls data/input/xlsx/
 
-### Performance Lenta
-1. **Dados**: Reduzir período histórico
-2. **Browser**: Usar Chrome/Firefox atualizados
-3. **Arquivo**: Verificar tamanho do HTML gerado
+# Estrutura esperada:
+# data/input/csv/AcompanhamentoDeOportunidades-dd-mm-yyyy.csv
+# data/input/xlsx/Carteira Global yyyy-mm-dd HHMMSS.xlsx
+```
 
-### Drilldown Não Funciona
-1. **JavaScript**: Verificar se JS está habilitado
-2. **Console**: Verificar erros no F12
-3. **Estrutura**: Validar IDs únicos dos elementos
+### Erro de Encoding
+```python
+# Se aparecerem erros de caracteres especiais
+import os
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+```
 
-## 📊 Métricas de Exemplo
+### Pool Não Encontrado
+```bash
+# Verificar se o JSON do pool existe
+ls config/pools/"Nome do Pool.json"
 
-### Dashboard Típico:
-- **Pools Monitorados**: 7-77 (dependendo do modo)
-- **Taxa Compliance**: 57-70%
-- **Pools Violados**: 2-5 pools
-- **Tamanho HTML**: 50-200KB
-- **Tempo Carregamento**: <2 segundos
+# Nomes devem ser exatos, ex:
+# "AFA Pool #1.json"
+# "Baru Pool #2.json"
+```
 
-### Histórico Comum:
-- **Variação IS**: ±0.1-0.5% por dia
-- **Mudanças Status**: 1-2 pools por semana
-- **Aporte Médio**: R$ 50K - R$ 2M por pool
-- **Saque Disponível**: R$ 10K - R$ 1M por pool
+## 📞 Suporte
 
-## 🚀 Funcionalidades Futuras
-
-### Em Desenvolvimento:
-- **Filtros**: Por status, pool, período
-- **Exportação**: PDF, Excel, CSV
-- **Alertas**: Email automático para violações
-- **Gráficos**: Evolução temporal visual
-- **Comparação**: Múltiplos pools lado a lado
-
-### Integração:
-- **API REST**: Dados via JSON endpoint
-- **WebSocket**: Updates em tempo real
-- **Mobile App**: Versão nativa iOS/Android
-- **Slack/Teams**: Notificações integradas
+- **Documentação técnica**: `docs/CLAUDE.md`
+- **APIs de integração**: `docs/api/`
+- **Desenvolvimento**: `docs/developer/`

@@ -6,25 +6,68 @@ Sistema completo de monitoramento de pools de recebíveis com dashboard interati
 
 ## 🚀 Quick Start
 
-### 1. Monitoramento Básico
+### 1. Monitoramento Diário
+```bash
+# Execução completa
+python scripts/run_monitoring.py
+
+# Dashboard interativo
+python scripts/run_dashboard.py
+# Acesse: http://localhost:8080
+```
+
+### 2. Análise Histórica (Monitor Unificado)
 ```python
-import orchestrator
-resultado = orchestrator.run_monitoring()  # Todos os pools
+# Importar no Spyder/Cursor (Recomendado)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# Preview seguro primeiro
+preview = monitor.run_single_pool("Baru Pool #2", date="14/07/2025", mode='preview')
+
+# Commit após análise
+commit = monitor.run_single_pool("Baru Pool #2", date="14/07/2025", mode='commit')
+```
+
+### 2b. Análise Histórica (CLI)
+```bash
+# Preview primeiro
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --date "14/07/2025" --preview
+
+# Commit após aprovação
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --date "14/07/2025" --commit
+```
+
+### 3. Uso Programático
+```python
+from src.monitor.orchestrator import run_monitoring
+
+# Monitoramento atual
+resultado = run_monitoring()  # Todos os pools
+resultado = run_monitoring("AFA Pool #1")  # Pool específico
+
+# NOVA: Análise histórica
+resultado = run_monitoring(data="14/07/2025")  # Todos os pools, data específica
+resultado = run_monitoring("Baru Pool #2", data="15/07/2025")  # Pool + data
 ```
 
 ### 2. Dashboard Interativo
 ```bash
-python3 generate_table_dashboard.py
-# Acesse: data/output/monitoring_results/dashboard/table_dashboard.html
+python3 scripts/run_dashboard.py
+# Acesse: http://localhost:8080
 ```
 
-### 3. Processamento Histórico
-```bash
-# Processamento paralelo completo
-python3 run_full_historical_monitoring.py --max-workers 12
+### 3. Processamento Histórico (Monitor Unificado)
+```python
+# Carga histórica completa (Recomendado)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
 
-# Últimos 5 dias (sequencial)
-python3 run_sequential_historical_monitoring.py
+# Preview todas as datas
+preview = monitor.run_historical_load(mode='preview')
+
+# Commit após análise
+commit = monitor.run_historical_load(mode='commit')
 ```
 
 ## 📊 Funcionalidades Principais
@@ -84,9 +127,11 @@ amfi/
 │   ├── DASHBOARD_GUIA.md          # 🎨 Guia do dashboard
 │   └── SCRIPTS_REFERENCIA.md     # 🔧 Referência de scripts
 ├── 📁 logs/                       # 📜 Logs do sistema
-├── generate_table_dashboard.py   # 🌐 Gerador de dashboard
-├── run_full_historical_monitoring.py      # ⚡ Processamento paralelo
-├── run_sequential_historical_monitoring.py # 📝 Processamento sequencial
+├── 📁 scripts/                    # 🚀 Entry points executáveis
+│   ├── run_monitoring.py          # 📊 API de monitoramento
+│   ├── run_dashboard.py           # 🌐 Servidor web do dashboard
+│   └── generate_dashboard.py      # 📋 Gerador de dashboard HTML
+├── scripts/amfi_monitor.py        # 🎯 Monitor unificado (6 cenários)
 └── README.md                      # 📋 Este arquivo
 ```
 
@@ -163,32 +208,53 @@ amfi/
 
 ### Monitoramento
 ```bash
-# Executar monitoramento atual
-python3 -c "import orchestrator; orchestrator.run_monitoring()"
+# Execução via script (recomendado)
+python3 scripts/run_monitoring.py
 
-# Com pool específico
-python3 -c "import orchestrator; orchestrator.run_monitoring('AFA Pool #1')"
+# Execução programática
+python3 -c "from src.monitor.orchestrator import run_monitoring; run_monitoring()"
+
+# Pool específico
+python3 -c "from src.monitor.orchestrator import run_monitoring; run_monitoring('AFA Pool #1')"
+
+# Análise histórica
+python3 -c "from src.monitor.orchestrator import run_monitoring; run_monitoring('AFA Pool #1', data='14/07/2025')"
 ```
 
 ### Dashboard
 ```bash
-# Gerar dashboard
-python3 generate_table_dashboard.py
+# Servidor web interativo
+python3 scripts/run_dashboard.py
+# Acesse: http://localhost:8080
 
-# Dashboard será criado em:
-# data/output/monitoring_results/dashboard/table_dashboard.html
+# Ou gerar HTML estático
+python3 scripts/generate_dashboard.py
 ```
 
-### Processamento Histórico
+### Processamento Histórico (Monitor Unificado)
+```python
+# Interface programática unificada (Recomendado)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# Carga histórica completa
+historical = monitor.run_historical_load(mode='preview')  # Preview primeiro
+historical = monitor.run_historical_load(mode='commit')   # Aplicar mudanças
+
+# Período específico
+period = monitor.run_date_range(
+    start_date="14/07/2025", 
+    end_date="18/07/2025", 
+    mode='preview'
+)
+```
+
+### Processamento Histórico (CLI)
 ```bash
-# Paralelo (recomendado)
-python3 run_full_historical_monitoring.py --max-workers 8
+# CLI alternativo
+python scripts/amfi_monitor.py --historical --preview
+python scripts/amfi_monitor.py --historical --commit
 
-# Sequencial (últimos 5 dias)
-python3 run_sequential_historical_monitoring.py
-
-# Opções avançadas
-python3 run_full_historical_monitoring.py --skip-existing --dry-run
 ```
 
 ## 🛠️ Troubleshooting

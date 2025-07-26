@@ -6,8 +6,14 @@ Sistema refatorado em arquitetura OOP para monitoramento de pools de recebíveis
 
 ```python
 import orchestrator
+
+# Comportamento atual (arquivo mais recente)
 resultado = orchestrator.run_monitoring()  # Todos os pools
 resultado = orchestrator.run_monitoring("AFA Pool #1")  # Pool específico
+
+# NOVA FUNCIONALIDADE: Análise histórica
+resultado = orchestrator.run_monitoring(data="14/07/2025")  # Todos os pools, data específica
+resultado = orchestrator.run_monitoring("AFA Pool #1", data="14/07/2025")  # Pool + data
 ```
 
 ## 📊 Como Usar
@@ -123,4 +129,24 @@ python3 run_sequential_historical_monitoring.py
 - ✅ **Compatibilidade**: Spyder, IPython, Terminal
 - ✅ **Performance**: Otimizada para datasets grandes
 
-**Comando único**: `import orchestrator; orchestrator.run_monitoring()`
+**Comandos principais:**
+- `import orchestrator; orchestrator.run_monitoring()` - Análise atual
+- `import orchestrator; orchestrator.run_monitoring(data="14/07/2025")` - Análise histórica
+
+## 📅 Geração de Histórico
+
+Para gerar arquivos JSON diários de todas as datas históricas:
+
+```python
+# Monitor unificado (Recomendado)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# Preview histórico completo
+preview = monitor.run_historical_load(mode='preview')
+
+# Commit após análise
+commit = monitor.run_historical_load(mode='commit')
+```
+
+Arquivos gerados em: `data/output/monitoring_results/daily_consolidated/`

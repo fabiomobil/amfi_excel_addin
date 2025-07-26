@@ -34,7 +34,7 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 ### 1. Monitoramento Individual por Pool
 **Objetivo**: Verificar compliance de cada fundo contra suas regras específicas.
 **Status**: ✅ Implementado
-**Interface**: `python scripts/run_monitoring.py` ou `run_monitoring()` - Ver [CLAUDE.md](CLAUDE.md) para detalhes técnicos
+**Interface**: Monitor Unificado (`scripts/amfi_monitor.py`) ou tradicional (`run_monitoring()`) - Ver [CLAUDE.md](CLAUDE.md) para detalhes técnicos
 
 ### 2. Dashboard Consolidado de Exceções
 **Objetivo**: Visão executiva focada apenas em violações e alertas.
@@ -84,7 +84,20 @@ Transformar o processo manual de verificação de compliance (atualmente 4-6 hor
 - **Documentação profissional**: 40% redução de redundância, organizada por usuário
 - **Performance otimizada**: Caches limpos, funcionalidades preservadas
 
-### 🔄 Fase 4: Produtização (Próximo)
+### ✅ Fase 4: Funcionalidades Avançadas (2025-07-25)
+- **Lógica CCB**: Implementada com detecção automática e cálculo individual
+- **Pools CCB**: Baru Pool #2 em fase de testes
+- **Economia de provisão**: Até R$ 197.500 eliminados em superprovisão
+
+### ✅ Fase 5: Monitor Unificado (2025-07-26)
+- **Interface moderna**: Preview/commit para análise segura
+- **6 cenários unificados**: Rotina diária, pools específicos, análise histórica
+- **Enriquecimento inteligente**: Adiciona dados sem substituir pools existentes
+- **Backup automático**: Proteção de dados integrada
+- **Comparação inteligente**: Diff automático entre preview e dados existentes
+
+### 🔄 Fase 6: Produtização (Próximo)
+- Testes CCB com dados reais Baru Pool #2
 - Containerização Docker
 - CI/CD Pipeline
 - Alertas proativos por email

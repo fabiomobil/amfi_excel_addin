@@ -111,13 +111,21 @@ def load_dashboard(data: str = None, pool: str = None) -> pd.DataFrame:
     """
     try:
         # Encontrar pasta CSV
-        pasta_csv = find_existing_path('csv')
+        possible_csv_paths = [
+            "C:/amfi/data/input/csv",
+            "data/input/csv",
+            "./data/input/csv"
+        ]
+        pasta_csv = find_existing_path(possible_csv_paths)
+        
+        if not pasta_csv:
+            raise FileNotFoundError("Pasta CSV não encontrada nos caminhos esperados")
         
         # Escolher arquivo baseado na data ou mais recente
         if data:
             # Converter data e procurar arquivo específico
             data_obj = datetime.strptime(data, "%d/%m/%Y")
-            data_arquivo = data_obj.strftime("%Y-%m-%d")
+            data_arquivo = data_obj.strftime("%d-%m-%Y")
             
             padrao = f"{pasta_csv}/AcompanhamentoDeOportunidades-{data_arquivo}*.csv"
             arquivos = glob.glob(padrao)
@@ -185,7 +193,15 @@ def load_portfolio(data: str = None, pool: str = None) -> pd.DataFrame:
     """
     try:
         # Encontrar pasta XLSX
-        pasta_xlsx = find_existing_path('xlsx')
+        possible_xlsx_paths = [
+            "C:/amfi/data/input/xlsx",
+            "data/input/xlsx", 
+            "./data/input/xlsx"
+        ]
+        pasta_xlsx = find_existing_path(possible_xlsx_paths)
+        
+        if not pasta_xlsx:
+            raise FileNotFoundError("Pasta XLSX não encontrada nos caminhos esperados")
         
         # Escolher arquivo baseado na data ou mais recente
         if data:

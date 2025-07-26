@@ -3,19 +3,31 @@ Monitor de PDD (Provisão para Devedores Duvidosos) - Versão Orientada a Objeto
 ==============================================================================
 
 Refatoração completa do monitor PDD usando arquitetura OOP baseada em BaseMonitor.
-Implementa lógica crítica por cedente SEM dependências do sistema funcional antigo.
+Implementa lógica híbrida inteligente baseada no tipo de ativo (CCB vs OUTROS).
 
 Responsabilidades:
-- Lógica por cedente (CRÍTICA): Pior ativo determina provisão de todos os títulos
+- Lógica híbrida: CCB individual + Outros por cedente
 - Cálculos de provisão por grupo de risco (AA-H)
-- Análise detalhada por cedente
+- Análise detalhada por cedente/ativo
 - Comparação metodológica (cedente vs individual)
 - Relatórios de compliance
 
-Funcionalidade CRÍTICA - Lógica por Cedente:
-- Identifica ativo mais atrasado por cedente
-- Aplica grupo de risco do pior ativo a TODAS as operações do cedente
-- Títulos em dia recebem provisão do grupo mais alto do cedente
+Funcionalidades CRÍTICAS:
+
+1. LÓGICA CCB (Individual por Ativo):
+   - CCB em dia: 0% provisão (baseado no próprio atraso)
+   - CCB atrasado: provisão específica do seu grupo de risco
+   - Cada ativo CCB independente dos demais do mesmo cedente
+
+2. LÓGICA PADRÃO (Por Cedente):
+   - Identifica ativo mais atrasado por cedente
+   - Aplica grupo de risco do pior ativo a TODAS as operações do cedente
+   - Títulos em dia recebem provisão do grupo mais alto do cedente
+
+Detecção Automática:
+- Lê 'criterios_elegibilidade.tipo_ativo' do JSON config
+- CCB: aplicar lógica individual
+- OUTROS: aplicar lógica por cedente (padrão)
 
 Dependências:
 - Requer enriquecimento progressivo do Monitor de Inadimplência
@@ -26,10 +38,10 @@ Melhorias da Arquitetura OOP:
 - Validação centralizada
 - Tratamento de erro padronizado
 - Código mais limpo e reutilizável
-- Sem dependências do sistema funcional (será removido)
+- Lógica híbrida implementada
 
 Autor: AmFi Development Team
-Data: 2025-07-17
+Data: 2025-07-25 (Implementação CCB)
 """
 
 import sys
@@ -70,6 +82,7 @@ class PDDMonitor(BaseMonitor):
         super().__init__(monitor_id="pdd", config=config)
         self._pdd_config = self._find_pdd_config()
         self._grupos_risco = self._extract_risk_groups()
+        self._tipo_ativo = self._extract_asset_type()
         
         # Debug removido - versão final
     
@@ -156,17 +169,24 @@ class PDDMonitor(BaseMonitor):
             Dict com resultados completos
         """
         try:
-            # 1. Aplicar lógica crítica por cedente
-            df_with_cedente_logic = self._apply_cedente_logic(carteira_xlsx)
+            # 1. Aplicar lógica baseada no tipo de ativo
+            if self._is_ccb_pool():
+                # CCB: Lógica individual por ativo
+                df_with_pdd_logic = self._apply_ccb_logic(carteira_xlsx)
+                metodologia_usada = "individual_ccb"
+            else:
+                # Outros: Lógica por cedente (padrão)
+                df_with_pdd_logic = self._apply_cedente_logic(carteira_xlsx)
+                metodologia_usada = "por_cedente"
             
             # 2. Calcular provisões por grupo de risco
-            pdd_analysis = self._calculate_provisions_by_group(df_with_cedente_logic)
+            pdd_analysis = self._calculate_provisions_by_group(df_with_pdd_logic)
             
             # 3. Gerar análise detalhada por cedente
-            cedente_analysis = self._generate_cedente_analysis(df_with_cedente_logic)
+            cedente_analysis = self._generate_cedente_analysis(df_with_pdd_logic)
             
             # 4. Comparação metodológica
-            metodologia_comparison = self._compare_methodologies(df_with_cedente_logic)
+            metodologia_comparison = self._compare_methodologies(df_with_pdd_logic)
             
             # 5. Consolidar resultados
             resultado = {
@@ -174,9 +194,10 @@ class PDDMonitor(BaseMonitor):
                 "cedente_analysis": cedente_analysis,
                 "comparacao_metodologica": metodologia_comparison,
                 "metodologia": {
-                    "calculo": "por_cedente",
-                    "regra": "Provisão baseada no ativo mais atrasado de cada cedente",
-                    "explicacao": "Todas as operações do cedente recebem a provisão do grupo mais alto (pior ativo)"
+                    "calculo": metodologia_usada,
+                    "tipo_ativo": self._tipo_ativo,
+                    "regra": self._get_metodologia_regra(metodologia_usada),
+                    "explicacao": self._get_metodologia_explicacao(metodologia_usada)
                 },
                 "compliance": {
                     "grupos_configurados": len(self._grupos_risco),
@@ -235,7 +256,45 @@ class PDDMonitor(BaseMonitor):
         cedentes_com_provisao = df[df['provisao_valor'] > 0]['nome_do_cedente'].nunique()
         total_cedentes = df['nome_do_cedente'].nunique()
         
-        print(f"✅ PDD: {cedentes_com_provisao} cedentes com provisão (de {total_cedentes} total)")
+        print(f"PDD: {cedentes_com_provisao} cedentes com provisao (de {total_cedentes} total)")
+        
+        return df
+    
+    def _apply_ccb_logic(self, carteira_xlsx: pd.DataFrame) -> pd.DataFrame:
+        """
+        Aplica lógica PDD individual para ativos CCB.
+        
+        Para CCB (Cédula de Crédito Bancário), cada ativo recebe provisão
+        baseada em seu próprio grupo de risco, não no pior ativo do cedente.
+        
+        REGRA CCB: PDD é calculado por ativo individual.
+        - Cada CCB usa seu próprio grupo de risco (já calculado no enriquecimento)
+        - Provisão baseada no próprio atraso, não no cedente
+        - CCB em dia = 0% provisão, CCB atrasado = provisão específica
+        
+        Args:
+            carteira_xlsx: DataFrame com carteira enriquecida
+            
+        Returns:
+            DataFrame com lógica CCB aplicada
+        """
+        df = carteira_xlsx.copy()
+        
+        # Para CCB: cada ativo usa seu próprio grupo de risco
+        df['grupo_pdd_individual'] = df['grupo_de_risco']
+        
+        # Aplicar provisão baseada no grupo individual de cada ativo
+        df['provisao_pct'] = df['grupo_pdd_individual'].map(
+            {g: v['provisao_pct'] for g, v in self._grupos_risco.items()}
+        )
+        df['provisao_valor'] = df['valor_presente'] * df['provisao_pct']
+        
+        # Log para debug CCB
+        ativos_com_provisao = len(df[df['provisao_valor'] > 0])
+        total_ativos = len(df)
+        
+        print(f"PDD CCB: {ativos_com_provisao} ativos com provisao (de {total_ativos} total)")
+        print(f"Logica aplicada: INDIVIDUAL por ativo (CCB)")
         
         return df
     
@@ -268,8 +327,11 @@ class PDDMonitor(BaseMonitor):
         analise_grupos = {}
         
         for grupo in sorted(self._grupos_risco.keys()):
-            # Usar grupo_pdd_cedente (não grupo_de_risco individual)
-            titulos_grupo = df[df['grupo_pdd_cedente'] == grupo]
+            # Para CCB: usar grupo individual; Para outros: usar grupo do cedente
+            if self._is_ccb_pool():
+                titulos_grupo = df[df['grupo_pdd_individual'] == grupo]
+            else:
+                titulos_grupo = df[df['grupo_pdd_cedente'] == grupo]
             
             if len(titulos_grupo) > 0:
                 analise_grupos[grupo] = {
@@ -331,13 +393,23 @@ class PDDMonitor(BaseMonitor):
             idx_mais_atrasado = titulos_cedente['dias_atraso'].idxmax()
             titulo_mais_atrasado = titulos_cedente.loc[idx_mais_atrasado]
             
-            # Grupo PDD aplicado
-            grupo_pdd = titulos_cedente['grupo_pdd_cedente'].iloc[0]
+            # Grupo PDD aplicado (depende da lógica)
+            if self._is_ccb_pool():
+                # Para CCB: não há grupo único por cedente (cada ativo tem o seu)
+                grupo_pdd = "MIXED_CCB"  # Indicador especial para CCB
+            else:
+                grupo_pdd = titulos_cedente['grupo_pdd_cedente'].iloc[0]
             
             # Estatísticas do cedente
             total_valor = titulos_cedente['valor_presente'].sum()
             provisao_valor = titulos_cedente['provisao_valor'].sum()
-            provisao_pct = self._grupos_risco[grupo_pdd]['provisao_pct']
+            
+            # Provisão percentual (depende da lógica)
+            if self._is_ccb_pool():
+                # Para CCB: provisão média ponderada do cedente
+                provisao_pct = (provisao_valor / total_valor) if total_valor > 0 else 0
+            else:
+                provisao_pct = self._grupos_risco[grupo_pdd]['provisao_pct']
             
             # Distribuição por grupo original (antes da aplicação PDD)
             distribuicao_original = titulos_cedente['grupo_de_risco'].value_counts().to_dict()
@@ -414,6 +486,59 @@ class PDDMonitor(BaseMonitor):
         if self._pdd_config:
             return self._pdd_config
         return {}
+    
+    def _extract_asset_type(self) -> str:
+        """
+        Extrai tipo de ativo da configuração de elegibilidade.
+        
+        Returns:
+            Tipo de ativo (CCB, OUTROS) ou 'OUTROS' como padrão
+        """
+        criterios = self.config.get('criterios_elegibilidade', {})
+        tipo_ativo = criterios.get('tipo_ativo', 'OUTROS')
+        return tipo_ativo.upper()
+    
+    def _is_ccb_pool(self) -> bool:
+        """
+        Verifica se o pool opera com ativos CCB.
+        
+        CCB (Cédula de Crédito Bancário) requer lógica PDD individual por ativo,
+        diferente da lógica padrão por cedente.
+        
+        Returns:
+            True se pool é CCB
+        """
+        return self._tipo_ativo == 'CCB'
+    
+    def _get_metodologia_regra(self, metodologia: str) -> str:
+        """
+        Retorna regra da metodologia aplicada.
+        
+        Args:
+            metodologia: Tipo de metodologia aplicada
+            
+        Returns:
+            Descrição da regra
+        """
+        if metodologia == "individual_ccb":
+            return "Provisão individual por ativo CCB baseada no próprio atraso"
+        else:
+            return "Provisão baseada no ativo mais atrasado de cada cedente"
+    
+    def _get_metodologia_explicacao(self, metodologia: str) -> str:
+        """
+        Retorna explicação detalhada da metodologia aplicada.
+        
+        Args:
+            metodologia: Tipo de metodologia aplicada
+            
+        Returns:
+            Explicação detalhada
+        """
+        if metodologia == "individual_ccb":
+            return "CCB em dia = 0% provisão, CCB atrasado = provisão específica do seu grupo de risco"
+        else:
+            return "Todas as operações do cedente recebem a provisão do grupo mais alto (pior ativo)"
     
     def run_monitoring(self, carteira_xlsx: pd.DataFrame) -> Dict[str, Any]:
         """

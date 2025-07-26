@@ -54,7 +54,7 @@ except ImportError:
     from utils.daily_results_persistence import save_monitoring_results
 
 
-def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
+def run_monitoring(pool_name: str = None, data: str = None) -> Dict[str, Any]:
     """
     Interface principal unificada do sistema de monitoramento AmFi.
     
@@ -85,6 +85,9 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
         pool_name (str, optional): 
             - None: Processa TODOS os pools (modo normal ou debug via test_pools.json)
             - "Pool Name": Processa apenas o pool específico
+        data (str, optional):
+            - None: Usa arquivos mais recentes (comportamento padrão)
+            - "dd/mm/aaaa": Usa arquivos de data específica para análise histórica
         
     Returns:
         Dict[str, Any]: Estrutura de resultados consolidados
@@ -209,7 +212,7 @@ def run_monitoring(pool_name: str = None) -> Dict[str, Any]:
     """
     try:
         # Carregar dados
-        dados = load_pool_data()
+        dados = load_pool_data(data)
         
         if not dados["sucesso"]:
             return dados
@@ -421,19 +424,20 @@ def run_liquidity_monitoring(pool_csv, xlsx_data, config):
         }
 
 
-def run_liquidity_analysis(pool_name: str = None) -> Dict[str, Any]:
+def run_liquidity_analysis(pool_name: str = None, data: str = None) -> Dict[str, Any]:
     """
     Interface principal para análise de liquidez apenas.
     
     Args:
         pool_name (str, optional): Nome do pool para análise
+        data (str, optional): Data específica no formato dd/mm/aaaa
         
     Returns:
         Dict[str, Any]: Resultados da análise de liquidez
     """
     try:
         # Carregar dados
-        dados = load_pool_data()
+        dados = load_pool_data(data)
         
         if not dados["sucesso"]:
             return dados

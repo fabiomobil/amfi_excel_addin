@@ -123,8 +123,25 @@ result = direct_analysis('LeCapital Pool #1')
 ```
 
 #### Integrated Monitoring
+
+**Monitor Unificado (Recomendado):**
 ```python
-# NOVA ESTRUTURA MODULAR (2025-07-24)
+# Interface moderna com preview/commit (2025-07-26)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# Preview primeiro
+preview = monitor.run_single_pool('LeCapital Pool #1', mode='preview')
+if preview['success']:
+    print(f"Preview: {preview['preview_file']}")
+    
+# Commit após análise
+commit = monitor.run_single_pool('LeCapital Pool #1', mode='commit')
+```
+
+**Interface Tradicional:**
+```python
+# ESTRUTURA MODULAR (2025-07-24)
 from src.monitor.orchestrator import run_monitoring
 from src.monitor.base.base_monitor import BaseMonitor
 

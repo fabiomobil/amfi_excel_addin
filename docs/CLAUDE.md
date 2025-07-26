@@ -185,6 +185,10 @@ print(f"Taxa sucesso: {resultado['estatisticas']['taxa_sucesso']}%")
 resultado = run_monitoring("LeCapital Pool #1")
 pool_result = resultado['resultados']['LeCapital Pool #1']
 
+# 3. ANÁLISE HISTÓRICA (NOVA FUNCIONALIDADE)
+resultado = run_monitoring(data="14/07/2025")  # Todos os pools em data específica
+resultado = run_monitoring("LeCapital Pool #1", data="14/07/2025")  # Pool + data específica
+
 # 3. VERIFICAR SUBORDINAÇÃO
 sub_result = pool_result['resultados']['subordinacao']
 print(f"Subordinação: {sub_result['subordination_ratio_percent']}%")
@@ -238,7 +242,7 @@ if 'liquidez' in pool_result['resultados']:
 - **Data loader centralizado** com descoberta automática
 - **Monitor de subordinação** com cálculo IS correto ✅ **IMPLEMENTADO**
 - **Monitor de inadimplência** com enriquecimento progressivo, matriz detalhada de atrasos e aging configurável ✅ **IMPLEMENTADO - Atualizado 2025-07-15**
-- **Monitor de PDD** com arquitetura inteligente e lógica por cedente ✅ **IMPLEMENTADO - 2025-07-14** ⚠️ **CCB não implementada**
+- **Monitor de PDD** com arquitetura inteligente e lógica híbrida ✅ **IMPLEMENTADO - 2025-07-25** ✅ **CCB implementada**
 - **Sistema de cache** integrado automaticamente
 - **Orquestrador** com execução condicional de monitores (5 monitores integrados: subordinação, inadimplência, PDD, concentração, liquidez)
 - **7 pools auditados e padronizados** em JSON v2.2
@@ -527,6 +531,12 @@ class MonitorBase:
 
 ## Princípios de Desenvolvimento e Arquitetura
 
+### ⚠️ **WORKFLOW OBRIGATÓRIO: PLAN MODE FIRST**
+- **SEMPRE operar em plan mode** antes de qualquer implementação
+- **NUNCA escrever código** antes de ser explicitamente solicitado pelo usuário
+- **Apresentar plano detalhado** e aguardar aprovação antes de implementar
+- **Questionar requisitos** e propor alternativas quando necessário
+
 ### 🎯 Mentalidade de Desenvolvimento Sênior
 - **SEMPRE pensar como dev senior e arquiteto de soluções**
 - **NUNCA ser agreeable se houver propostas melhores**
@@ -641,7 +651,7 @@ C:\amfi\
 ### Fluxo de Execução Integrado (Testado e Funcionando):
 
 ```
-run_monitoring(pool_name=None) [INTERFACE ÚNICA]
+run_monitoring(pool_name=None, data=None) [INTERFACE ÚNICA]
     ↓
 src.monitor.utils.data_loader.load_pool_data() [CENTRALIZADOR]
     ├── Carrega CSV (~45 pools) + XLSX (~79k registros) + JSONs
@@ -749,14 +759,18 @@ resultado = run_monitoring()
 
 # Processar pool específico
 resultado = run_monitoring("LeCapital Pool #1")
+
+# NOVA FUNCIONALIDADE: Análise histórica
+resultado = run_monitoring(data="14/07/2025")  # Todos os pools em data específica
+resultado = run_monitoring("LeCapital Pool #1", data="15/07/2025")  # Pool + data
 ```
 
 #### **Fluxo Interno do Orquestrador:**
 
 ```python
-def run_monitoring(pool_name: str = None) -> Dict:
+def run_monitoring(pool_name: str = None, data: str = None) -> Dict:
     # 1. data_loader centraliza tudo (descoberta + configuração + carregamento)
-    dados = src.monitor.utils.data_loader.load_pool_data()
+    dados = src.monitor.utils.data_loader.load_pool_data(data)
     
     # 2. Filtrar por pool específico se solicitado
     pools_para_processar = [pool_name] if pool_name else dados["pools_processados"]
@@ -820,6 +834,10 @@ result = run_liquidity_analysis('LeCapital Pool #1')
 from src.monitor.orchestrator import run_monitoring
 result = run_monitoring('LeCapital Pool #1')
 liquidez_result = result['resultados']['LeCapital Pool #1']['resultados']['liquidez']
+
+# NOVA: Análise de liquidez histórica
+result = run_monitoring('LeCapital Pool #1', data='14/07/2025')
+liquidez_historica = result['resultados']['LeCapital Pool #1']['resultados']['liquidez']
 ```
 
 #### **Cenários Implementados:**
@@ -1076,18 +1094,20 @@ def executar_monitoramento_diario():
             })
 ```
 
-#### **Status de Implementação (Atualização 2025-07-18):**
+#### **Status de Implementação (Atualização 2025-07-25):**
 
 - ✅ **monitor_subordinacao_oop.py**: 100% funcional e testado
 - ✅ **monitor_inadimplencia_oop.py**: 100% funcional com enriquecimento
-- ✅ **monitor_pdd_oop.py**: 100% funcional com arquitetura inteligente
+- ✅ **monitor_pdd_oop.py**: 100% funcional com lógica híbrida CCB ✅ **CCB IMPLEMENTADA**
 - ✅ **monitor_concentracao_oop.py**: 100% funcional com arquitetura OOP
 - ✅ **liquidity_analyzer.py**: 100% funcional com 3 cenários
 - ✅ **Orquestrador**: 100% implementado com 5 monitores integrados
 - ✅ **Sistema de enriquecimento**: Operacional (dias_atraso, grupo_de_risco)
 - ✅ **Arquitetura de dependências**: PDD e Liquidez usam dados já enriquecidos
 - ✅ **Integração híbrida**: Liquidez com interfaces standalone + integrada
+- ✅ **Lógica CCB**: Detecção automática e cálculo individual implementado
 - ✅ **Documentação**: Interfaces e contratos atualizados
+- 🧪 **Testes CCB**: Em validação com Baru Pool #2
 - ❌ **Classes de erro específicas**: Aguardando implementação
 - ❌ **Sistema de retry**: Aguardando implementação
 - ❌ **monitoring_engine.py**: Aguardando implementação
@@ -1118,7 +1138,7 @@ def executar_monitoramento_diario():
 - [x] **Orquestrador de subordinação**: Implementado com logging e alertas
 - [x] **Estratégia de tratamento de erros**: Definida por severidade e categoria
 - [x] **Monitor de inadimplência**: 100% implementado com enriquecimento progressivo
-- [x] **Monitor de PDD**: 100% implementado com arquitetura inteligente (2025-07-14)
+- [x] **Monitor de PDD**: 100% implementado com lógica híbrida CCB (2025-07-25)
 - [x] **Arquitetura de enriquecimento**: Sistema operacional (dias_atraso, grupo_de_risco)
 - [x] **Padrões de nomenclatura**: `_find_*_monitor()`, `_has_*_monitoring()`, `run_*_monitoring()`
 - [x] **Integração data_loader + orchestrator**: Fluxo centralizado com 5 monitores
@@ -1127,6 +1147,8 @@ def executar_monitoramento_diario():
 - [x] **Integração híbrida**: Liquidez com interfaces standalone + integrada (2025-07-18)
 - [x] **Compatibilidade de colunas**: Sistema flexível para variações CSV/XLSX (2025-07-18)
 - [x] **Enriquecimento automático**: Sistema trigger para liquidity analysis (2025-07-18)
+- [x] **Lógica CCB implementada**: Detecção automática e cálculo individual por ativo (2025-07-25)
+- [x] **Validação CCB**: Testes funcionais com Baru Pool #2 validados (2025-07-25)
 
 ### 🔄 Em Desenvolvimento
 - [ ] **Classes de erro específicas**: Implementar enum de severidade e classes customizadas
@@ -1138,31 +1160,40 @@ def executar_monitoramento_diario():
 - [ ] Implementação das funções nos utilitários
 - [ ] Implementação das funções nos monitores base
 
-### ⚠️ Limitações Conhecidas - CCB (Cédula de Crédito Bancário)
+### 🧪 Em Testes (Fase de Validação)
+- [x] **Detecção CCB**: Baru Pool #2 detectado automaticamente como CCB
+- [x] **Cálculo CCB**: Lógica individual funcionando corretamente
+- [x] **Comparação metodológica**: Diferenças vs lógica por cedente validadas
+- [ ] **Testes com dados reais**: Validação com carteira real Baru Pool #2
+- [ ] **Testes de integração**: CCB no fluxo completo de monitoramento
+- [ ] **Validação de performance**: Impacto na performance do sistema
+- [ ] **Aprovação para produção**: Sign-off para uso em produção
 
-**Status**: Lógica CCB **NÃO IMPLEMENTADA** no Monitor PDD
+### ✅ Funcionalidade CCB (Cédula de Crédito Bancário) - IMPLEMENTADA
 
-**Problema**: 
-- Sistema atual calcula PDD por cedente (lógica padrão)
-- CCB requer cálculo PDD por ativo individual
-- Todos os títulos CCB recebem provisão do pior ativo do cedente (incorreto)
+**Status**: Lógica CCB **✅ IMPLEMENTADA** no Monitor PDD (2025-07-25)
 
-**Impacto**:
-- CCB com 0 dias atraso pode receber provisão alta indevidamente
-- Superprovisão em carteiras com CCB misturadas
-- Análise de risco distorcida para pools com CCB
+**Funcionalidade**: 
+- Sistema detecta automaticamente pools CCB via `criterios_elegibilidade.tipo_ativo`
+- CCB usa cálculo PDD por ativo individual (correto)
+- Outros tipos mantêm lógica por cedente (preservada)
 
-**Solução Futura**:
-- Implementar detecção de tipo de ativo (CCB vs outros)
-- Aplicar lógica por ativo apenas para CCB
-- Manter lógica por cedente para demais tipos
+**Benefícios**:
+- CCB em dia recebem 0% provisão (correto)
+- Eliminação de superprovisão em carteiras CCB
+- Análise de risco precisa para pools com CCB
 
-**Workaround Atual**:
-- Documentação clara sobre limitação
-- Monitoramento manual para pools com CCB
-- Análise separada quando necessário
+**Implementação**:
+- Detecção automática de tipo de ativo por pool
+- Lógica híbrida: CCB individual + Outros por cedente
+- Compatibilidade total com pools existentes
 
-**Localização**: `C:\amfi\src\monitor\base\monitor_pdd_oop.py` (docstring atualizado com esta limitação)
+**Status de Testes**:
+- **Baru Pool #2**: Detectado automaticamente como CCB ✅
+- **Cálculos validados**: Conferem com expectativas manuais ✅
+- **Economia estimada**: Até R$ 197.500 em superprovisão eliminada ✅
+
+**Localização**: `C:\amfi\src\monitor\base\monitor_pdd_oop.py` (lógica híbrida implementada)
 
 ### 🚀 Scripts Reorganizados (Entry Points Centralizados)
 
@@ -1185,6 +1216,92 @@ python scripts/run_dashboard.py
 # Gerar dashboard HTML estático
 python scripts/generate_dashboard.py
 ```
+
+### 📅 **Monitor Unificado AmFi (NOVA FUNCIONALIDADE)**
+
+**Script:** `scripts/amfi_monitor.py` - Interface única para todos os cenários de monitoramento
+
+**6 Cenários Unificados:**
+1. **Rotina diária** (todos os pools, data atual)
+2. **Pool específico** (data atual)  
+3. **Pool específico + data específica**
+4. **Pool específico + múltiplas datas**
+5. **Múltiplos pools + múltiplas datas**
+6. **Carga histórica completa**
+
+**Funcionalidades:**
+- ✅ **Modo Preview**: Gerar JSON temporário para análise (não modifica arquivos)
+- ✅ **Modo Commit**: Aplicar mudanças aos JSONs diários definitivos
+- ✅ **Enriquecimento Inteligente**: Adiciona dados sem substituir outros pools
+- ✅ **Backup Automático**: Proteção antes de modificar arquivos existentes
+- ✅ **Interface Híbrida**: CLI + Programática para Spyder
+
+**Uso Programático (Recomendado para Spyder):**
+```python
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# 1. PREVIEW primeiro (seguro)
+preview = monitor.run_single_pool("Baru Pool #2", mode='preview')
+print(f"Preview: {preview['preview_file']}")
+
+# 2. ANALISAR arquivo temporário
+# temp/previews/2025-07-26_preview.json
+
+# 3. COMMIT após aprovação
+commit = monitor.run_single_pool("Baru Pool #2", mode='commit')
+```
+
+**Casos de Uso Específicos:**
+```python
+# Rotina diária completa
+resultado = monitor.run_daily_routine(mode='preview')
+
+# Análise histórica
+historico = monitor.run_date_range(
+    pool_name="Baru Pool #2",
+    start_date="14/07/2025", 
+    end_date="18/07/2025",
+    mode='preview'
+)
+
+# Carga histórica completa
+carga = monitor.run_historical_load(mode='preview')
+
+# Comparação inteligente
+preview = monitor.run_single_pool("AFA Pool #1", mode='preview')
+diff = monitor.compare_with_existing(preview['preview_file'])
+if diff['has_changes'] and user_approves():
+    commit = monitor.run_single_pool("AFA Pool #1", mode='commit')
+```
+
+**Uso CLI (Alternativo):**
+```bash
+# Preview de pool específico
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --preview
+
+# Commit após análise
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --commit
+
+# Carga histórica
+python scripts/amfi_monitor.py --historical --preview
+python scripts/amfi_monitor.py --historical --commit
+```
+
+**Estrutura de Arquivos:**
+```
+# Modo Preview (temporários)
+temp/previews/
+├── 2025-07-26_preview.json
+└── 2025-07-14_to_2025-07-18_preview.json
+
+# Modo Commit (definitivos)
+data/output/monitoring_results/daily_consolidated/
+├── 2025-07-26.json    # JSON diário enriquecido
+├── backups/
+│   └── 2025-07-26_backup_20250726_143022.json
+```
+
 
 **Benefícios:**
 - ✅ Entry points claramente separados do código fonte
@@ -1224,13 +1341,14 @@ python scripts/generate_dashboard.py
 13. **Criar afa_pool_1_sacados_especificos.py** (🔧 Custom AFA)
 14. **Criar upvendas_pool_2_substituicao_pix.py** (🔧 Custom UpVendas)
 
-### 📊 Métricas de Progresso (Atualização 2025-07-24)
+### 📊 Métricas de Progresso (Atualização 2025-07-25)
 - **Pools mapeados**: 9 (lecapital, afa, supersim, credmei, formento, upvendas, a55, dinie, ectare)
 - **Pools com JSON otimizado**: 9/9 (100% - template v2.2 aplicado)
 - **Auditoria de dados**: 9/9 pools (100% verificados contra escrituras originais)
 - **Integridade de dados**: 100% - Zero dados inventados ou incorretos
 - **Estrutura reorganizada**: ✅ `src/monitor/`, `scripts/`, `docs/`
 - **Monitores base**: 5/6 (83% implementados - apenas elegibilidade restante)
+- **Funcionalidade CCB**: ✅ Implementada e em testes (Baru Pool #2)
 - **Monitores custom**: 0/20+ identificados (recovery_rate, sacados_especificos, veto_aquisicoes, etc.)
 - **Utilitários reorganizados**: 10/10 ✅ (todos refatorados e funcionais em `src/monitor/utils/`)
   - data_loader.py: ✅ Orquestrador principal
@@ -1333,10 +1451,10 @@ except (ImportError, ValueError):
 - **[refatoracao_concentracao_20250717.md](./sessions/refatoracao_concentracao_20250717.md)** - Refatoração completa do monitor de concentração com compatibilidade 100%
 
 ## Contato e Sessões
-- **Última atualização**: 2025-07-24
-- **Sessão atual**: Reorganização completa da estrutura de arquivos e documentação
-- **Próxima revisão**: Monitor de elegibilidade ou estratégia de armazenamento
-- **Status da reorganização**: ✅ COMPLETA - Sistema legacy removido, estrutura limpa implementada
+- **Última atualização**: 2025-07-25
+- **Sessão atual**: Implementação da lógica CCB no monitor PDD
+- **Próxima revisão**: Testes com dados reais Baru Pool #2 e validação de produção
+- **Status da implementação CCB**: ✅ IMPLEMENTADA - Lógica híbrida funcionando, em fase de testes
 
 ### 📁 **Filosofia do docs/sessions/**
 

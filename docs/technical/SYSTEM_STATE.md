@@ -131,7 +131,7 @@ O sistema agora valida automaticamente que arquivos CSV e XLSX têm datas consis
 #### **Fluxo do Enriquecimento Durante Execução:**
 
 ```
-1. run_monitoring() inicia [INTERFACE ÚNICA]
+1. Monitor Unificado (amfi_monitor.py) ou run_monitoring() tradicional [INTERFACES DISPONÍVEIS]
 2. data_loader carrega XLSX com 16 colunas originais
 3. Para cada pool processado:
    a) Monitor subordinação executa (não modifica XLSX)
@@ -207,6 +207,13 @@ O sistema agora valida automaticamente que arquivos CSV e XLSX têm datas consis
 # ESTRUTURA MODULAR NOVA (2025-07-24):
 
 # Interface principal
+# Monitor Unificado (Recomendado)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+preview = monitor.run_single_pool("LeCapital Pool #1", mode='preview')  # ✅ Preview seguro
+commit = monitor.run_single_pool("LeCapital Pool #1", mode='commit')    # ✅ Aplicar mudanças
+
+# Interface Tradicional
 from src.monitor.orchestrator import run_monitoring
 resultado = run_monitoring("LeCapital Pool #1")  # ✅ Sucesso, 1 pool
 resultado = run_monitoring()                      # ✅ Sucesso, todos os pools
@@ -222,7 +229,8 @@ from src.monitor.cash_flow.liquidity_analyzer import run_liquidity_analysis     
 from src.monitor.orchestrator import run_liquidity_analysis                        # ✅ Interface integrada
 
 # Scripts executáveis - Interface simplificada
-from scripts.run_monitoring import main                                           # ✅ CLI amigável
+from scripts.run_monitoring import main                                           # ✅ CLI tradicional
+from scripts.amfi_monitor import AmFiMonitor                                          # ✅ CLI moderno com preview/commit
 from scripts.run_dashboard import main                                            # ✅ Dashboard web
 ```
 

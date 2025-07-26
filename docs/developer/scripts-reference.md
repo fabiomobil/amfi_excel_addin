@@ -1,164 +1,333 @@
-# Referência Rápida de Scripts - Sistema AmFi
+# Referência Técnica de Scripts AmFi
 
-## 🎯 Scripts Principais
+Documentação completa para desenvolvedores sobre todos os scripts e APIs disponíveis no sistema AmFi.
 
-| Script | Localização | Função |
-|--------|-------------|---------|
-| **run_dashboard.py** | `scripts/` | Servidor web do dashboard (anteriormente dashboard_server.py) |
-| **run_monitoring.py** | `scripts/` | API de monitoramento (anteriormente run_monitoring_api.py) |
-| **generate_dashboard.py** | `scripts/` | Gerador HTML (anteriormente generate_table_dashboard.py) |
+## 🚀 Scripts de Produção
 
-## 🏗️ Estrutura de Código Fonte
-
-### Diretório `src/`
-```
-src/
-├── dashboard/
-│   ├── server.py          # Código do servidor HTTP
-│   └── generator.py       # Código de geração HTML
-└── monitor/
-    ├── orchestrator.py    # Interface principal run_monitoring()
-    ├── base/             # Monitores OOP (PDD, concentração, inadimplência, subordinação)
-    ├── utils/            # Utilitários de análise e dados
-    └── cash_flow/        # Engines de análise de liquidez
-```
-
-## 🛠️ Utilitários por Categoria
-
-### Monitoramento Core
-- `src/monitor/orchestrator.py` - Interface principal `run_monitoring()`
-- `src/monitor/base/base_monitor.py` - Classe base para monitores
-- `src/monitor/base/monitor_concentracao_oop.py` - Monitor de concentração
-- `src/monitor/base/monitor_inadimplencia_oop.py` - Monitor de inadimplência  
-- `src/monitor/base/monitor_pdd_oop.py` - Monitor PDD
-- `src/monitor/base/monitor_subordinacao_oop.py` - Monitor subordinação
-
-### Utilitários de Análise (src/monitor/utils/)
-- `concentration_analysis.py` - Contém `gen_concentration_table()` (renomeada)
-- `pdd_analysis.py` - Análise detalhada de PDD
-- `data_loader.py` - Carregamento de dados CSV/XLSX
-- `data_converters.py` - Conversão e transformação de dados
-- `date_consistency_validator.py` - Validação de consistência temporal
-- `daily_results_persistence.py` - Persistência de resultados diários
-- `alerts.py` - Sistema de alertas e notificações
-
-### Dashboard & Interface (src/dashboard/)
-- `server.py` - Servidor HTTP com APIs REST
-- `generator.py` - Contém `calc_consecutive_violations()` (renomeada)
-
-### Análise de Liquidez (src/monitor/cash_flow/)
-- `cash_flow_orchestrator.py` - Orquestrador principal (3 funções removidas)
-- `liquidity_analyzer.py` - Analisador de liquidez
-- `pu_analysis_engine.py` - Engine de análise PU
-- `pl_percentage_engine.py` - Engine de percentual PL
-- `liquidity_scenarios.py` - Cenários de liquidez
-
-### Dados & Configuração
-- `config/pools/` - Configurações JSON por pool
-- `config/monitoring/` - Filtros e configurações de monitoramento
-- `data/input/csv/` - Dados CSV de entrada
-- `data/input/xlsx/` - Dados XLSX de entrada
-- `data/output/monitoring_results/` - Resultados de monitoramento
-
-## 🚀 Comandos Essenciais
+### scripts/run_monitoring.py
+**Propósito**: Execução do monitoramento diário via API
 
 ```bash
-# Executar monitoramento completo
+# Execução básica
 python scripts/run_monitoring.py
 
-# Iniciar servidor web do dashboard
+# Com logging detalhado
+python scripts/run_monitoring.py --verbose
+
+# Forçar re-execução (ignora cache diário)
+python scripts/run_monitoring.py --force
+```
+
+**Parâmetros avançados:**
+- `--debug`: Modo debug (usa test_pools.json)
+- `--pool "Nome"`: Processar apenas pool específico
+- `--output-dir path`: Diretório customizado para resultados
+- `--timeout 300`: Timeout em segundos
+
+**Retorno:**
+- **Exit code 0**: Sucesso
+- **Exit code 1**: Erro crítico
+- **Exit code 2**: Erro de configuração
+
+### scripts/run_dashboard.py
+**Propósito**: Servidor web interativo do dashboard
+
+```bash
+# Servidor local (porta 8080)
 python scripts/run_dashboard.py
 
-# Gerar dashboard HTML estático
+# Porta customizada
+python scripts/run_dashboard.py --port 9000
+
+# Bind em interface específica
+python scripts/run_dashboard.py --host 0.0.0.0 --port 8080
+```
+
+**Endpoints disponíveis:**
+- `GET /`: Dashboard principal
+- `GET /api/pools`: Lista de pools
+- `GET /api/pools/{name}`: Dados específicos do pool
+- `GET /api/violations`: Violações ativas
+- `GET /health`: Health check
+
+### scripts/generate_dashboard.py
+**Propósito**: Geração de dashboard HTML estático
+
+```bash
+# HTML básico
 python scripts/generate_dashboard.py
+
+# Com dados históricos
+python scripts/generate_dashboard.py --include-history
+
+# Apenas violações
+python scripts/generate_dashboard.py --violations-only
+
+# Arquivo customizado
+python scripts/generate_dashboard.py --output custom_dashboard.html
 ```
 
-## 📝 Funções Renomeadas (IMPORTANTE)
+## 📅 Scripts de Análise Histórica
 
-### Utilitários de Concentração
-```python
-# NOVA função em src/monitor/utils/concentration_analysis.py
-def gen_concentration_table(monitoring_results: Dict) -> pd.DataFrame:
-    # Anteriormente: generate_concentration_summary_table()
+### scripts/amfi_monitor.py
+**Propósito**: Monitor unificado para todos os cenários de monitoramento
+
+```bash
+# Pool específico (preview primeiro)
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --preview
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --commit
+
+# Carga histórica completa
+python scripts/amfi_monitor.py --historical --preview
+python scripts/amfi_monitor.py --historical --commit
+
+# Rotina diária
+python scripts/amfi_monitor.py --routine daily --preview
+python scripts/amfi_monitor.py --routine daily --commit
+
+# Pool específico + data histórica
+python scripts/amfi_monitor.py --pool "Baru Pool #2" --date "14/07/2025" --preview
 ```
 
-### Cálculo de Violações Consecutivas  
-```python
-# NOVA função em src/dashboard/generator.py
-def calc_consecutive_violations(pool_name: str, status: str) -> int:
-    # Anteriormente: calculate_concentration_consecutive_violation_days()
+**Parâmetros avançados:**
+- `--no-backup`: Desabilitar backup automático
+- `--dry-run`: Simular execução sem modificar arquivos
+- `--preview-dir path`: Diretório customizado para previews
+
+**Estrutura de saída:**
+```
+# Preview (temporário)
+temp/previews/
+├── 2025-07-26_preview.json
+
+# Commit (definitivo)
+data/output/monitoring_results/daily_consolidated/
+├── 2025-07-26.json    # JSON enriquecido
+├── backups/
+│   └── 2025-07-26_backup_20250726_143022.json
 ```
 
-## 🔧 Exemplos de Import
+## 🔧 APIs Programáticas
 
+### Monitoramento Direto
 ```python
-# Scripts principais
-from scripts.run_monitoring import run_monitoring_api
-from scripts.run_dashboard import start_dashboard_server
-from scripts.generate_dashboard import generate_html_dashboard
+from src.monitor.orchestrator import run_monitoring, run_liquidity_analysis
 
-# Monitoramento
+# Interface completa
+resultado = run_monitoring(
+    pool_name="AFA Pool #1",    # Pool específico ou None
+    data="14/07/2025"          # Data específica ou None
+)
+
+# Análise de liquidez apenas
+resultado_liquidez = run_liquidity_analysis(
+    pool_name="LeCapital Pool #1",
+    data="15/07/2025"
+)
+```
+
+### Carregamento de Dados
+```python
+from src.monitor.utils.data_loader import load_pool_data
+
+# Carregar dados atuais
+dados = load_pool_data()
+
+# Carregar dados históricos
+dados_historicos = load_pool_data(data="14/07/2025")
+
+# Estrutura retornada
+{
+    "sucesso": bool,
+    "pools_processados": ["Pool 1", "Pool 2"],
+    "pools_configs": {"Pool 1": {...}},
+    "csv_data": DataFrame,
+    "xlsx_data": DataFrame,
+    "xlsx_enriched": DataFrame  # Com dias_atraso, grupo_de_risco
+}
+```
+
+### Monitores Específicos
+```python
+# Monitor de subordinação
+from src.monitor.base.monitor_subordinacao_oop import SubordinationMonitor
+monitor = SubordinationMonitor()
+result = monitor.calculate_subordination(csv_data, config)
+
+# Monitor de inadimplência
+from src.monitor.base.monitor_inadimplencia_oop import run_delinquency_monitoring
+result = run_delinquency_monitoring(csv_data, xlsx_data, config)
+
+# Monitor de PDD
+from src.monitor.base.monitor_pdd_oop import run_pdd_monitoring
+result = run_pdd_monitoring(csv_data, xlsx_data, config)
+
+# Monitor de concentração
+from src.monitor.base.monitor_concentracao_oop import run_concentration_monitoring
+result = run_concentration_monitoring(csv_data, xlsx_data, config)
+```
+
+## 🤖 Automação e Scheduling
+
+### Cron Jobs (Linux/Mac)
+```bash
+# Monitoramento diário às 8h
+0 8 * * * cd /path/to/amfi && python scripts/run_monitoring.py
+
+# Histórico semanal aos domingos
+0 9 * * 0 cd /path/to/amfi && python scripts/amfi_monitor.py --historical --commit
+
+# Dashboard sempre ativo
+@reboot cd /path/to/amfi && python scripts/run_dashboard.py
+```
+
+### Task Scheduler (Windows)
+```cmd
+# Criar tarefa diária
+schtasks /create /tn "AmFi Daily Monitoring" /tr "python C:\amfi\scripts\run_monitoring.py" /sc daily /st 08:00
+
+# Criar tarefa semanal
+schtasks /create /tn "AmFi Weekly History" /tr "python C:\amfi\scripts\amfi_monitor.py --historical --commit" /sc weekly /d SUN /st 09:00
+```
+
+### Docker Automation
+```dockerfile
+# Dockerfile exemplo
+FROM python:3.9
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+
+# Execução diária
+CMD ["python", "scripts/run_monitoring.py"]
+```
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  amfi-monitoring:
+    build: .
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONIOENCODING=utf-8
+    restart: unless-stopped
+```
+
+## 🔍 Troubleshooting Avançado
+
+### Logs e Debugging
+```bash
+# Habilitar logging detalhado
+export AMFI_LOG_LEVEL=DEBUG
+python scripts/run_monitoring.py
+
+# Logs por categoria
+export AMFI_LOG_MONITOR=DEBUG
+export AMFI_LOG_DATA=INFO
+
+# Arquivo de log customizado
+export AMFI_LOG_FILE=/path/to/custom.log
+```
+
+### Verificação de Sistema
+```python
+# Health check completo
+from src.monitor.utils.data_loader import load_pool_data
 from src.monitor.orchestrator import run_monitoring
-from src.monitor.base.monitor_concentracao_oop import MonitorConcentracao
-from src.monitor.utils.concentration_analysis import gen_concentration_table
-from src.monitor.utils.pdd_analysis import extract_pdd_analysis
 
-# Dashboard
-from src.dashboard.server import DashboardServer
-from src.dashboard.generator import calc_consecutive_violations
+# Verificar carregamento
+try:
+    dados = load_pool_data()
+    print(f"✅ Carregamento OK: {len(dados['pools_processados'])} pools")
+except Exception as e:
+    print(f"❌ Erro no carregamento: {e}")
 
-# Análise de liquidez
-from src.monitor.cash_flow.cash_flow_orchestrator import run_cash_flow_analysis
-from src.monitor.cash_flow.liquidity_analyzer import LiquidityAnalyzer
+# Verificar monitoramento
+try:
+    resultado = run_monitoring()
+    print(f"✅ Monitoramento OK: {resultado['estatisticas']['taxa_sucesso']}% sucesso")
+except Exception as e:
+    print(f"❌ Erro no monitoramento: {e}")
 ```
 
-## ⚠️ Arquivos Removidos/Modificados
-
-### Arquivos Removidos
-- ~~`import_helper.py`~~ - Funcionalidade integrada aos módulos
-- ~~`path_resolver.py`~~ - Funcionalidade integrada aos módulos
-
-### Scripts Movidos/Renomeados
-- `dashboard_server.py` → `scripts/run_dashboard.py`
-- `run_monitoring_api.py` → `scripts/run_monitoring.py`  
-- `generate_table_dashboard.py` → `scripts/generate_dashboard.py`
-
-### Funções Removidas do cash_flow_orchestrator.py
-3 funções foram removidas durante a refatoração (detalhes no código fonte).
-
-## 📖 Documentação Detalhada
-
-- **Guia de início**: Ver `docs/user-guide/getting-started.md`
-- **Exemplos práticos**: Ver `docs/user-guide/examples.md`
-- **Arquitetura técnica**: Ver `docs/CLAUDE.md`
-- **Processamento de dados**: Ver `docs/developer/data-processing.md`
-- **Estado do sistema**: Ver `docs/technical/SYSTEM_STATE.md`
-
-## 🎯 Referência Rápida de Desenvolvimento
-
-### Executar um monitor específico
+### Performance Profiling
 ```python
-from src.monitor.base.monitor_concentracao_oop import MonitorConcentracao
+import cProfile
+import pstats
+from src.monitor.orchestrator import run_monitoring
 
-monitor = MonitorConcentracao("AFA Pool #1")
-resultado = monitor.executar()
+# Profile de execução
+cp = cProfile.Profile()
+cp.enable()
+resultado = run_monitoring()
+cp.disable()
+
+# Análise de performance
+stats = pstats.Stats(cp)
+stats.sort_stats('cumulative')
+stats.print_stats(10)  # Top 10 funções mais lentas
 ```
 
-### Gerar tabela de concentração
+## 📊 Monitoramento de Sistema
+
+### Métricas de Performance
 ```python
-from src.monitor.utils.concentration_analysis import gen_concentration_table
+# Tempo de execução por pool
+from datetime import datetime
+start = datetime.now()
+resultado = run_monitoring("AFA Pool #1")
+end = datetime.now()
+print(f"Tempo: {(end-start).total_seconds():.2f}s")
 
-# monitoring_results já carregado
-tabela = gen_concentration_table(monitoring_results)
+# Uso de memória
+import psutil
+import os
+process = psutil.Process(os.getpid())
+print(f"Memória: {process.memory_info().rss / 1024 / 1024:.1f} MB")
 ```
 
-### Calcular dias consecutivos de violação
+### Alertas de Sistema
 ```python
-from src.dashboard.generator import calc_consecutive_violations
+# Configurar alertas por email
+from src.monitor.utils.alerts import log_alerta
 
-dias = calc_consecutive_violations("AFA Pool #1", "VIOLATION")
+# Alert customizado
+log_alerta({
+    "tipo": "erro_critico",
+    "titulo": "Falha no Monitoramento",
+    "mensagem": "Sistema não consegui processar dados",
+    "detalhes": {"pool": "AFA Pool #1", "erro": "Timeout"}
+})
 ```
 
----
+## 🔐 Segurança e Compliance
 
-**💡 Esta referência reflete a estrutura atual do sistema após a reorganização completa dos scripts e módulos. Para implementação detalhada, consulte o código fonte nos diretórios `src/` e `scripts/`.**
+### Audit Trail
+Todos os scripts geram logs auditáveis em:
+```
+logs/
+├── monitoring_YYYYMMDD.log     # Execuções diárias
+├── historical_YYYYMMDD.log     # Processamento histórico
+└── dashboard_access.log        # Acessos ao dashboard
+```
+
+### Backup e Recovery
+```bash
+# Backup de resultados
+tar -czf backup_$(date +%Y%m%d).tar.gz data/output/
+
+# Restore
+tar -xzf backup_20250726.tar.gz
+```
+
+### Validação de Integridade
+```python
+# Verificar integridade dos dados
+from src.monitor.utils.data_handler import data_validation
+
+result = data_validation(csv_data, xlsx_data)
+if not result['valid']:
+    print(f"⚠️ Problemas encontrados: {result['issues']}")
+```

@@ -57,7 +57,10 @@
       "Bash(C:/Users/Mariana/Anaconda3/python.exe c:/amfi/scripts/generate_dashboard.py)",
       "Bash(C:UsersMarianaanaconda3python.exe scriptsgenerate_dashboard.py)",
       "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" scriptsgenerate_dashboard.py)",
-      "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" scripts/generate_dashboard.py)"
+      "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" scripts/generate_dashboard.py)",
+      "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" test_baru_pool.py)",
+      "Bash(\"C:\\Users\\Mariana\\anaconda3\\python.exe\" validate_baru_json.py)",
+      "Bash(move:*)"
     ],
     "deny": []
   }

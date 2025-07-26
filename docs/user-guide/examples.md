@@ -1,10 +1,26 @@
-# Exemplos Práticos de Uso - run_monitoring()
+# Exemplos Práticos de Uso - Sistema AmFi
 
-## Interface Única do Sistema AmFi
+## Interface Unificada do Sistema AmFi
 
-A função `run_monitoring()` é a **ÚNICA interface oficial** do sistema de monitoramento AmFi. Todas as funções legacy foram removidas em 2025-07-14.
+O sistema AmFi oferece **duas interfaces principais**:
+1. **Monitor Unificado** (`scripts/amfi_monitor.py`) - **RECOMENDADO** - Interface moderna com preview/commit
+2. **Monitoramento Direto** (`run_monitoring()`) - Interface programática tradicional
 
-### Execução via Scripts (Recomendado)
+### Execução Recomendada - Monitor Unificado
+```python
+# Importar no Spyder/Cursor (Recomendado)
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# 1. PREVIEW primeiro (seguro)
+preview = monitor.run_single_pool("Baru Pool #2", mode='preview')
+print(f"Preview: {preview['preview_file']}")
+
+# 2. COMMIT após análise
+commit = monitor.run_single_pool("Baru Pool #2", mode='commit')
+```
+
+### Execução via Scripts Tradicionais
 ```bash
 # Executar monitoramento completo
 python scripts/run_monitoring.py
@@ -16,12 +32,115 @@ python scripts/generate_dashboard.py
 python scripts/run_dashboard.py
 ```
 
-### Monitores Disponíveis (2025-07-14)
+### Monitores Disponíveis (2025-07-26)
 - ✅ **Subordinação**: Índice de subordinação com limites
 - ✅ **Inadimplência**: Janelas customizáveis (30d, 90d, etc.)
 - ✅ **PDD**: Provisão para Devedores Duvidosos (grupos AA-H)
-- 🔄 **Concentração**: Sacados/cedentes (planejado)
+- ✅ **Concentração**: Sacados/cedentes individual e top-N
+- ✅ **Liquidez**: Análise de cobertura (3 cenários)
 - 🔄 **Elegibilidade**: Critérios de ativos (planejado)
+
+## 🎯 **Monitor Unificado - Exemplos Práticos**
+
+### Cenário 1: Análise Segura de Pool Específico
+```python
+from scripts.amfi_monitor import AmFiMonitor
+monitor = AmFiMonitor()
+
+# Preview primeiro (recomendado)
+preview = monitor.run_single_pool("Baru Pool #2", mode='preview')
+
+if preview['success']:
+    print(f"✅ Preview gerado: {preview['preview_file']}")
+    print(f"📊 Pools processados: {len(preview['pools_processados'])}")
+    
+    # Analisar arquivo temp/previews/2025-07-26_preview.json
+    # Decidir se quer aplicar
+    
+    resposta = input("Aplicar mudanças? (s/n): ")
+    if resposta.lower() == 's':
+        commit = monitor.run_single_pool("Baru Pool #2", mode='commit')
+        print(f"✅ Aplicado: {commit['files_generated'][0]}")
+```
+
+### Cenário 2: Análise Histórica de Múltiplas Datas
+```python
+# Carregar período específico
+historico = monitor.run_date_range(
+    pool_name="Baru Pool #2",
+    start_date="14/07/2025",
+    end_date="18/07/2025",
+    mode='preview'
+)
+
+if historico['success']:
+    print(f"📅 {historico['dates_processed']} datas processadas")
+    print(f"📊 Taxa sucesso: {historico['execution_summary']['success_rate']:.1f}%")
+    
+    # Aplicar todas as datas se aprovado
+    if input("Aplicar histórico? (s/n): ").lower() == 's':
+        commit_historico = monitor.run_date_range(
+            pool_name="Baru Pool #2",
+            start_date="14/07/2025",
+            end_date="18/07/2025",
+            mode='commit'
+        )
+```
+
+### Cenário 3: Rotina Diária Completa
+```python
+# Preview rotina diária
+rotina = monitor.run_daily_routine(mode='preview')
+
+if rotina['success']:
+    print(f"✅ Rotina simulada com sucesso")
+    print(f"📊 {len(rotina['pools_processados'])} pools processados")
+    print(f"💾 Preview: {rotina['preview_file']}")
+    
+    # Aplicar rotina se tudo estiver correto
+    commit_rotina = monitor.run_daily_routine(mode='commit')
+    print(f"✅ Rotina aplicada: {len(commit_rotina['files_generated'])} arquivos")
+```
+
+### Cenário 4: Carga Histórica Completa
+```python
+# Auto-descobrir e processar todas as datas históricas
+carga = monitor.run_historical_load(mode='preview')
+
+if carga['success']:
+    print(f"📅 {carga['dates_processed']} datas descobertas")
+    print(f"📁 Arquivos preview: {len(carga['files_generated'])}")
+    
+    # Aplicar carga histórica
+    if input("Processar histórico completo? (s/n): ").lower() == 's':
+        commit_carga = monitor.run_historical_load(mode='commit')
+```
+
+### Cenário 5: Comparação Inteligente
+```python
+# Gerar preview
+preview = monitor.run_single_pool("AFA Pool #1", mode='preview')
+
+# Comparar com dados existentes
+diff = monitor.compare_with_existing(preview['preview_file'])
+
+if diff['success'] and diff['has_changes']:
+    print("📊 MUDANÇAS DETECTADAS:")
+    for change in diff['changes_summary']:
+        print(f"  • {change}")
+    
+    print(f"\n🔍 DETALHES:")
+    print(f"  • Pools no preview: {diff['preview_pools']}")
+    print(f"  • Pools existentes: {diff['existing_pools']}")
+    print(f"  • Pools novos: {diff['new_pools']}")
+    print(f"  • Pools atualizados: {diff['updated_pools']}")
+    
+    # Aplicar apenas se aprovado
+    if input("Aplicar mudanças? (s/n): ").lower() == 's':
+        commit = monitor.run_single_pool("AFA Pool #1", mode='commit')
+else:
+    print("ℹ️ Nenhuma mudança detectada")
+```
 
 ## 1. Uso Básico
 

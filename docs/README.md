@@ -7,10 +7,10 @@ Bem-vindo à documentação completa do Sistema AmFi! Esta é sua porta de entra
 ### [🚀 **user-guide/**](user-guide/)
 Documentação para analistas e gestores que usam o sistema diariamente.
 
-- **[getting-started.md](user-guide/getting-started.md)** - Guia completo do dashboard e interface *(Atualizado 2025-07-25)*
-- **[examples.md](user-guide/examples.md)** - Exemplos práticos de uso e interpretação
+- **[getting-started.md](user-guide/getting-started.md)** - Guia completo do dashboard e interface *(Atualizado 2025-07-26)*
+- **[examples.md](user-guide/examples.md)** - Exemplos práticos de uso e interpretação *(Monitor Unificado adicionado)*
 
-**🆕 Novidades:** Interface padronizada, seções colapsíveis, tabela PDD simplificada
+**🆕 Novidades:** Monitor Unificado com preview/commit, interface padronizada, seções colapsíveis
 
 ## 🔌 **Para Integradores** 
 
@@ -47,7 +47,7 @@ Análises técnicas detalhadas, arquitetura e especificações internas.
 ### [📖 **CLAUDE.md**](CLAUDE.md)
 **🏆 Documento principal e mais completo do sistema**
 - Arquitetura completa e status de implementação
-- Interface principal `run_monitoring()`
+- Monitor Unificado `scripts/amfi_monitor.py` + Interface tradicional `run_monitoring()`
 - Métricas de progresso e todos os componentes
 
 ### [🎯 **PRD.md**](PRD.md) 
